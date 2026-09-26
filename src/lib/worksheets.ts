@@ -51,12 +51,24 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
 
 export type SetupTask = { digits: number[]; m: number };
 
-/** Uppställning: tresiffrigt tal (varje siffra i intervallet) · ensiffrig faktor. */
-export function genSetup(range: [number, number], count = 12): SetupTask[] {
-  return Array.from({ length: count }, () => ({
-    digits: [rand(...range), rand(...range), rand(...range)],
-    m: rand(...range),
-  }));
+/** Uppställning: tal med valbart antal siffror · ensiffrig faktor.
+ *  Första siffran i det övre talet är aldrig 0. */
+export function genSetup(
+  factorRange: [number, number],
+  count = 12,
+  digitCount: [number, number] = [3, 3],
+): SetupTask[] {
+  const lo = Math.min(...factorRange);
+  const hi = Math.max(...factorRange);
+  const firstLo = Math.max(lo, 1);
+  const firstHi = Math.max(hi, firstLo);
+  return Array.from({ length: count }, () => {
+    const k = rand(...digitCount);
+    const digits = Array.from({ length: k }, (_, i) =>
+      i === 0 ? rand(firstLo, firstHi) : rand(lo, hi),
+    );
+    return { digits, m: rand(lo, hi) };
+  });
 }
 
 /** Minnessiffror per position (index 0 = ental). carries[i] = minnessiffra som flyttas till position i. */
