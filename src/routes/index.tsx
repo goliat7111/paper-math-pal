@@ -114,32 +114,18 @@ function Index() {
               </p>
             </>
           )}
-          <div>
-            <div className="mb-1.5 text-sm font-medium text-foreground">A4-riktning</div>
-            <div className="flex rounded-lg bg-muted p-1">
-              {([
-                ["portrait", "Stående"],
-                ["landscape", "Liggande"],
-              ] as const).map(([k, label]) => (
-                <button
-                  key={k}
-                  onClick={() => setOrientation(k)}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    orientation === k
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <FileText className={`h-3.5 w-3.5 ${k === "landscape" ? "rotate-90" : ""}`} />
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
             Skriv ut med facit (extra sida)
           </label>
+          <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            {tab === "setup" &&
+              (fitInfo
+                ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
+                : "Förhandsgranskning: beräknar… ")}
+            PDF: {withKey ? "2 sidor (blad + facit)" : "1 sida (bladet)"} ·{" "}
+            {tab === "102" ? 102 : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
+          </p>
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
