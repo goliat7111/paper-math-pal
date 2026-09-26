@@ -73,8 +73,10 @@ function Index() {
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
             </>
           ) : (
-            <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
-            <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
+            <>
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
+              <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
+            </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
