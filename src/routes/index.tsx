@@ -107,11 +107,6 @@ function Index() {
               <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
               <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={3} />
               <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet.</p>
-              <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-                {fitInfo
-                  ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner).`
-                  : "Förhandsgranskning: beräknar…"}
-              </p>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
@@ -143,15 +138,15 @@ function Index() {
         <main className="print-area flex flex-1 flex-col items-center gap-8">
           {tab === "102" && t102 && (
             <>
-              <Sheet102 tasks={t102} answers={false} orientation={orientation} />
-              {withKey && <Sheet102 tasks={t102} answers orientation={orientation} />}
+              <Sheet102 tasks={t102} answers={false} />
+              {withKey && <Sheet102 tasks={t102} answers />}
             </>
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} orientation={orientation} onFit={applyFit} />
+              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
               {withKey && (
-                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} orientation={orientation} onFit={applyFit} />
+                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
               )}
             </>
           )}
