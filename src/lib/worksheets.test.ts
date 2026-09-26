@@ -200,29 +200,31 @@ describe("setupLayout", () => {
 
   it("två­siffrig undre faktor: delprodukter med förskjutning", () => {
     const L = setupLayout({ digits: [3, 4, 5, 6], m: [2, 3] }); // 3456 × 23 = 79488
-    expect(L.nCols).toBe(5);
-    expect(L.topRow).toEqual(["", "3", "4", "5", "6"]);
-    expect(L.bottomRow).toEqual(["", "", "", "2", "3"]);
-    expect(L.signCol).toBe(1); // × under "3" (3456 × 23 → × under 3, 23 till höger)
+    expect(L.nCols).toBe(6); // +1 kolumn till vänster för + -tecknet
+    expect(L.topRow).toEqual(["", "", "3", "4", "5", "6"]);
+    expect(L.bottomRow).toEqual(["", "", "", "", "2", "3"]);
+    expect(L.signCol).toBe(2); // × under "3" (3456 × 23 → × under 3, 23 till höger)
     expect(L.partialRows).toEqual([
-      { cells: ["6", "9", "1", "2", ""], carries: [1, 1] }, // 3456 × 2
-      { cells: ["1", "0", "3", "6", "8"], carries: [1, 1, 1, 1] }, // 3456 × 3
+      { cells: ["", "6", "9", "1", "2", ""], carries: [1, 1] }, // 3456 × 2
+      { cells: ["", "1", "0", "3", "6", "8"], carries: [1, 1, 1, 1] }, // 3456 × 3
     ]);
-    expect(L.productRow).toEqual(["7", "9", "4", "8", "8"]);
+    expect(L.productRow).toEqual(["", "7", "9", "4", "8", "8"]);
     expect(L.carries).toEqual([]);
+    expect(L.sumLeft).toBe(1); // additionsdelen börjar i kolumn 2, + i kolumn 1
   });
 
   it("lik långa tal: ×-tecknet flyttas ett steg vänster om den undre faktorn", () => {
     const L = setupLayout({ digits: [4, 7], m: [2, 3] }); // 47 × 23 = 1081
-    expect(L.nCols).toBe(4);
-    expect(L.signCol).toBe(1);
-    expect(L.topRow).toEqual(["", "", "4", "7"]);
-    expect(L.bottomRow).toEqual(["", "", "2", "3"]);
+    expect(L.nCols).toBe(5); // +1 kolumn till vänster för + -tecknet
+    expect(L.signCol).toBe(2);
+    expect(L.topRow).toEqual(["", "", "4", "7", ""]);
+    expect(L.bottomRow).toEqual(["", "", "2", "3", ""]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
-      ["", "9", "4", ""], // 47 × 2
-      ["", "1", "4", "1"], // 47 × 3
+      ["", "", "9", "4", ""], // 47 × 2
+      ["", "", "1", "4", "1"], // 47 × 3
     ]);
-    expect(L.productRow).toEqual(["1", "0", "8", "1"]);
+    expect(L.productRow).toEqual(["", "1", "0", "8", "1"]);
+    expect(L.sumLeft).toBe(1);
   });
 
   it("längre undre faktor: ×-tecknet hamnar vänster om den undre faktorn", () => {
