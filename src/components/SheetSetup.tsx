@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { fitGridCount, setupLayout, type SetupTask } from "@/lib/worksheets";
+import { evenRowGap, fitGridCount, setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
@@ -8,6 +8,8 @@ const digitMM = (cols: number) => (cols >= 7 ? 6 : cols >= 6 ? 7 : cols >= 5 ? 7
 const gapMM = (cols: number) => (cols >= 6 ? 4 : cols >= 5 ? 6 : cols >= 4 ? 10 : 14);
 const MM_PX = 96 / 25.4; // CSS: 1mm = 96/25.4 px
 const SAFETY_MM = 2; // litet säkerhetsmått för fonter/avrundning
+
+export type SetupFit = { cols: number; rows: number; count: number; gapMM: number };
 
 const digitLabel = (range: [number, number], singular: string, plural: string) => {
   const [lo, hi] = [...range].sort((a, b) => a - b);
@@ -19,11 +21,13 @@ export function SheetSetup({
   answers,
   topDigits,
   bottomDigits,
+  onFit,
 }: {
   tasks: SetupTask[];
   answers: boolean;
   topDigits: [number, number];
   bottomDigits: [number, number];
+  onFit?: (fit: SetupFit) => void;
 }) {
   const maxCols = colsFor(tasks);
   const digitMm = digitMM(maxCols);
@@ -31,10 +35,10 @@ export function SheetSetup({
   const multi = tasks.some((t) => t.m.length > 1);
   const rowGapMm = multi ? 8 : 12;
 
-  // Fyll sidan: fler uppgifter när talen är små och det ryms (avstånden oförändrade)
+  // Fyll sidan: fler uppgifter när talen är små; mellanrummen fördelas jämnt
   const pageRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState<{ cols: number; count: number } | null>(null);
+  const [fit, setFit] = useState<SetupFit | null>(null);
 
   useEffect(() => {
     const page = pageRef.current;
@@ -52,10 +56,31 @@ export function SheetSetup({
       (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
     const wMM = first.offsetWidth / MM_PX;
     const hMM = first.offsetHeight / MM_PX;
-    const next = fitGridCount(innerWMM, availMM, wMM, hMM, colGapMm, rowGapMm, tasks.length);
-    setFit((prev) =>
-      prev && prev.cols === next.cols && prev.count === next.count ? prev : next,
+    const { cols, rows, count } = fitGridCount(
+      innerWMM,
+      availMM,
+      wMM,
+      hMM,
+      colGapMm,
+      rowGapMm,
+      tasks.length,
     );
+    const next: SetupFit = {
+      cols,
+      rows,
+      count,
+      gapMM: evenRowGap(availMM, rows, hMM, rowGapMm),
+    };
+    setFit((prev) =>
+      prev &&
+      prev.cols === next.cols &&
+      prev.rows === next.rows &&
+      prev.count === next.count &&
+      Math.abs(prev.gapMM - next.gapMM) < 0.01
+        ? prev
+        : next,
+    );
+    onFit?.(next);
   }); // kör efter varje rendering tills måttet stabiliserats
 
   const initial = Math.min(12, tasks.length);
@@ -75,7 +100,7 @@ export function SheetSetup({
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           columnGap: `${colGapMm}mm`,
-          rowGap: `${rowGapMm}mm`,
+          rowGap: `${fit ? fit.gapMM : rowGapMm}mm`,
         }}
       >
         {shown.map((t, i) => (
@@ -121,7 +146,7 @@ function Problem({
   );
 
   return (
-    <div>
+    <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       <div className="mb-1 text-[11px] font-semibold text-sheet-muted">{n})</div>
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols }}>
         {/* Rad 1: övre faktorn */}
