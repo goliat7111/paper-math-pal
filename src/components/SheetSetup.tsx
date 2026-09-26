@@ -52,11 +52,12 @@ export function SheetSetup({
     // A4-höjden är fix (297/210 mm): sidan får inte växa med innehållet,
     // annars mäts "tillgängligt utrymme" av ett överfullt blad och
     // sidfyllnaden hamnar utanför pappret.
+    const mm = (cssLen: string) => parseFloat(cssLen) / MM_PX; // computed style är px
     const pageHMM = landscape ? 210 : 297;
     const availMM =
       pageHMM -
-      parseFloat(ps.paddingTop) -
-      parseFloat(ps.paddingBottom) -
+      mm(ps.paddingTop) -
+      mm(ps.paddingBottom) -
       (grid.getBoundingClientRect().top - page.getBoundingClientRect().top) / MM_PX -
       SAFETY_MM;
     const innerWMM =
