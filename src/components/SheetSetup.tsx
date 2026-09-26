@@ -46,7 +46,8 @@ export function SheetSetup({
   useEffect(() => {
     const page = pageRef.current;
     const grid = gridRef.current;
-    const first = grid?.firstElementChild as HTMLElement | null;
+    const problems = Array.from(grid?.children ?? []) as HTMLElement[];
+    const first = problems[0];
     if (!page || !grid || !first) return;
     const ps = getComputedStyle(page);
     // A4-höjden är fix (297/210 mm): sidan får inte växa med innehållet,
@@ -63,7 +64,9 @@ export function SheetSetup({
     const innerWMM =
       (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
     const wMM = first.offsetWidth / MM_PX;
-    const hMM = first.offsetHeight / MM_PX;
+    // Blandade en- och flersiffriga faktorer ger olika höga uppställningar.
+    // Räkna efter den högsta så att även den extra minnesraden ryms på A4.
+    const hMM = Math.max(...problems.map((problem) => problem.offsetHeight)) / MM_PX;
     const { cols, rows, count } = fitGridCount(
       innerWMM,
       availMM,
