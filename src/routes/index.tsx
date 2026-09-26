@@ -56,15 +56,41 @@ function Index() {
   const regenerate = () =>
     tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, SETUP_POOL));
 
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number } | null>(null);
+  const [fileName, setFileName] = useState("");
+
+  const suggestName = () => {
+    const d = new Date().toISOString().slice(0, 10);
+    if (tab === "102") return `multiplikation-102-tal-${f1[0]}-${f1[1]}x${f2[0]}-${f2[1]}-${d}`;
+    const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
+    const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
+    return `multiplikation-uppstallning-${top}x${bot}-siffror-${d}`;
+  };
+
   const downloadPdf = async () => {
     setExporting(true);
     try {
-      // Laddas i webbläsaren först vid klick
-      const { exportSheetsToPdf } = await import("@/lib/exportPdf");
-      await exportSheetsToPdf("portrait", `raknebladet-${tab}.pdf`);
+      const { buildSheetsPdf } = await import("@/lib/exportPdf");
+      const r = await buildSheetsPdf("portrait");
+      if (r) {
+        setFileName(suggestName());
+        setPreview({ url: URL.createObjectURL(r.blob), blob: r.blob, pages: r.pages });
+      }
     } finally {
       setExporting(false);
     }
+  };
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  };
+
+  const savePreview = async () => {
+    if (!preview) return;
+    const { saveBlob } = await import("@/lib/exportPdf");
+    saveBlob(preview.blob, fileName);
+    closePreview();
   };
 
   return (
@@ -126,7 +152,7 @@ function Index() {
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
             </button>
             <button onClick={downloadPdf} disabled={exporting} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-60">
-              <FileDown className="h-4 w-4" /> {exporting ? "Skapar PDF…" : "Ladda ner PDF"}
+              <FileDown className="h-4 w-4" /> {exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}
             </button>
             <button onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
               <Printer className="h-4 w-4" /> Skriv ut
@@ -152,6 +178,30 @@ function Index() {
           )}
         </main>
       </div>
+      {preview && (
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF">
+          <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-xl bg-background p-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">Förhandsgranskning av PDF · {preview.pages} {preview.pages === 1 ? "sida" : "sidor"}</h2>
+              <button onClick={closePreview} className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent">Stäng</button>
+            </div>
+            <iframe title="PDF-förhandsgranskning" src={preview.url} className="min-h-0 flex-1 rounded-md border border-input" />
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex-1 text-sm font-medium text-foreground">
+                Filnamn
+                <div className="mt-1 flex items-center gap-1">
+                  <input value={fileName} onChange={(e) => setFileName(e.target.value)} className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm" />
+                  <span className="text-sm text-muted-foreground">.pdf</span>
+                </div>
+              </label>
+              <button onClick={closePreview} className="rounded-lg border border-input px-4 py-2 text-sm hover:bg-accent">Avbryt</button>
+              <button onClick={savePreview} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+                <FileDown className="h-4 w-4" /> Ladda ner
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

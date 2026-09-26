@@ -7,14 +7,13 @@ import { jsPDF } from "jspdf";
  *  utskriftsklar A4-PDF med bevarad layout. Varje blad blir exakt en
  *  PDF-sida, så uppgifter hålls alltid ihop (även i liggande A4).
  *  Diskreta sidnummer ritas i bladets nedre marginal. */
-export async function exportSheetsToPdf(
+export async function buildSheetsPdf(
   orientation: Orientation,
-  filename = "raknebladet.pdf",
-): Promise<number> {
+): Promise<{ blob: Blob; pages: number } | null> {
   const pages = Array.from(
     document.querySelectorAll<HTMLElement>(".print-area .a4-page"),
   );
-  if (pages.length === 0) return 0;
+  if (pages.length === 0) return null;
   const pdf = new jsPDF({ orientation, unit: "mm", format: "a4", compress: true });
   const w = orientation === "portrait" ? 210 : 297;
   const h = orientation === "portrait" ? 297 : 210;
@@ -29,13 +28,43 @@ export async function exportSheetsToPdf(
     });
     if (i > 0) pdf.addPage("a4", orientation);
     pdf.addImage(png, "PNG", 0, 0, w, h);
-    // Diskret sidnummer i den nedre marginalen (påverkar inte bladet)
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
     pdf.setTextColor(160);
     pdf.text(`Sida ${i + 1} av ${pages.length}`, w / 2, h - 6, { align: "center" });
     pdf.setTextColor(0);
   }
-  pdf.save(filename);
-  return pages.length;
+  return { blob: pdf.output("blob"), pages: pages.length };
+}
+
+/** Gör ett säkert filnamn som slutar på .pdf */
+export function safePdfName(name: string): string {
+  const base = name
+    .trim()
+    .replace(/\.pdf$/i, "")
+    .replace(/[\\/:*?"<>|]+/g, "")
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+  return `${base || "raknebladet"}.pdf`;
+}
+
+export function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = safePdfName(filename);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function exportSheetsToPdf(
+  orientation: Orientation,
+  filename = "raknebladet.pdf",
+): Promise<number> {
+  const r = await buildSheetsPdf(orientation);
+  if (!r) return 0;
+  saveBlob(r.blob, filename);
+  return r.pages;
 }
