@@ -233,7 +233,7 @@ describe("setupLayout", () => {
     expect(L.bottomRow).toEqual(["", "", "1", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
       ["", "2", "5", "", ""], // 25 × 1
-      ["", "5", "0", "", ""], // 25 × 2
+      ["", "", "5", "0", ""], // 25 × 2
       ["", "", "", "7", "5"], // 25 × 3
     ]);
     expect(L.productRow).toEqual(["", "3", "0", "7", "5"]);
