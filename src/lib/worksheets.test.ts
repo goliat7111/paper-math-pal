@@ -161,3 +161,76 @@ describe("gen102", () => {
     });
   });
 });
+
+describe("setupLayout", () => {
+  it("tre­siffrigt tal med tresiffrig produkt: allt högerställt mot ental", () => {
+    const L = setupLayout({ digits: [4, 8, 3], m: 2 }); // 483 × 2 = 966
+    expect(L.nCols).toBe(4);
+    expect(L.topRow).toEqual(["", "4", "8", "3"]);
+    expect(L.productRow).toEqual(["", "9", "6", "6"]);
+    expect(L.signCol).toBe(1); // × under "4"
+    expect(L.factorCol).toBe(3); // faktorn under "3" (ental)
+  });
+
+  it("tre­siffrigt tal med fyrsiffrig produkt: produkten fyller vänstra kolumnen", () => {
+    const L = setupLayout({ digits: [2, 0, 5], m: 8 }); // 205 × 8 = 1640
+    expect(L.nCols).toBe(4);
+    expect(L.topRow).toEqual(["", "2", "0", "5"]);
+    expect(L.productRow).toEqual(["1", "6", "4", "0"]);
+    expect(L.productRow[L.factorCol]).toBe("0");
+  });
+
+  it("två­siffrigt tal: tal och produkt högerställda, × under första siffran", () => {
+    const L = setupLayout({ digits: [4, 7], m: 6 }); // 47 × 6 = 282
+    expect(L.nCols).toBe(4);
+    expect(L.topRow).toEqual(["", "", "4", "7"]);
+    expect(L.productRow).toEqual(["", "2", "8", "2"]);
+    expect(L.signCol).toBe(2);
+    expect(L.productRow[L.factorCol]).toBe("2");
+  });
+
+  it("fyrsiffrigt tal med fyrsiffrig produkt: ryms i fyra kolumner", () => {
+    const L = setupLayout({ digits: [1, 2, 3, 4], m: 5 }); // 1234 × 5 = 6170
+    expect(L.nCols).toBe(4);
+    expect(L.topRow).toEqual(["1", "2", "3", "4"]);
+    expect(L.productRow).toEqual(["6", "1", "7", "0"]);
+    expect(L.signCol).toBe(0);
+  });
+
+  it("fem­siffrigt tal med fem­siffrig produkt: kolumnerna växer", () => {
+    const L = setupLayout({ digits: [1, 2, 3, 4, 5], m: 9 }); // 12345 × 9 = 111105
+    expect(L.nCols).toBe(6);
+    expect(L.topRow).toEqual(["", "1", "2", "3", "4", "5"]);
+    expect(L.productRow).toEqual(["1", "1", "1", "1", "0", "5"]);
+    expect(L.signCol).toBe(1);
+  });
+
+  it("minnessiffrorna i beräkningsordning (ental först), endast de som uppstår", () => {
+    expect(setupLayout({ digits: [5, 7, 3], m: 4 }).carries).toEqual([1, 2, 2]); // 573 × 4
+    expect(setupLayout({ digits: [9, 9, 9], m: 9 }).carries).toEqual([8, 8, 8]);
+    expect(setupLayout({ digits: [1, 1, 1], m: 2 }).carries).toEqual([]); // inga minnessiffror
+  });
+
+  it("invariant: produkten rättlinjad mot faktorerna för slumpade uppgifter", () => {
+    for (const t of genSetup([2, 9], 25)) {
+      const L = setupLayout(t);
+      const topStart = L.topRow.findIndex((d) => d !== "");
+      // ×-tecknet ligger i samma kolumn som första siffran i den övre faktorn
+      expect(L.signCol, `× för ${t.digits.join("")}×${t.m}`).toBe(topStart);
+      // Faktorn och den övre faktorns sista siffra delar entalskolumn
+      expect(L.topRow[L.factorCol], `ental för ${t.digits.join("")}×${t.m}`).toBe(
+        String(t.digits[t.digits.length - 1]),
+      );
+      // Produkten är högerställd: sista produktsiffran i entalskolumnen,
+      // övriga produktsiffror sammanhängande ett steg till vänster
+      const filled = L.productRow.map((d, i) => (d !== "" ? i : -1)).filter((i) => i >= 0);
+      const product = String(setupValue(t) * t.m);
+      expect(filled, `produktkolumner för ${t.digits.join("")}×${t.m}`).toEqual(
+        Array.from({ length: product.length }, (_, i) => L.nCols - product.length + i),
+      );
+      expect(L.productRow[L.factorCol]).toBe(product.slice(-1));
+      // Minst fyra sifferkolumner
+      expect(L.nCols).toBeGreaterThanOrEqual(4);
+ecursively    }
+  });
+});
