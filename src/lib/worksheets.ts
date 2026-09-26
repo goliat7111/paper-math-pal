@@ -105,6 +105,10 @@ export type SetupLayout = {
   productRow: string[];
   /** Minnessiffror för produkten, endast när den undre faktorn har en siffra. */
   carries: number[];
+  /** Vänsterkolumnen (0-indexerad) för additionsdelen (delprodukter + summa),
+   *  dvs. den bredaste raden; plus-tecknet står en kolumn till vänster.
+   *  -1 när den undre faktorn är ensiffrig (ingen additionsdel). */
+  sumLeft: number;
 };
 
 /** Räknar ut exakt kolumnplacering för en uppställning: talen högerställda
@@ -119,12 +123,16 @@ export function setupLayout(t: SetupTask): SetupLayout {
   const product = String(setupValue(t));
 
   let nCols = Math.max(topLen, bottomLen + 1, product.length, 4);
+  let maxExtent = product.length; // additionsdelens bredaste rad
   for (let p = 0; p < bottomLen; p++) {
     const len = String(topValue * bottom[bottomLen - 1 - p]!).length;
     nCols = Math.max(nCols, len + p);
+    maxExtent = Math.max(maxExtent, len + p);
   }
   // ×-tecknet behöver en egen kolumn när den undre faktorn är minst lika lång
   if (bottomLen >= topLen) nCols = Math.max(nCols, bottomLen + 2);
+  // + -tecknet behöver en egen kolumn vänster om additionsdelen
+  if (bottomLen > 1) nCols = Math.max(nCols, maxExtent + 1);
 
   const signCol = topLen > bottomLen ? nCols - topLen : nCols - bottomLen - 1;
 
@@ -145,6 +153,9 @@ export function setupLayout(t: SetupTask): SetupLayout {
     }
   }
 
+  // Additionsdelen (delprodukter + summa): vänsterkolumnen för den bredaste raden
+  const sumLeft = bottomLen > 1 ? nCols - maxExtent : -1;
+
   return {
     nCols,
     topRow: align(top.join(""), nCols - 1),
@@ -153,6 +164,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
     partialRows,
     productRow: align(product, nCols - 1),
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
+    sumLeft,
   };
 }
 

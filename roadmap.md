@@ -18,6 +18,7 @@
 - [x] Diskreta sidnummer ("Sida X av Y") ritas i PDF-exportens nedre marginal – påverkar inte bladets utskriftsmarginaler
 - [x] Sammanfattning före export: antal sidor och uppgifter (102-tal eller uppställning), A4 stående
 - [x] Liggande A4 byggdes och togs sedan bort på Magnus önskan – stående är enda formatet
+- [x] Siffergränser korrigeras automatiskt: undre gränsen kan aldrig överstiga den övre, och undre talets val klämms alltid till övre talets max
 
 ## Senare (väntar på Magnus)
 - [ ] Decimaltal i uppställningen – välja decimaltal som faktorer (heltal är klart)
