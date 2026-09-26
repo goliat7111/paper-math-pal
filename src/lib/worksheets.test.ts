@@ -220,7 +220,7 @@ describe("setupLayout", () => {
     expect(L.bottomRow).toEqual(["", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
       ["", "9", "4", ""], // 47 × 2
-      ["1", "4", "1", ""], // 47 × 3
+      ["", "1", "4", "1"], // 47 × 3
     ]);
     expect(L.productRow).toEqual(["1", "0", "8", "1"]);
   });
@@ -232,7 +232,7 @@ describe("setupLayout", () => {
     expect(L.topRow).toEqual(["", "", "2", "5"]);
     expect(L.bottomRow).toEqual(["", "", "1", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
-      ["2", "5", "", "", ""], // 25 × 1
+      ["", "2", "5", "", ""], // 25 × 1
       ["", "5", "0", "", ""], // 25 × 2
       ["", "", "", "7", "5"], // 25 × 3
     ]);
@@ -280,10 +280,15 @@ describe("setupLayout", () => {
       );
       // Delprodukterna är förskjutna ett steg per position och stämmer värdemässigt
       L.partialRows.forEach((p, r) => {
-        const expected = String(top * t.m[t.m.length - 1 - r]!);
+        const digit = t.m[r]!; // mest signifikanta siffran först
+        const expected = String(top * digit);
+        const shift = t.m.length - 1 - r;
         const pFilled = p.cells.map((d, i) => (d !== "" ? i : -1)).filter((i) => i >= 0);
         expect(pFilled, `delprodukt ${r} för ${key}`).toEqual(
-          Array.from({ length: expected.length }, (_, i) => L.nCols - 1 - r - expected.length + 1 + i),
+          Array.from(
+            { length: expected.length },
+            (_, i) => L.nCols - 1 - shift - expected.length + 1 + i,
+          ),
         );
         expect(p.cells.filter((d) => d !== "").join("")).toBe(expected);
       });
@@ -305,12 +310,12 @@ describe("genSetup", () => {
     }
   });
 
-  it("respekterar valt antal siffror i det övre talet (1–4 siffror)", () => {
-    for (const digitCount of [1, 2, 3, 4] as const) {
+  it("respekterar valt antal siffror i det övre talet (1–3 siffror)", () => {
+    for (const digitCount of [1, 2, 3] as const) {
       const tasks = genSetup([digitCount, digitCount], [1, 1], 20);
       for (const t of tasks) {
         expect(t.digits, `${digitCount} siffror`).toHaveLength(digitCount);
-        expect(digitValue(t.digits)).toBeLessThanOrEqual(9999);
+        expect(digitValue(t.digits)).toBeLessThanOrEqual(999);
       }
     }
   });
@@ -326,19 +331,19 @@ describe("genSetup", () => {
   });
 
   it("blandar talsort när sifferintervallet spänner över flera värden", () => {
-    const tasks = genSetup([2, 4], [1, 3], 40);
+    const tasks = genSetup([2, 3], [1, 3], 40);
     expect(new Set(tasks.map((t) => t.digits.length)).size).toBeGreaterThan(1);
     expect(new Set(tasks.map((t) => t.m.length)).size).toBeGreaterThan(1);
     for (const t of tasks) {
       expect(t.digits.length).toBeGreaterThanOrEqual(2);
-      expect(t.digits.length).toBeLessThanOrEqual(4);
+      expect(t.digits.length).toBeLessThanOrEqual(3);
       expect(t.m.length).toBeGreaterThanOrEqual(1);
       expect(t.m.length).toBeLessThanOrEqual(3);
     }
   });
 
   it("första siffran är aldrig 0, i något av talen", () => {
-    for (const t of genSetup([1, 4], [1, 3], 60)) {
+    for (const t of genSetup([1, 3], [1, 3], 60)) {
       expect(t.digits[0], `första siffran i ${t.digits.join("")}`).toBeGreaterThan(0);
       expect(t.m[0], `första siffran i ${t.m.join("")}`).toBeGreaterThan(0);
     }
