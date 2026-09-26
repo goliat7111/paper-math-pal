@@ -61,7 +61,7 @@ function Index() {
     try {
       // Laddas i webbläsaren först vid klick
       const { exportSheetsToPdf } = await import("@/lib/exportPdf");
-      await exportSheetsToPdf(orientation, `raknebladet-${tab}.pdf`);
+      await exportSheetsToPdf("portrait", `raknebladet-${tab}.pdf`);
     } finally {
       setExporting(false);
     }
@@ -69,8 +69,6 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* @page-regeln följer vald riktning (styr utskriftens pappersformat) */}
-      <style>{`@page { size: A4 ${orientation}; margin: 0; }`}</style>
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-4">
           <div>
