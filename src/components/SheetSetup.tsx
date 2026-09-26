@@ -168,7 +168,7 @@ function Problem({
         {signRow.map((c, i) => (
           <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
         ))}
-        {/* Delprodukter, var och en med egen minnesruta */}
+        {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
             {p.cells.map((c, i) => (
@@ -181,9 +181,10 @@ function Problem({
                 answer={answers}
               />
             ))}
-            {carryBox(p.carries, 3 + r)}
           </Fragment>
         ))}
+        {/* Plus-tecken i additionsuträkningen */}
+        {multi && <Cell v="+" col={L.signCol} row={productRowIdx} height={cellH} rule />}
         {/* Produkten, med streck ovanför när det finns delprodukter */}
         {L.productRow.map((c, i) => (
           <Cell
