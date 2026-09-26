@@ -51,6 +51,15 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-sheet-ink: var(--sheet-ink);
+  --color-sheet-muted: var(--sheet-muted);
+  --color-sheet-line: var(--sheet-line);
+  --color-sheet-grid: var(--sheet-grid);
+  --color-sheet-answer: var(--sheet-answer);
+  --color-sheet-paper: var(--sheet-paper);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -63,14 +72,20 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --sheet-ink: oklch(0.2 0 0);
+  --sheet-muted: oklch(0.5 0 0);
+  --sheet-line: oklch(0.55 0 0);
+  --sheet-grid: oklch(0.82 0.02 230);
+  --sheet-answer: oklch(0.5 0.17 25);
+  --sheet-paper: oklch(1 0 0);
+  --background: oklch(0.955 0.012 85);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.38 0.07 160);
+  --primary-foreground: oklch(0.98 0.01 85);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -141,4 +156,22 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+body { font-family: var(--font-sans); }
+.a4-page {
+  width: 210mm; min-height: 297mm; padding: 14mm 14mm;
+  background: var(--sheet-paper); color: var(--sheet-ink);
+  box-shadow: 0 2px 16px oklch(0 0 0 / 0.12); box-sizing: border-box;
+}
+.grid-sheet { display: grid; }
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  .no-print { display: none !important; }
+  body { background: var(--sheet-paper) !important; }
+  .print-area { gap: 0 !important; display: block !important; }
+  .a4-page { box-shadow: none; height: 297mm; overflow: hidden; break-after: page; page-break-after: always; }
+  .a4-page:last-child { break-after: auto; page-break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body > * .min-h-screen, main { padding: 0 !important; margin: 0 !important; }
 }

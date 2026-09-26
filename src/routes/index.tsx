@@ -1,24 +1,127 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Printer, RefreshCw } from "lucide-react";
+import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
+import { Sheet102 } from "@/components/Sheet102";
+import { SheetSetup } from "@/components/SheetSetup";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Räknebladet – arbetsblad i matematik för lärare" },
+      { name: "description", content: "Generera och skriv ut anpassade multiplikationsdiagnoser och arbetsblad på A4, med facit." },
+      { property: "og:title", content: "Räknebladet – arbetsblad i matematik" },
+      { property: "og:description", content: "Slumpade diagnoser och uppställningar i multiplikation, utskriftsklara på A4 med facit." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+type Tab = "102" | "setup";
+
 function Index() {
+  const [tab, setTab] = useState<Tab>("102");
+  const [f1, setF1] = useState<[number, number]>([2, 9]);
+  const [f2, setF2] = useState<[number, number]>([3, 9]);
+  const [sr, setSr] = useState<[number, number]>([2, 9]);
+  const [t102, setT102] = useState<MulTask[] | null>(null);
+  const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
+  const [withKey, setWithKey] = useState(true);
+
+  useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
+  useEffect(() => setTSetup(genSetup(sr)), [sr]);
+
+  const regenerate = () => (tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr)));
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <header className="no-print border-b border-border bg-card">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-4">
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Räknebladet</h1>
+            <p className="text-sm text-muted-foreground">Arbetsblad & diagnoser i matematik · A4</p>
+          </div>
+          <nav className="ml-auto flex rounded-lg bg-muted p-1">
+            {([
+              ["102", "102 tal (5 min)"],
+              ["setup", "Mult. uppställning (1-talsfaktor)"],
+            ] as const).map(([k, label]) => (
+              <button
+                key={k}
+                onClick={() => setTab(k)}
+                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  tab === k ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
+        <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
+          <h2 className="font-display text-lg font-semibold text-foreground">Inställningar</h2>
+          {tab === "102" ? (
+            <>
+              <RangeInput label="Faktor 1 mellan" value={f1} onChange={setF1} />
+              <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
+            </>
+          ) : (
+            <RangeInput label="Siffror/faktor mellan" value={sr} onChange={setSr} />
+          )}
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
+            Skriv ut med facit (extra sida)
+          </label>
+          <div className="space-y-2 pt-2">
+            <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+              <RefreshCw className="h-4 w-4" /> Ny slumpad variant
+            </button>
+            <button onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              <Printer className="h-4 w-4" /> Skriv ut
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.</p>
+        </aside>
+
+        <main className="print-area flex flex-1 flex-col items-center gap-8">
+          {tab === "102" && t102 && (
+            <>
+              <Sheet102 tasks={t102} answers={false} />
+              {withKey && <Sheet102 tasks={t102} answers />}
+            </>
+          )}
+          {tab === "setup" && tSetup && (
+            <>
+              <SheetSetup tasks={tSetup} answers={false} range={sr} />
+              {withKey && <SheetSetup tasks={tSetup} answers range={sr} />}
+            </>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function RangeInput({ label, value, onChange }: { label: string; value: [number, number]; onChange: (v: [number, number]) => void }) {
+  const set = (i: 0 | 1, s: string) => {
+    const n = Math.max(0, Math.min(99, Number(s) || 0));
+    const next: [number, number] = [...value] as [number, number];
+    next[i] = n;
+    onChange(next);
+  };
+  return (
+    <div>
+      <div className="mb-1.5 text-sm font-medium text-foreground">{label}</div>
+      <div className="flex items-center gap-2">
+        <input type="number" value={value[0]} onChange={(e) => set(0, e.target.value)} className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm" />
+        <span className="text-sm text-muted-foreground">och</span>
+        <input type="number" value={value[1]} onChange={(e) => set(1, e.target.value)} className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm" />
+      </div>
     </div>
   );
 }
