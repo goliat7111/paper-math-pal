@@ -21,8 +21,31 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
     [all[i], all[j]] = [all[j]!, all[i]!];
   }
   const tasks = all.slice(0, 102);
-  // Fyll upp till 102 med slumpade dubbletter om kombinationerna inte räcker
-  while (tasks.length < 102) tasks.push({ a: rand(...f1), b: rand(...f2) });
+  // Fyll upp till 102 med dubbletter så att varje faktor förekommer så jämnt som möjligt
+  const countA = new Map<number, number>();
+  const countB = new Map<number, number>();
+  for (const t of tasks) {
+    countA.set(t.a, (countA.get(t.a) ?? 0) + 1);
+    countB.set(t.b, (countB.get(t.b) ?? 0) + 1);
+  }
+  while (tasks.length < 102) {
+    // Välj bland de kombinationer vars faktorer hittills förekommit minst
+    let best: MulTask[] = [];
+    let bestScore = Infinity;
+    for (const t of all) {
+      const score = (countA.get(t.a) ?? 0) + (countB.get(t.b) ?? 0);
+      if (score < bestScore) {
+        bestScore = score;
+        best = [t];
+      } else if (score === bestScore) {
+        best.push(t);
+      }
+    }
+    const pick = best[Math.floor(Math.random() * best.length)]!;
+    tasks.push(pick);
+    countA.set(pick.a, (countA.get(pick.a) ?? 0) + 1);
+    countB.set(pick.b, (countB.get(pick.b) ?? 0) + 1);
+  }
   return tasks;
 }
 
