@@ -217,8 +217,8 @@ describe("setupLayout", () => {
     const L = setupLayout({ digits: [4, 7], m: [2, 3] }); // 47 × 23 = 1081
     expect(L.nCols).toBe(5); // +1 kolumn till vänster för + -tecknet
     expect(L.signCol).toBe(2);
-    expect(L.topRow).toEqual(["", "", "4", "7", ""]);
-    expect(L.bottomRow).toEqual(["", "", "2", "3", ""]);
+    expect(L.topRow).toEqual(["", "", "", "4", "7"]);
+    expect(L.bottomRow).toEqual(["", "", "", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
       ["", "", "9", "4", ""], // 47 × 2
       ["", "", "1", "4", "1"], // 47 × 3
