@@ -73,7 +73,8 @@ function Index() {
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
             </>
           ) : (
-            <RangeInput label="Siffror/faktor mellan" value={sr} onChange={setSr} />
+            <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
+            <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
@@ -99,8 +100,8 @@ function Index() {
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} range={sr} />
-              {withKey && <SheetSetup tasks={tSetup} answers range={sr} />}
+              <SheetSetup tasks={tSetup} answers={false} factorRange={sr} digitRange={sd} />
+              {withKey && <SheetSetup tasks={tSetup} answers factorRange={sr} digitRange={sd} />}
             </>
           )}
         </main>
@@ -109,9 +110,21 @@ function Index() {
   );
 }
 
-function RangeInput({ label, value, onChange }: { label: string; value: [number, number]; onChange: (v: [number, number]) => void }) {
+function RangeInput({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 99,
+}: {
+  label: string;
+  value: [number, number];
+  onChange: (v: [number, number]) => void;
+  min?: number;
+  max?: number;
+}) {
   const set = (i: 0 | 1, s: string) => {
-    const n = Math.max(0, Math.min(99, Number(s) || 0));
+    const n = Math.max(min, Math.min(max, Number(s) || 0));
     const next: [number, number] = [...value] as [number, number];
     next[i] = n;
     onChange(next);
