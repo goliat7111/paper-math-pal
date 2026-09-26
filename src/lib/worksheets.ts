@@ -165,3 +165,19 @@ export const chunk = <T,>(arr: T[], sizes: number[]) => {
   }
   return out;
 };
+
+/** Hur många uppgifter som ryms i ett rutnät: kolumner efter tillgänglig bredd,
+ *  rader efter tillgänglig höjd, med oförändrade mellanrum. */
+export function fitGridCount(
+  innerW: number,
+  availH: number,
+  w: number,
+  h: number,
+  colGap: number,
+  rowGap: number,
+  max = Infinity,
+): { cols: number; count: number } {
+  const cols = Math.max(1, Math.floor((innerW + colGap) / (w + colGap)));
+  const rows = Math.max(1, Math.floor((availH + rowGap) / (h + rowGap)));
+  return { cols, count: Math.min(max, cols * rows) };
+}
