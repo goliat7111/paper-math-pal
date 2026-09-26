@@ -372,3 +372,41 @@ describe("genSetup", () => {
     }
   });
 });
+
+describe("sidfyllnad (fitGridCount / evenRowGap)", () => {
+  it("fler uppgifter ryms när talen är små än när de är stora", () => {
+    // 1×1-siffrigt: smala och låga uppgifter (bredd 46 mm, höjd 29 mm)
+    const small = fitGridCount(182, 227, 46, 29, 10, 12);
+    // 3×3-siffrigt: breda och höga uppgifter (bredd 56 mm, höjd 47 mm)
+    const large = fitGridCount(182, 227, 56, 47, 4, 8);
+    expect(small.count).toBeGreaterThan(large.count);
+    expect(small.count).toBeGreaterThanOrEqual(15);
+    expect(large.count).toBeGreaterThanOrEqual(12);
+  });
+
+  it("rymmer aldrig fler uppgifter än poolen innehåller", () => {
+    const f = fitGridCount(182, 227, 46, 29, 10, 12, 12);
+    expect(f.count).toBeLessThanOrEqual(12);
+  });
+
+  it("ger minst en uppgift även när det knappt ryms", () => {
+    const f = fitGridCount(182, 20, 56, 47, 4, 8);
+    expect(f.cols).toBeGreaterThanOrEqual(1);
+    expect(f.rows).toBeGreaterThanOrEqual(1);
+    expect(f.count).toBeGreaterThanOrEqual(1);
+  });
+
+  it("kolumner efter bredd: smala uppgifter ger fler kolumner", () => {
+    expect(fitGridCount(182, 227, 46, 29, 10, 12).cols).toBe(3);
+    expect(fitGridCount(182, 227, 80, 29, 10, 12).cols).toBe(2);
+et  });
+
+  it("evenRowGap fördelar resthöjden jämnt men aldrig under grundmellanrummet", () => {
+    // 5 rader à 29 mm ger 145 mm; resten av 227 mm fördelas på 4 mellanrum
+    expect(evenRowGap(227, 5, 29, 12)).toBeCloseTo((227 - 145) / 4, 5);
+    // Endast en rad: grundmellanrummet
+    expect(evenRowGap(227, 1, 29, 12)).toBe(12);
+    // Knapp ryms: aldrig mindre än grundmellanrummet
+    expect(evenRowGap(150, 5, 29, 12)).toBe(12);
+  });
+});

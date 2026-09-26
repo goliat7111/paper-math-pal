@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Printer, RefreshCw } from "lucide-react";
 import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
-import { SheetSetup } from "@/components/SheetSetup";
+import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +30,11 @@ function Index() {
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
+  const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
+  const applyFit = (f: SetupFit) =>
+    setFitInfo((p) =>
+      p && p.count === f.count && p.cols === f.cols && p.rows === f.rows ? p : f,
+    );
 
   // Den undre faktorn får aldrig ha fler siffror än det övre talet
   const applySd = (v: [number, number]) => {
@@ -90,6 +95,11 @@ function Index() {
               <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
               <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={3} />
               <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet.</p>
+              <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+                {fitInfo
+                  ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner).`
+                  : "Förhandsgranskning: beräknar…"}
+              </p>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
@@ -116,8 +126,10 @@ function Index() {
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />
-              {withKey && <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />}
+              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+              {withKey && (
+                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+              )}
             </>
           )}
         </main>
