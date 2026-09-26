@@ -28,7 +28,7 @@ export function Sheet102({
   );
   return (
     <div className={`a4-page${landscape ? " landscape" : ""}`}>
-      <SheetHeader title={answers ? "102 tal – Facit" : "102 tal"} subtitle="Multiplikation · 5 minuter" score="av 102" />
+      <SheetHeader title={answers ? "102 tal – Facit" : "102 tal"} subtitle="Multiplikation · 6 minuter" score="av 102" />
       <div
         className="mt-5 grid"
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
