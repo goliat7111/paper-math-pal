@@ -234,3 +234,59 @@ describe("setupLayout", () => {
     }
   });
 });
+
+describe("genSetup", () => {
+  it("ger önskat antal uppgifter med standardinställningen (3 siffror)", () => {
+    const tasks = genSetup([2, 9]);
+    expect(tasks).toHaveLength(12);
+    for (const t of tasks) {
+      expect(t.digits).toHaveLength(3);
+      expect(t.m).toBeGreaterThanOrEqual(2);
+      expect(t.m).toBeLessThanOrEqual(9);
+    }
+  });
+
+  it("respekterar valt antal siffror i det övre talet (1–5 siffror)", () => {
+    for (const digitCount of [1, 2, 3, 4, 5] as const) {
+      const tasks = genSetup([2, 9], 20, [digitCount, digitCount]);
+      for (const t of tasks) {
+        expect(t.digits, `${digitCount} siffror`).toHaveLength(digitCount);
+      }
+    }
+  });
+
+  it("blandar talsort när sifferintervallet spänner över flera värden", () => {
+    const tasks = genSetup([2, 9], 40, [2, 4]);
+    const lengths = new Set(tasks.map((t) => t.digits.length));
+    expect(lengths.size).toBeGreaterThan(1);
+    for (const t of tasks) {
+      expect(t.digits.length).toBeGreaterThanOrEqual(2);
+      expect(t.digits.length).toBeLessThanOrEqual(4);
+    }
+  });
+
+  it("alla siffror och faktorn håller sig inom faktorintervallet", () => {
+    for (const t of genSetup([3, 7], 30, [2, 4])) {
+      for (const d of t.digits) {
+        expect(d).toBeGreaterThanOrEqual(3);
+        expect(d).toBeLessThanOrEqual(7);
+      }
+      expect(t.m).toBeGreaterThanOrEqual(3);
+      expect(t.m).toBeLessThanOrEqual(7);
+    }
+  });
+
+  it("första siffran i det övre talet är aldrig 0", () => {
+    for (const t of genSetup([0, 9], 60, [2, 5])) {
+      expect(t.digits[0], `första siffran i ${t.digits.join("")}`).toBeGreaterThan(0);
+    }
+  });
+
+  it("tål omvända sifferintervall (max före min)", () => {
+    const tasks = genSetup([2, 9], 12, [4, 2]);
+    for (const t of tasks) {
+      expect(t.digits.length).toBeGreaterThanOrEqual(2);
+      expect(t.digits.length).toBeLessThanOrEqual(4);
+    }
+  });
+});

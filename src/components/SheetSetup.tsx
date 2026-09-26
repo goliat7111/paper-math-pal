@@ -1,30 +1,58 @@
 import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 
-// Kolumner: sifferkolumner à 9 mm + bred minnessifferruta (14 mm) till höger
-const DIGIT_MM = 9;
-const CARRY_MM = 14;
+// Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
+const colsFor = (tasks: SetupTask[]) => Math.max(...tasks.map((t) => setupLayout(t).nCols));
+const digitMM = (cols: number) => (cols >= 6 ? 7 : cols >= 5 ? 7.5 : cols >= 4 ? 8 : 9);
+const gapMM = (cols: number) => (cols >= 6 ? 4 : cols >= 5 ? 6 : cols >= 4 ? 10 : 14);
 
-export function SheetSetup({ tasks, answers, range }: { tasks: SetupTask[]; answers: boolean; range: [number, number] }) {
+export function SheetSetup({
+  tasks,
+  answers,
+  factorRange,
+  digitRange,
+}: {
+  tasks: SetupTask[];
+  answers: boolean;
+  factorRange: [number, number];
+  digitRange: [number, number];
+}) {
+  const maxCols = colsFor(tasks);
+  const [dLo, dHi] = [...digitRange].sort((a, b) => a - b);
+  const digitsLabel = dLo === dHi ? `${dLo}-siffrigt tal` : `${dLo}–${dHi} siffror`;
   return (
     <div className="a4-page">
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
-        subtitle={`Uppställning · 1-talsfaktor (${range[0]}–${range[1]})`}
+        subtitle={`Uppställning · ${digitsLabel} · 1-talsfaktor ${factorRange[0]}–${factorRange[1]}`}
         score={`av ${tasks.length}`}
       />
-      <div className="mt-8 grid grid-cols-3 gap-x-[14mm] gap-y-[12mm] justify-items-center">
+      <div
+        className="mt-8 grid grid-cols-3 justify-items-center"
+        style={{ columnGap: `${gapMM(maxCols)}mm`, rowGap: "12mm" }}
+      >
         {tasks.map((t, i) => (
-          <Problem key={i} n={i + 1} t={t} answers={answers} />
+          <Problem key={i} n={i + 1} t={t} answers={answers} digitMm={digitMM(maxCols)} />
         ))}
       </div>
     </div>
   );
 }
 
-function Problem({ n, t, answers }: { n: number; t: SetupTask; answers: boolean }) {
+function Problem({
+  n,
+  t,
+  answers,
+  digitMm,
+}: {
+  n: number;
+  t: SetupTask;
+  answers: boolean;
+  digitMm: number;
+}) {
   const L = setupLayout(t);
-  const gridCols = `repeat(${L.nCols}, ${DIGIT_MM}mm) ${CARRY_MM}mm`;
+  const gridCols = `repeat(${L.nCols}, ${digitMm}mm) 14mm`;
+  const cellH = `${digitMm}mm`;
 
   // Teckenrad: × under första siffran i den övre faktorn, faktorn i entalskolumnen
   const signRow = Array.from({ length: L.nCols }, (_, i) =>
@@ -37,7 +65,7 @@ function Problem({ n, t, answers }: { n: number; t: SetupTask; answers: boolean 
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
-          <Cell key={`t${i}`} v={c} col={i + 1} row={1} />
+          <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
         ))}
         {/* Minnessifferrutan: explicit i sista kolumnen, spänner över rad 1–2 */}
         <div
@@ -53,26 +81,40 @@ function Problem({ n, t, answers }: { n: number; t: SetupTask; answers: boolean 
         </div>
         {/* Rad 2: teckenrad med understrykning */}
         {signRow.map((c, i) => (
-          <Cell key={`s${i}`} v={c} col={i + 1} row={2} underline />
+          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
         ))}
         {/* Rad 3: produkten */}
         {L.productRow.map((c, i) => (
-          <Cell key={`p${i}`} v={answers ? c : ""} col={i + 1} row={3} answer={answers} />
+          <Cell key={`p${i}`} v={answers ? c : ""} col={i + 1} row={3} height={cellH} answer={answers} />
         ))}
       </div>
     </div>
   );
 }
 
-function Cell({ v, col, row, underline, answer }: { v: string; col: number; row: number; underline?: boolean; answer?: boolean }) {
+function Cell({
+  v,
+  col,
+  row,
+  height,
+  underline,
+  answer,
+}: {
+  v: string;
+  col: number;
+  row: number;
+  height: string;
+  underline?: boolean;
+  answer?: boolean;
+}) {
   return (
     <div
       className={[
-        "flex h-[9mm] items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
+        "flex items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
         underline ? "border-b-2 border-b-sheet-ink" : "",
         answer ? "font-bold text-sheet-answer" : "",
       ].join(" ")}
-      style={{ gridColumn: col, gridRow: row }}
+      style={{ gridColumn: col, gridRow: row, height }}
     >
       {v.trim() || "\u00a0"}
     </div>

@@ -26,14 +26,16 @@ function Index() {
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
+  const [sd, setSd] = useState<[number, number]>([3, 3]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
 
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sr)), [sr]);
+  useEffect(() => setTSetup(genSetup(sr, 12, sd)), [sr, sd]);
 
-  const regenerate = () => (tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr)));
+  const regenerate = () =>
+    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr, 12, sd));
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,7 +73,10 @@ function Index() {
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
             </>
           ) : (
-            <RangeInput label="Siffror/faktor mellan" value={sr} onChange={setSr} />
+            <>
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
+              <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
+            </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
@@ -97,8 +102,8 @@ function Index() {
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} range={sr} />
-              {withKey && <SheetSetup tasks={tSetup} answers range={sr} />}
+              <SheetSetup tasks={tSetup} answers={false} factorRange={sr} digitRange={sd} />
+              {withKey && <SheetSetup tasks={tSetup} answers factorRange={sr} digitRange={sd} />}
             </>
           )}
         </main>
@@ -107,9 +112,21 @@ function Index() {
   );
 }
 
-function RangeInput({ label, value, onChange }: { label: string; value: [number, number]; onChange: (v: [number, number]) => void }) {
+function RangeInput({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 99,
+}: {
+  label: string;
+  value: [number, number];
+  onChange: (v: [number, number]) => void;
+  min?: number;
+  max?: number;
+}) {
   const set = (i: 0 | 1, s: string) => {
-    const n = Math.max(0, Math.min(99, Number(s) || 0));
+    const n = Math.max(min, Math.min(max, Number(s) || 0));
     const next: [number, number] = [...value] as [number, number];
     next[i] = n;
     onChange(next);
