@@ -26,14 +26,16 @@ function Index() {
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
+  const [sd, setSd] = useState<[number, number]>([3, 3]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
 
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sr)), [sr]);
+  useEffect(() => setTSetup(genSetup(sr, 12, sd)), [sr, sd]);
 
-  const regenerate = () => (tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr)));
+  const regenerate = () =>
+    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr, 12, sd));
 
   return (
     <div className="min-h-screen bg-background">
