@@ -161,8 +161,9 @@ function Problem({
         {L.topRow.map((c, i) => (
           <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
         ))}
-        {/* Ensiffrig faktor: minnesrutan spänner över rad 1–2 */}
+        {/* Minnesrutan sitter alltid uppe vid faktorerna, rad 1–2 */}
         {!multi && carryBox(L.carries, "1 / span 2")}
+        {multi && carryBox(L.partialRows[0]?.carries ?? [], "1 / span 2")}
         {/* Rad 2: teckenrad med understrykning */}
         {signRow.map((c, i) => (
           <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
