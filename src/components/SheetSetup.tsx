@@ -1,35 +1,40 @@
+import { Fragment } from "react";
 import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
 const colsFor = (tasks: SetupTask[]) => Math.max(...tasks.map((t) => setupLayout(t).nCols));
-const digitMM = (cols: number) => (cols >= 6 ? 7 : cols >= 5 ? 7.5 : cols >= 4 ? 8 : 9);
+const digitMM = (cols: number) => (cols >= 7 ? 6 : cols >= 6 ? 7 : cols >= 5 ? 7.5 : cols >= 4 ? 8 : 9);
 const gapMM = (cols: number) => (cols >= 6 ? 4 : cols >= 5 ? 6 : cols >= 4 ? 10 : 14);
+
+const digitLabel = (range: [number, number], singular: string, plural: string) => {
+  const [lo, hi] = [...range].sort((a, b) => a - b);
+  return lo === hi ? `${lo}-${singular}` : `${lo}–${hi} ${plural}`;
+};
 
 export function SheetSetup({
   tasks,
   answers,
-  factorRange,
-  digitRange,
+  topDigits,
+  bottomDigits,
 }: {
   tasks: SetupTask[];
   answers: boolean;
-  factorRange: [number, number];
-  digitRange: [number, number];
+  topDigits: [number, number];
+  bottomDigits: [number, number];
 }) {
   const maxCols = colsFor(tasks);
-  const [dLo, dHi] = [...digitRange].sort((a, b) => a - b);
-  const digitsLabel = dLo === dHi ? `${dLo}-siffrigt tal` : `${dLo}–${dHi} siffror`;
+  const multi = tasks.some((t) => t.m.length > 1);
   return (
     <div className="a4-page">
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
-        subtitle={`Uppställning · ${digitsLabel} · 1-talsfaktor ${factorRange[0]}–${factorRange[1]}`}
+        subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}`}
         score={`av ${tasks.length}`}
       />
       <div
         className="mt-8 grid grid-cols-3 justify-items-center"
-        style={{ columnGap: `${gapMM(maxCols)}mm`, rowGap: "12mm" }}
+        style={{ columnGap: `${gapMM(maxCols)}mm`, rowGap: multi ? "8mm" : "12mm" }}
       >
         {tasks.map((t, i) => (
           <Problem key={i} n={i + 1} t={t} answers={answers} digitMm={digitMM(maxCols)} />
@@ -53,10 +58,24 @@ function Problem({
   const L = setupLayout(t);
   const gridCols = `repeat(${L.nCols}, ${digitMm}mm) 14mm`;
   const cellH = `${digitMm}mm`;
+  const multi = L.partialRows.length > 0;
+  const productRowIdx = 3 + L.partialRows.length;
 
-  // Teckenrad: × under första siffran i den övre faktorn, faktorn i entalskolumnen
-  const signRow = Array.from({ length: L.nCols }, (_, i) =>
-    i === L.signCol ? "×" : i === L.factorCol ? String(t.m) : "",
+  // Teckenrad: × plus den undre faktorn högerställd mot ental
+  const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
+
+  const carryBox = (carries: number[], row: string | number) => (
+    <div
+      className="flex flex-col items-center justify-center gap-[1px] border border-sheet-grid"
+      style={{ gridColumn: L.nCols + 1, gridRow: row, minHeight: cellH }}
+    >
+      {answers &&
+        carries.map((c, i) => (
+          <div key={i} className="text-[11px] font-bold leading-none text-sheet-answer">
+            {c}
+          </div>
+        ))}
+    </div>
   );
 
   return (
@@ -67,25 +86,39 @@ function Problem({
         {L.topRow.map((c, i) => (
           <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
         ))}
-        {/* Minnessifferrutan: explicit i sista kolumnen, spänner över rad 1–2 */}
-        <div
-          className="flex flex-col items-center justify-center gap-[1px] border border-sheet-grid"
-          style={{ gridColumn: L.nCols + 1, gridRow: "1 / span 2" }}
-        >
-          {answers &&
-            L.carries.map((c, i) => (
-              <div key={i} className="text-[12px] font-bold leading-none text-sheet-answer">
-                {c}
-              </div>
-            ))}
-        </div>
+        {/* Ensiffrig faktor: minnesrutan spänner över rad 1–2 */}
+        {!multi && carryBox(L.carries, "1 / span 2")}
         {/* Rad 2: teckenrad med understrykning */}
         {signRow.map((c, i) => (
           <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
         ))}
-        {/* Rad 3: produkten */}
+        {/* Delprodukter, var och en med egen minnesruta */}
+        {L.partialRows.map((p, r) => (
+          <Fragment key={`par${r}`}>
+            {p.cells.map((c, i) => (
+              <Cell
+                key={`p${r}-${i}`}
+                v={answers ? c : ""}
+                col={i + 1}
+                row={3 + r}
+                height={cellH}
+                answer={answers}
+              />
+            ))}
+            {carryBox(p.carries, 3 + r)}
+          </Fragment>
+        ))}
+        {/* Produkten, med streck ovanför när det finns delprodukter */}
         {L.productRow.map((c, i) => (
-          <Cell key={`p${i}`} v={answers ? c : ""} col={i + 1} row={3} height={cellH} answer={answers} />
+          <Cell
+            key={`pr${i}`}
+            v={answers ? c : ""}
+            col={i + 1}
+            row={productRowIdx}
+            height={cellH}
+            answer={answers}
+            rule={multi}
+          />
         ))}
       </div>
     </div>
@@ -99,6 +132,7 @@ function Cell({
   height,
   underline,
   answer,
+  rule,
 }: {
   v: string;
   col: number;
@@ -106,6 +140,7 @@ function Cell({
   height: string;
   underline?: boolean;
   answer?: boolean;
+  rule?: boolean;
 }) {
   return (
     <div
@@ -114,7 +149,12 @@ function Cell({
         underline ? "border-b-2 border-b-sheet-ink" : "",
         answer ? "font-bold text-sheet-answer" : "",
       ].join(" ")}
-      style={{ gridColumn: col, gridRow: row, height }}
+      style={{
+        gridColumn: col,
+        gridRow: row,
+        height,
+        ...(rule ? { borderTop: "2px solid var(--sheet-ink)" } : {}),
+      }}
     >
       {v.trim() || "\u00a0"}
     </div>
