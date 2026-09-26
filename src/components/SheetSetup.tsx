@@ -21,12 +21,14 @@ export function SheetSetup({
   answers,
   topDigits,
   bottomDigits,
+  orientation = "portrait",
   onFit,
 }: {
   tasks: SetupTask[];
   answers: boolean;
   topDigits: [number, number];
   bottomDigits: [number, number];
+  orientation?: "portrait" | "landscape";
   onFit?: (fit: SetupFit) => void;
 }) {
   const maxCols = colsFor(tasks);
@@ -34,6 +36,7 @@ export function SheetSetup({
   const colGapMm = gapMM(maxCols);
   const multi = tasks.some((t) => t.m.length > 1);
   const rowGapMm = multi ? 8 : 12;
+  const landscape = orientation === "landscape";
 
   // Fyll sidan: fler uppgifter när talen är små; mellanrummen fördelas jämnt
   const pageRef = useRef<HTMLDivElement>(null);
@@ -46,11 +49,15 @@ export function SheetSetup({
     const first = grid?.firstElementChild as HTMLElement | null;
     if (!page || !grid || !first) return;
     const ps = getComputedStyle(page);
+    // A4-höjden är fix (297/210 mm): sidan får inte växa med innehållet,
+    // annars mäts "tillgängligt utrymme" av ett överfullt blad och
+    // sidfyllnaden hamnar utanför pappret.
+    const pageHMM = landscape ? 210 : 297;
     const availMM =
-      (page.getBoundingClientRect().bottom -
-        parseFloat(ps.paddingBottom) -
-        grid.getBoundingClientRect().top) /
-        MM_PX -
+      pageHMM -
+      parseFloat(ps.paddingTop) -
+      parseFloat(ps.paddingBottom) -
+      (grid.getBoundingClientRect().top - page.getBoundingClientRect().top) / MM_PX -
       SAFETY_MM;
     const innerWMM =
       (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
@@ -88,7 +95,7 @@ export function SheetSetup({
   const cols = fit ? fit.cols : 3;
 
   return (
-    <div ref={pageRef} className="a4-page">
+    <div ref={pageRef} className={`a4-page${landscape ? " landscape" : ""}`}>
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
         subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}`}
