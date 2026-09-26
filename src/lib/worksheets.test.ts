@@ -399,7 +399,7 @@ describe("sidfyllnad (fitGridCount / evenRowGap)", () => {
   it("kolumner efter bredd: smala uppgifter ger fler kolumner", () => {
     expect(fitGridCount(182, 227, 46, 29, 10, 12).cols).toBe(3);
     expect(fitGridCount(182, 227, 80, 29, 10, 12).cols).toBe(2);
-et  });
+  });
 
   it("evenRowGap fördelar resthöjden jämnt men aldrig under grundmellanrummet", () => {
     // 5 rader à 29 mm ger 145 mm; resten av 227 mm fördelas på 4 mellanrum
