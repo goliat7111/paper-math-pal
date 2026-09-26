@@ -161,13 +161,14 @@ function Problem({
         {L.topRow.map((c, i) => (
           <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
         ))}
-        {/* Ensiffrig faktor: minnesrutan spänner över rad 1–2 */}
+        {/* Minnesrutan sitter alltid uppe vid faktorerna, rad 1–2 */}
         {!multi && carryBox(L.carries, "1 / span 2")}
+        {multi && carryBox(L.partialRows.flatMap((p) => p.carries), "1 / span 2")}
         {/* Rad 2: teckenrad med understrykning */}
         {signRow.map((c, i) => (
           <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
         ))}
-        {/* Delprodukter, var och en med egen minnesruta */}
+        {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
             {p.cells.map((c, i) => (
@@ -180,9 +181,12 @@ function Problem({
                 answer={answers}
               />
             ))}
-            {carryBox(p.carries, 3 + r)}
           </Fragment>
         ))}
+        {/* Plus-tecken i additionsuträkningen, ett steg vänster om produkten */}
+        {multi && (
+          <Cell v="+" col={Math.max(1, L.nCols - L.productRow.length)} row={productRowIdx} height={cellH} rule />
+        )}
         {/* Produkten, med streck ovanför när det finns delprodukter */}
         {L.productRow.map((c, i) => (
           <Cell
