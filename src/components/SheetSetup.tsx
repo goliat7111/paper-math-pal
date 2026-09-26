@@ -1,7 +1,8 @@
 import { setupCarries, setupValue, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 
-const COLS = 5; // teckenkolumn + 4 siffror (tusental–ental)
+// Kolumner: tusental · hundratal · tiotal · ental + bred minnessifferruta till höger
+const GRID = "repeat(4, 9mm) 14mm";
 
 export function SheetSetup({ tasks, answers, range }: { tasks: SetupTask[]; answers: boolean; range: [number, number] }) {
   return (
@@ -21,24 +22,33 @@ export function SheetSetup({ tasks, answers, range }: { tasks: SetupTask[]; answ
 }
 
 function Problem({ n, t, answers }: { n: number; t: SetupTask; answers: boolean }) {
-  const carries = setupCarries(t);
+  // Minnessiffror i beräkningsordning (ental först), endast de som uppstår
+  const carries = setupCarries(t).slice(1).filter((c) => c > 0);
   const product = String(setupValue(t) * t.m).padStart(4, " ").split("");
-  const top = [" ", " ", ...t.digits.map(String)];
-  const bottom = ["∙", " ", " ", " ", String(t.m)];
-  // minnesrad: kolumn index 1..4 motsvarar position 3..0
-  const memory = [" ", ...[3, 2, 1, 0].map((p) => (answers && carries[p] ? String(carries[p]) : " "))];
-  const ans = [" ", ...product.map((d) => (answers ? d.trim() : " "))];
+  const top = [" ", ...t.digits.map(String)];
+  // ×-tecknet under första siffran i den övre faktorn, faktorn i entalskolumnen
+  const bottom = [" ", "×", " ", String(t.m)];
+  const ans = product.map((d) => (answers ? d.trim() : " "));
 
   return (
     <div>
       <div className="mb-1 text-[11px] font-semibold text-sheet-muted">{n})</div>
-      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${COLS}, 9mm)` }}>
-        {memory.map((c, i) => (
-          <Cell key={`m${i}`} v={c} memory />
-        ))}
+      <div className="grid-sheet" style={{ gridTemplateColumns: GRID }}>
         {top.map((c, i) => (
           <Cell key={`t${i}`} v={c} />
         ))}
+        {/* Minnessifferruta till höger: spänner över talraden och teckenraden */}
+        <div
+          className="flex flex-col items-center justify-center gap-[1px] border border-sheet-grid"
+          style={{ gridRow: "1 / span 2" }}
+        >
+          {answers &&
+            carries.map((c, i) => (
+              <div key={i} className="text-[12px] font-bold leading-none text-sheet-answer">
+                {c}
+              </div>
+            ))}
+        </div>
         {bottom.map((c, i) => (
           <Cell key={`b${i}`} v={c} underline />
         ))}
@@ -50,12 +60,11 @@ function Problem({ n, t, answers }: { n: number; t: SetupTask; answers: boolean 
   );
 }
 
-function Cell({ v, memory, underline, answer }: { v: string; memory?: boolean; underline?: boolean; answer?: boolean }) {
+function Cell({ v, underline, answer }: { v: string; underline?: boolean; answer?: boolean }) {
   return (
     <div
       className={[
-        "flex items-center justify-center border border-sheet-grid font-mono tabular-nums",
-        memory ? "h-[6mm] items-end pb-[1px] text-[11px] text-sheet-answer" : "h-[9mm] text-[20px] text-sheet-ink",
+        "flex h-[9mm] items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
         underline ? "border-b-2 border-b-sheet-ink" : "",
         answer ? "font-bold text-sheet-answer" : "",
       ].join(" ")}
