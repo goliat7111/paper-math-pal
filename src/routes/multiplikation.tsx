@@ -106,7 +106,7 @@ function MultiplikationPage() {
           </div>
           <nav className="ml-auto flex rounded-lg bg-muted p-1">
             {([
-              ["102", "102 tal (5 min)"],
+              ["102", "102 tal (6 min)"],
               ["setup", "Mult. uppställning"],
             ] as const).map(([k, label]) => (
               <button
