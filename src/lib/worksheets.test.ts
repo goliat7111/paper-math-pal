@@ -211,6 +211,13 @@ describe("setupLayout", () => {
     expect(L.productRow).toEqual(["", "7", "9", "4", "8", "8"]);
     expect(L.carries).toEqual([]);
     expect(L.sumLeft).toBe(1); // additionsdelen börjar i kolumn 2, + i kolumn 1
+    expect(L.additionCarries).toEqual(["", "1", "", "", "", ""]); // 69120 + 10368 = 79488
+  });
+
+  it("additionens minnessiffror hamnar i kolumnen de förs över till", () => {
+    const L = setupLayout({ digits: [9, 9], m: [9, 9] }); // 8910 + 891 = 9801
+    expect(L.additionCarries).toEqual(["", "1", "1", "", ""]);
+    expect(setupLayout({ digits: [4, 8, 3], m: [2] }).additionCarries.every((c) => c === "")).toBe(true);
   });
 
   it("lik långa tal: ×-tecknet flyttas ett steg vänster om den undre faktorn", () => {

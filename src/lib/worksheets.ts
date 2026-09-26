@@ -109,6 +109,8 @@ export type SetupLayout = {
    *  dvs. den bredaste raden; plus-tecknet står en kolumn till vänster.
    *  -1 när den undre faktorn är ensiffrig (ingen additionsdel). */
   sumLeft: number;
+  /** Additionens minnessiffror, placerade över rätt sifferkolumn. */
+  additionCarries: string[];
 };
 
 /** Räknar ut exakt kolumnplacering för en uppställning: talen högerställda
@@ -155,6 +157,15 @@ export function setupLayout(t: SetupTask): SetupLayout {
 
   // Additionsdelen (delprodukter + summa): vänsterkolumnen för den bredaste raden
   const sumLeft = bottomLen > 1 ? nCols - maxExtent : -1;
+  const additionCarries: string[] = Array(nCols).fill("");
+  if (bottomLen > 1) {
+    let carry = 0;
+    for (let col = nCols - 1; col > 0; col--) {
+      const sum = partialRows.reduce((total, row) => total + Number(row.cells[col] || 0), carry);
+      carry = Math.floor(sum / 10);
+      if (carry > 0) additionCarries[col - 1] = String(carry);
+    }
+  }
 
   return {
     nCols,
@@ -165,6 +176,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
     productRow: align(product, nCols - 1),
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
     sumLeft,
+    additionCarries,
   };
 }
 
