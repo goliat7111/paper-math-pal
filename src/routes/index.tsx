@@ -74,7 +74,7 @@ function Index() {
             </>
           ) : (
             <>
-              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={4} />
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={3} />
               <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={setSb} min={1} max={3} />
             </>
           )}
