@@ -1,11 +1,13 @@
-import { Fragment } from "react";
-import { setupLayout, type SetupTask } from "@/lib/worksheets";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { fitGridCount, setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
 const colsFor = (tasks: SetupTask[]) => Math.max(...tasks.map((t) => setupLayout(t).nCols));
 const digitMM = (cols: number) => (cols >= 7 ? 6 : cols >= 6 ? 7 : cols >= 5 ? 7.5 : cols >= 4 ? 8 : 9);
 const gapMM = (cols: number) => (cols >= 6 ? 4 : cols >= 5 ? 6 : cols >= 4 ? 10 : 14);
+const MM_PX = 96 / 25.4; // CSS: 1mm = 96/25.4 px
+const SAFETY_MM = 2; // litet säkerhetsmått för fonter/avrundning
 
 const digitLabel = (range: [number, number], singular: string, plural: string) => {
   const [lo, hi] = [...range].sort((a, b) => a - b);
@@ -24,20 +26,60 @@ export function SheetSetup({
   bottomDigits: [number, number];
 }) {
   const maxCols = colsFor(tasks);
+  const digitMm = digitMM(maxCols);
+  const colGapMm = gapMM(maxCols);
   const multi = tasks.some((t) => t.m.length > 1);
+  const rowGapMm = multi ? 8 : 12;
+
+  // Fyll sidan: fler uppgifter när talen är små och det ryms (avstånden oförändrade)
+  const pageRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<{ cols: number; count: number } | null>(null);
+
+  useEffect(() => {
+    const page = pageRef.current;
+    const grid = gridRef.current;
+    const first = grid?.firstElementChild as HTMLElement | null;
+    if (!page || !grid || !first) return;
+    const ps = getComputedStyle(page);
+    const availMM =
+      (page.getBoundingClientRect().bottom -
+        parseFloat(ps.paddingBottom) -
+        grid.getBoundingClientRect().top) /
+        MM_PX -
+      SAFETY_MM;
+    const innerWMM =
+      (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
+    const wMM = first.offsetWidth / MM_PX;
+    const hMM = first.offsetHeight / MM_PX;
+    const next = fitGridCount(innerWMM, availMM, wMM, hMM, colGapMm, rowGapMm, tasks.length);
+    setFit((prev) =>
+      prev && prev.cols === next.cols && prev.count === next.count ? prev : next,
+    );
+  }); // kör efter varje rendering tills måttet stabiliserats
+
+  const initial = Math.min(12, tasks.length);
+  const shown = tasks.slice(0, fit ? fit.count : initial);
+  const cols = fit ? fit.cols : 3;
+
   return (
-    <div className="a4-page">
+    <div ref={pageRef} className="a4-page">
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
         subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}`}
-        score={`av ${tasks.length}`}
+        score={`av ${shown.length}`}
       />
       <div
-        className="mt-8 grid grid-cols-3 justify-items-center"
-        style={{ columnGap: `${gapMM(maxCols)}mm`, rowGap: multi ? "8mm" : "12mm" }}
+        ref={gridRef}
+        className="mt-8 grid justify-items-center"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          columnGap: `${colGapMm}mm`,
+          rowGap: `${rowGapMm}mm`,
+        }}
       >
-        {tasks.map((t, i) => (
-          <Problem key={i} n={i + 1} t={t} answers={answers} digitMm={digitMM(maxCols)} />
+        {shown.map((t, i) => (
+          <Problem key={i} n={i + 1} t={t} answers={answers} digitMm={digitMm} />
         ))}
       </div>
     </div>

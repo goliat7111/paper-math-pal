@@ -42,11 +42,13 @@ function Index() {
     setSb([Math.min(v[0], topHi), Math.min(v[1], topHi)]);
   };
 
+  // Stor pool: bladet visar själv så många uppgifter som ryms på A4-sidan
+  const SETUP_POOL = 40;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sd, sb, 12)), [sd, sb]);
+  useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL)), [sd, sb]);
 
   const regenerate = () =>
-    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, 12));
+    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, SETUP_POOL));
 
   return (
     <div className="min-h-screen bg-background">
