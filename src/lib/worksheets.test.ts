@@ -39,6 +39,12 @@ describe("gen102", () => {
     }
   });
 
+  it("ger bara unika multiplikationer när de unika inte ryms (fler än 102)", () => {
+    const tasks = gen102([1, 12], [1, 12]); // 144 unika > 102 platser
+    const seen = new Set(tasks.map((t) => `${t.a}x${t.b}`));
+    expect(seen.size).toBe(102);
+  });
+
   it("fördelar varje faktor så jämnt som möjligt (skillnad högst 1)", () => {
     const ranges: [[number, number], [number, number]][] = [
       [[2, 9], [3, 9]],
