@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Printer, RefreshCw } from "lucide-react";
+import { Printer, RefreshCw, FileDown, FileText } from "lucide-react";
 import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
+import type { Orientation } from "@/lib/exportPdf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +31,8 @@ function Index() {
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
+  const [orientation, setOrientation] = useState<Orientation>("portrait");
+  const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
   const applyFit = (f: SetupFit) =>
     setFitInfo((p) =>
@@ -55,8 +58,21 @@ function Index() {
   const regenerate = () =>
     tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, SETUP_POOL));
 
+  const downloadPdf = async () => {
+    setExporting(true);
+    try {
+      // Laddas i webbläsaren först vid klick
+      const { exportSheetsToPdf } = await import("@/lib/exportPdf");
+      await exportSheetsToPdf(orientation, `raknebladet-${tab}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* @page-regeln följer vald riktning (styr utskriftens pappersformat) */}
+      <style>{`@page { size: A4 ${orientation}; margin: 0; }`}</style>
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-4">
           <div>
