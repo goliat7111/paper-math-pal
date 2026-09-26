@@ -19,6 +19,7 @@
 - [x] Sammanfattning före export: antal sidor och uppgifter (102-tal eller uppställning), A4 stående
 - [x] Liggande A4 byggdes och togs sedan bort på Magnus önskan – stående är enda formatet
 - [x] Siffergränser korrigeras automatiskt: undre gränsen kan aldrig överstiga den övre, och undre talets val klämms alltid till övre talets max
+- [x] Låg rad direkt under övre strecket för additionsminnessiffror vid flersiffrig undre faktor; facit visar siffrorna i rött
 
 ## Senare (väntar på Magnus)
 - [ ] Decimaltal i uppställningen – välja decimaltal som faktorer (heltal är klart)

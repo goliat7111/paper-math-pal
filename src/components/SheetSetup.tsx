@@ -46,7 +46,8 @@ export function SheetSetup({
   useEffect(() => {
     const page = pageRef.current;
     const grid = gridRef.current;
-    const first = grid?.firstElementChild as HTMLElement | null;
+    const problems = Array.from(grid?.children ?? []) as HTMLElement[];
+    const first = problems[0];
     if (!page || !grid || !first) return;
     const ps = getComputedStyle(page);
     // A4-höjden är fix (297/210 mm): sidan får inte växa med innehållet,
@@ -63,7 +64,9 @@ export function SheetSetup({
     const innerWMM =
       (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
     const wMM = first.offsetWidth / MM_PX;
-    const hMM = first.offsetHeight / MM_PX;
+    // Blandade en- och flersiffriga faktorer ger olika höga uppställningar.
+    // Räkna efter den högsta så att även den extra minnesraden ryms på A4.
+    const hMM = Math.max(...problems.map((problem) => problem.offsetHeight)) / MM_PX;
     const { cols, rows, count } = fitGridCount(
       innerWMM,
       availMM,
@@ -134,7 +137,8 @@ function Problem({
   const gridCols = `repeat(${L.nCols}, ${digitMm}mm) 14mm`;
   const cellH = `${digitMm}mm`;
   const multi = L.partialRows.length > 0;
-  const productRowIdx = 3 + L.partialRows.length;
+  const partialStartRow = multi ? 4 : 3;
+  const productRowIdx = partialStartRow + L.partialRows.length;
 
   // Teckenrad: × plus den undre faktorn högerställd mot ental
   const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
@@ -156,7 +160,7 @@ function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       <div className="mb-1 text-[11px] font-semibold text-sheet-muted">{n})</div>
-      <div className="grid-sheet" style={{ gridTemplateColumns: gridCols }}>
+      <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `repeat(3, ${cellH})` }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
           <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
@@ -170,6 +174,16 @@ function Problem({
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
         <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)" }} />
+        {/* Lägre rad för additionens minnessiffror, direkt under övre strecket */}
+        {multi && L.additionCarries.map((c, i) => (
+          <div
+            key={`ac${i}`}
+            className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
+            style={{ gridColumn: i + 1, gridRow: 3, height: "4mm" }}
+          >
+            {answers ? c : ""}
+          </div>
+        ))}
         {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
@@ -178,7 +192,7 @@ function Problem({
                 key={`p${r}-${i}`}
                 v={answers ? c : ""}
                 col={i + 1}
-                row={3 + r}
+                row={partialStartRow + r}
                 height={cellH}
                 answer={answers}
               />
@@ -187,7 +201,7 @@ function Problem({
         ))}
         {/* Plus-tecknet står på sista delproduktraden, vänster om additionsdelen */}
         {multi && (
-          <Cell v="+" col={L.sumLeft} row={3 + L.partialRows.length - 1} height={cellH} />
+          <Cell v="+" col={L.sumLeft} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
         )}
         {/* Tjockt streck ovanför summan, så brett som additionsdelen */}
         {multi && (
