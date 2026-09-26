@@ -31,6 +31,17 @@ function Index() {
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
 
+  // Den undre faktorn får aldrig ha fler siffror än det övre talet
+  const applySd = (v: [number, number]) => {
+    setSd(v);
+    const topHi = Math.max(...v);
+    setSb(([lo, hi]) => [Math.min(lo, topHi), Math.min(hi, topHi)]);
+  };
+  const applySb = (v: [number, number]) => {
+    const topHi = Math.max(...sd);
+    setSb([Math.min(v[0], topHi), Math.min(v[1], topHi)]);
+  };
+
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
   useEffect(() => setTSetup(genSetup(sd, sb, 12)), [sd, sb]);
 
@@ -74,8 +85,9 @@ function Index() {
             </>
           ) : (
             <>
-              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={3} />
-              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={setSb} min={1} max={3} />
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
+              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={3} />
+              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet.</p>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">

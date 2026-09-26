@@ -8,6 +8,7 @@
 - [x] Välj storlek på båda faktorerna i uppställningsbladet; kolumnbredder och mellanrum anpassas automatiskt
 - [x] Flersiffrig undre faktor: 1–3 siffror i undre talet med delprodukter, egna minnessiffror per delprodukt och streck ovanför produkten
 - [x] Övre talet: valbart 1–3 siffror (heltal 0–9999, första siffran aldrig 0); femsiffriga tal borttagna
+- [x] Undre faktorn kan aldrig ha fler siffror än övre talet (fälten kopplade, värden klagas automatiskt)
 
 ## Senare (väntar på Magnus)
 - [ ] Decimaltal i uppställningen – välja decimaltal som faktorer (heltal är klart)
