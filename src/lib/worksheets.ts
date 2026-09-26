@@ -6,9 +6,24 @@ export const rand = (min: number, max: number) => {
 
 export type MulTask = { a: number; b: number };
 
-/** 102 tal: 3 kolumner × 34 rader, grupperade i block om 5. */
+/** 102 tal: 3 kolumner × 34 rader, grupperade i block om 5.
+ *  Försöker täcka alla unika faktorkombinationer inom intervallen;
+ *  återstående platser fylls med slumpade dubbletter. */
 export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
-  return Array.from({ length: 102 }, () => ({ a: rand(...f1), b: rand(...f2) }));
+  const lo1 = Math.min(...f1), hi1 = Math.max(...f1);
+  const lo2 = Math.min(...f2), hi2 = Math.max(...f2);
+  const all: MulTask[] = [];
+  for (let a = lo1; a <= hi1; a++)
+    for (let b = lo2; b <= hi2; b++) all.push({ a, b });
+  // Blanda alla unika kombinationer
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [all[i], all[j]] = [all[j]!, all[i]!];
+  }
+  const tasks = all.slice(0, 102);
+  // Fyll upp till 102 med slumpade dubbletter om kombinationerna inte räcker
+  while (tasks.length < 102) tasks.push({ a: rand(...f1), b: rand(...f2) });
+  return tasks;
 }
 
 export type SetupTask = { digits: number[]; m: number };
