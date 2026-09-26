@@ -231,6 +231,6 @@ describe("setupLayout", () => {
       expect(L.productRow[L.factorCol]).toBe(product.slice(-1));
       // Minst fyra sifferkolumner
       expect(L.nCols).toBeGreaterThanOrEqual(4);
-ecursively    }
+    }
   });
 });
