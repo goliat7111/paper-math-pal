@@ -25,17 +25,17 @@ function Index() {
   const [tab, setTab] = useState<Tab>("102");
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
-  const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
+  const [sb, setSb] = useState<[number, number]>([1, 1]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
 
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sr, 12, sd)), [sr, sd]);
+  useEffect(() => setTSetup(genSetup(sd, sb, 12)), [sd, sb]);
 
   const regenerate = () =>
-    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr, 12, sd));
+    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, 12));
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,7 +48,7 @@ function Index() {
           <nav className="ml-auto flex rounded-lg bg-muted p-1">
             {([
               ["102", "102 tal (5 min)"],
-              ["setup", "Mult. uppställning (1-talsfaktor)"],
+              ["setup", "Mult. uppställning"],
             ] as const).map(([k, label]) => (
               <button
                 key={k}
@@ -74,8 +74,8 @@ function Index() {
             </>
           ) : (
             <>
-              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
-              <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={4} />
+              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={setSb} min={1} max={3} />
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
@@ -102,8 +102,8 @@ function Index() {
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} factorRange={sr} digitRange={sd} />
-              {withKey && <SheetSetup tasks={tSetup} answers factorRange={sr} digitRange={sd} />}
+              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />
+              {withKey && <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />}
             </>
           )}
         </main>
