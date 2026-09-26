@@ -17,11 +17,12 @@ export async function exportSheetsToPdf(
   const w = orientation === "portrait" ? 210 : 297;
   const h = orientation === "portrait" ? 297 : 210;
   for (let i = 0; i < pages.length; i++) {
-    const png = await toPng(pages[i], {
+    const page = pages[i]!;
+    const png = await toPng(page, {
       pixelRatio: 2,
       backgroundColor: "#ffffff",
-      width: pages[i].offsetWidth,
-      height: pages[i].offsetHeight,
+      width: page.offsetWidth,
+      height: page.offsetHeight,
       style: { boxShadow: "none" },
     });
     if (i > 0) pdf.addPage("a4", orientation);
