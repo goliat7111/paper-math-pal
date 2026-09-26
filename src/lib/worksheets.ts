@@ -49,80 +49,110 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
   return tasks;
 }
 
-export type SetupTask = { digits: number[]; m: number };
+export type SetupTask = { digits: number[]; m: number[] };
 
-/** Uppställning: tal med valbart antal siffror · ensiffrig faktor.
- *  Första siffran i det övre talet är aldrig 0. */
-export function genSetup(
-  factorRange: [number, number],
-  count = 12,
-  digitCount: [number, number] = [3, 3],
-): SetupTask[] {
-  const lo = Math.min(...factorRange);
-  const hi = Math.max(...factorRange);
-  const firstLo = Math.max(lo, 1);
-  const firstHi = Math.max(hi, firstLo);
-  return Array.from({ length: count }, () => {
-    const k = rand(...digitCount);
-    const digits = Array.from({ length: k }, (_, i) =>
-      i === 0 ? rand(firstLo, firstHi) : rand(lo, hi),
-    );
-    return { digits, m: rand(lo, hi) };
-  });
-}
+/** Läser en sifferlista till ett tal (t.ex. [4, 8, 3] → 483). */
+export const digitValue = (ds: number[]) => ds.reduce((v, d) => v * 10 + d, 0);
 
-/** Minnessiffror per position (index 0 = ental). carries[i] = minnessiffra som flyttas till position i. */
-export function setupCarries(t: SetupTask): number[] {
-  const rev = [...t.digits].reverse();
-  const carries = [0, 0, 0, 0];
+export const setupValue = (t: SetupTask) => digitValue(t.digits) * digitValue(t.m);
+
+/** Minnessiffror när talet multipliceras med ensiffriga d,
+ *  i beräkningsordning (ental först); index i hör till siffra i. */
+export function rowCarries(top: number[], d: number): number[] {
+  const carries: number[] = [];
   let c = 0;
-  rev.forEach((d, i) => {
-    const p = d * t.m + c;
-    c = Math.floor(p / 10);
-    carries[i + 1] = c;
-  });
+  for (let i = top.length - 1; i >= 0; i--) {
+    c = Math.floor((top[i]! * d + c) / 10);
+    carries.push(c);
+  }
   return carries;
 }
 
-export const setupValue = (t: SetupTask) => Number(t.digits.join(""));
+/** Uppställning: övre talet 1–4 siffror (upp till 9999), undre faktorn 1–3 siffror.
+ *  Första siffran i båda talen är aldrig 0. */
+export function genSetup(
+  topDigits: [number, number] = [3, 3],
+  bottomDigits: [number, number] = [1, 1],
+  count = 12,
+): SetupTask[] {
+  const genNumber = (range: [number, number]) => {
+    const k = Math.max(1, rand(...range));
+    // Ensiffriga faktorer är aldrig 1 (trivial multiplikation) – minst 2
+    return Array.from({ length: k }, (_, i) => (i === 0 ? rand(k === 1 ? 2 : 1, 9) : rand(0, 9)));
+  };
+  return Array.from({ length: count }, () => ({
+    digits: genNumber(topDigits),
+    m: genNumber(bottomDigits),
+  }));
+}
+
+export type SetupPartial = { cells: string[]; carries: number[] };
 
 export type SetupLayout = {
   /** Antal sifferkolumner (vänster till höger; sista kolumnen är ental). */
   nCols: number;
   /** Övre faktorn per kolumn; "" = tom cell. */
   topRow: string[];
-  /** Kolumnindex för ×-tecknet (under första siffran i den övre faktorn). */
+  /** Kolumnindex för ×-tecknet (under första siffran i den övre faktorn,
+   *  eller ett steg vänster om den undre faktorn när den är minst lika lång). */
   signCol: number;
-  /** Kolumnindex för den ensiffriga faktorn (ental). */
-  factorCol: number;
+  /** Den undre faktorn per kolumn, högerställd mot ental; "" = tom cell. */
+  bottomRow: string[];
+  /** Delprodukter (bara när den undre faktorn har fler än en siffra),
+   *  mest signifikanta först; varje rad har egna minnessiffror. */
+  partialRows: SetupPartial[];
   /** Produkten per kolumn, högerställd mot ental; "" = tom cell. */
   productRow: string[];
-  /** Minnessiffror i beräkningsordning (ental först), endast de som uppstår. */
+  /** Minnessiffror för produkten, endast när den undre faktorn har en siffra. */
   carries: number[];
 };
 
 /** Räknar ut exakt kolumnplacering för en uppställning: talen högerställda
- *  mot ental, × under första siffran i den övre faktorn, produkten under
- *  faktorerna, minnessiffror i beräkningsordning. */
+ *  mot ental, × under första siffran i den övre faktorn, delprodukter med
+ *  förskjutning, produkten under faktorerna, minnessiffror i beräkningsordning. */
 export function setupLayout(t: SetupTask): SetupLayout {
-  const product = String(setupValue(t) * t.m);
-  const k = t.digits.length;
-  const nCols = Math.max(k, product.length, 4);
-  const topRow: string[] = Array.from({ length: nCols }, () => "");
-  t.digits.forEach((d, i) => {
-    topRow[nCols - k + i] = String(d);
-  });
-  const productRow: string[] = Array.from({ length: nCols }, () => "");
-  product.split("").forEach((d, i) => {
-    productRow[nCols - product.length + i] = d;
-  });
+  const top = t.digits;
+  const bottom = t.m;
+  const topLen = top.length;
+  const bottomLen = bottom.length;
+  const topValue = digitValue(top);
+  const product = String(setupValue(t));
+
+  let nCols = Math.max(topLen, bottomLen + 1, product.length, 4);
+  for (let p = 0; p < bottomLen; p++) {
+    const len = String(topValue * bottom[bottomLen - 1 - p]!).length;
+    nCols = Math.max(nCols, len + p);
+  }
+  // ×-tecknet behöver en egen kolumn när den undre faktorn är minst lika lång
+  if (bottomLen >= topLen) nCols = Math.max(nCols, bottomLen + 2);
+
+  const signCol = topLen > bottomLen ? nCols - topLen : nCols - bottomLen - 1;
+
+  const align = (text: string, endCol: number) => {
+    const row: string[] = Array(nCols).fill("");
+    for (let i = 0; i < text.length; i++) row[endCol - text.length + 1 + i] = text[i]!;
+    return row;
+  };
+
+  const partialRows: SetupPartial[] = [];
+  if (bottomLen > 1) {
+    for (let pos = bottomLen - 1; pos >= 0; pos--) {
+      const d = bottom[bottomLen - 1 - pos]!; // pos = position från ental
+      partialRows.push({
+        cells: align(String(topValue * d), nCols - 1 - pos),
+        carries: rowCarries(top, d).filter((c) => c > 0),
+      });
+    }
+  }
+
   return {
     nCols,
-    topRow,
-    signCol: nCols - k,
-    factorCol: nCols - 1,
-    productRow,
-    carries: setupCarries(t).slice(1).filter((c) => c > 0),
+    topRow: align(top.join(""), nCols - 1),
+    signCol,
+    bottomRow: align(bottom.join(""), nCols - 1),
+    partialRows,
+    productRow: align(product, nCols - 1),
+    carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
   };
 }
 
@@ -135,3 +165,31 @@ export const chunk = <T,>(arr: T[], sizes: number[]) => {
   }
   return out;
 };
+
+/** Hur många uppgifter som ryms i ett rutnät: kolumner efter tillgänglig bredd,
+ *  rader efter tillgänglig höjd, med oförändrade mellanrum. */
+export function fitGridCount(
+  innerW: number,
+  availH: number,
+  w: number,
+  h: number,
+  colGap: number,
+  rowGap: number,
+  max = Infinity,
+): { cols: number; rows: number; count: number } {
+  const cols = Math.max(1, Math.floor((innerW + colGap) / (w + colGap)));
+  const rows = Math.max(1, Math.floor((availH + rowGap) / (h + rowGap)));
+  return { cols, rows, count: Math.min(max, cols * rows) };
+}
+
+/** Radmellanrum som fördelar resten av sidhöjden jämnt mellan raderna,
+ *  men aldrig mindre än grundmellanrummet. */
+export function evenRowGap(
+  availH: number,
+  rows: number,
+  h: number,
+  minGap: number,
+): number {
+  if (rows <= 1) return minGap;
+  return Math.max(minGap, (availH - rows * h) / (rows - 1));
+}

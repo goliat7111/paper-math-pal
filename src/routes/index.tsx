@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Printer, RefreshCw } from "lucide-react";
+import { Printer, RefreshCw, FileDown } from "lucide-react";
 import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
-import { SheetSetup } from "@/components/SheetSetup";
+import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,17 +25,47 @@ function Index() {
   const [tab, setTab] = useState<Tab>("102");
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
-  const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
+  const [sb, setSb] = useState<[number, number]>([1, 1]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
+  const applyFit = (f: SetupFit) =>
+    setFitInfo((p) =>
+      p && p.count === f.count && p.cols === f.cols && p.rows === f.rows ? p : f,
+    );
 
+  // Den undre faktorn får aldrig ha fler siffror än det övre talet
+  const applySd = (v: [number, number]) => {
+    setSd(v);
+    const topHi = Math.max(...v);
+    setSb(([lo, hi]) => [Math.min(lo, topHi), Math.min(hi, topHi)]);
+  };
+  const applySb = (v: [number, number]) => {
+    const topHi = Math.max(...sd);
+    setSb([Math.min(v[0], topHi), Math.min(v[1], topHi)]);
+  };
+
+  // Stor pool: bladet visar själv så många uppgifter som ryms på A4-sidan
+  const SETUP_POOL = 40;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sr, 12, sd)), [sr, sd]);
+  useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL)), [sd, sb]);
 
   const regenerate = () =>
-    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sr, 12, sd));
+    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, SETUP_POOL));
+
+  const downloadPdf = async () => {
+    setExporting(true);
+    try {
+      // Laddas i webbläsaren först vid klick
+      const { exportSheetsToPdf } = await import("@/lib/exportPdf");
+      await exportSheetsToPdf("portrait", `raknebladet-${tab}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,7 +78,7 @@ function Index() {
           <nav className="ml-auto flex rounded-lg bg-muted p-1">
             {([
               ["102", "102 tal (5 min)"],
-              ["setup", "Mult. uppställning (1-talsfaktor)"],
+              ["setup", "Mult. uppställning"],
             ] as const).map(([k, label]) => (
               <button
                 key={k}
@@ -74,17 +104,29 @@ function Index() {
             </>
           ) : (
             <>
-              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={setSd} min={1} max={5} />
-              <RangeInput label="Undre faktorn mellan" value={sr} onChange={setSr} min={0} max={9} />
+              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
+              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={3} />
+              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet.</p>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
             Skriv ut med facit (extra sida)
           </label>
+          <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            {tab === "setup" &&
+              (fitInfo
+                ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
+                : "Förhandsgranskning: beräknar… ")}
+            PDF: {withKey ? "2 sidor (blad + facit)" : "1 sida (bladet)"} ·{" "}
+            {tab === "102" ? 102 : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
+          </p>
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
+            </button>
+            <button onClick={downloadPdf} disabled={exporting} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-60">
+              <FileDown className="h-4 w-4" /> {exporting ? "Skapar PDF…" : "Ladda ner PDF"}
             </button>
             <button onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
               <Printer className="h-4 w-4" /> Skriv ut
@@ -102,8 +144,10 @@ function Index() {
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} factorRange={sr} digitRange={sd} />
-              {withKey && <SheetSetup tasks={tSetup} answers factorRange={sr} digitRange={sd} />}
+              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+              {withKey && (
+                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+              )}
             </>
           )}
         </main>

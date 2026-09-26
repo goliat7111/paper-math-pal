@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gen102, genSetup, setupLayout, setupValue } from "./worksheets";
+import { digitValue, evenRowGap, fitGridCount, gen102, genSetup, setupLayout, setupValue } from "./worksheets";
 
 const count = <T,>(items: T[]) => {
   const m = new Map<T, number>();
@@ -163,130 +163,250 @@ describe("gen102", () => {
 });
 
 describe("setupLayout", () => {
-  it("tre­siffrigt tal med tresiffrig produkt: allt högerställt mot ental", () => {
-    const L = setupLayout({ digits: [4, 8, 3], m: 2 }); // 483 × 2 = 966
+  it("tre­siffrigt tal med ensiffrig faktor: allt högerställt mot ental", () => {
+    const L = setupLayout({ digits: [4, 8, 3], m: [2] }); // 483 × 2 = 966
     expect(L.nCols).toBe(4);
     expect(L.topRow).toEqual(["", "4", "8", "3"]);
+    expect(L.bottomRow).toEqual(["", "", "", "2"]);
     expect(L.productRow).toEqual(["", "9", "6", "6"]);
     expect(L.signCol).toBe(1); // × under "4"
-    expect(L.factorCol).toBe(3); // faktorn under "3" (ental)
+    expect(L.partialRows).toEqual([]);
+    expect(L.carries).toEqual([1]); // 483 × 2 = 966, minnessiffra 1 vid hundratalet
   });
 
   it("tre­siffrigt tal med fyrsiffrig produkt: produkten fyller vänstra kolumnen", () => {
-    const L = setupLayout({ digits: [2, 0, 5], m: 8 }); // 205 × 8 = 1640
+    const L = setupLayout({ digits: [2, 0, 5], m: [8] }); // 205 × 8 = 1640
     expect(L.nCols).toBe(4);
     expect(L.topRow).toEqual(["", "2", "0", "5"]);
     expect(L.productRow).toEqual(["1", "6", "4", "0"]);
-    expect(L.productRow[L.factorCol]).toBe("0");
   });
 
   it("två­siffrigt tal: tal och produkt högerställda, × under första siffran", () => {
-    const L = setupLayout({ digits: [4, 7], m: 6 }); // 47 × 6 = 282
+    const L = setupLayout({ digits: [4, 7], m: [6] }); // 47 × 6 = 282
     expect(L.nCols).toBe(4);
     expect(L.topRow).toEqual(["", "", "4", "7"]);
+    expect(L.bottomRow).toEqual(["", "", "", "6"]);
     expect(L.productRow).toEqual(["", "2", "8", "2"]);
     expect(L.signCol).toBe(2);
-    expect(L.productRow[L.factorCol]).toBe("2");
   });
 
-  it("fyrsiffrigt tal med fyrsiffrig produkt: ryms i fyra kolumner", () => {
-    const L = setupLayout({ digits: [1, 2, 3, 4], m: 5 }); // 1234 × 5 = 6170
+  it("fyrsiffrigt tal (max 9999) med ensiffrig faktor", () => {
+    const L = setupLayout({ digits: [9, 9, 9, 9], m: [9] }); // 9999 × 9 = 89991
+    expect(L.nCols).toBe(5);
+    expect(L.topRow).toEqual(["", "9", "9", "9", "9"]);
+    expect(L.productRow).toEqual(["8", "9", "9", "9", "1"]);
+    expect(L.signCol).toBe(1); // × under första "9"
+  });
+
+  it("två­siffrig undre faktor: delprodukter med förskjutning", () => {
+    const L = setupLayout({ digits: [3, 4, 5, 6], m: [2, 3] }); // 3456 × 23 = 79488
+    expect(L.nCols).toBe(5);
+    expect(L.topRow).toEqual(["", "3", "4", "5", "6"]);
+    expect(L.bottomRow).toEqual(["", "", "", "2", "3"]);
+    expect(L.signCol).toBe(1); // × under "3" (3456 × 23 → × under 3, 23 till höger)
+    expect(L.partialRows).toEqual([
+      { cells: ["6", "9", "1", "2", ""], carries: [1, 1] }, // 3456 × 2
+      { cells: ["1", "0", "3", "6", "8"], carries: [1, 1, 1, 1] }, // 3456 × 3
+    ]);
+    expect(L.productRow).toEqual(["7", "9", "4", "8", "8"]);
+    expect(L.carries).toEqual([]);
+  });
+
+  it("lik långa tal: ×-tecknet flyttas ett steg vänster om den undre faktorn", () => {
+    const L = setupLayout({ digits: [4, 7], m: [2, 3] }); // 47 × 23 = 1081
     expect(L.nCols).toBe(4);
-    expect(L.topRow).toEqual(["1", "2", "3", "4"]);
-    expect(L.productRow).toEqual(["6", "1", "7", "0"]);
-    expect(L.signCol).toBe(0);
+    expect(L.signCol).toBe(1);
+    expect(L.topRow).toEqual(["", "", "4", "7"]);
+    expect(L.bottomRow).toEqual(["", "", "2", "3"]);
+    expect(L.partialRows.map((p) => p.cells)).toEqual([
+      ["", "9", "4", ""], // 47 × 2
+      ["", "1", "4", "1"], // 47 × 3
+    ]);
+    expect(L.productRow).toEqual(["1", "0", "8", "1"]);
   });
 
-  it("fem­siffrigt tal med fem­siffrig produkt: kolumnerna växer", () => {
-    const L = setupLayout({ digits: [1, 2, 3, 4, 5], m: 9 }); // 12345 × 9 = 111105
-    expect(L.nCols).toBe(6);
-    expect(L.topRow).toEqual(["", "1", "2", "3", "4", "5"]);
-    expect(L.productRow).toEqual(["1", "1", "1", "1", "0", "5"]);
+  it("längre undre faktor: ×-tecknet hamnar vänster om den undre faktorn", () => {
+    const L = setupLayout({ digits: [2, 5], m: [1, 2, 3] }); // 25 × 123 = 3075
+    expect(L.nCols).toBe(5);
     expect(L.signCol).toBe(1);
+    expect(L.topRow).toEqual(["", "", "", "2", "5"]);
+    expect(L.bottomRow).toEqual(["", "", "1", "2", "3"]);
+    expect(L.partialRows.map((p) => p.cells)).toEqual([
+      ["", "2", "5", "", ""], // 25 × 1
+      ["", "", "5", "0", ""], // 25 × 2
+      ["", "", "", "7", "5"], // 25 × 3
+    ]);
+    expect(L.productRow).toEqual(["", "3", "0", "7", "5"]);
   });
 
   it("minnessiffrorna i beräkningsordning (ental först), endast de som uppstår", () => {
-    expect(setupLayout({ digits: [5, 7, 3], m: 4 }).carries).toEqual([1, 2, 2]); // 573 × 4
-    expect(setupLayout({ digits: [9, 9, 9], m: 9 }).carries).toEqual([8, 8, 8]);
-    expect(setupLayout({ digits: [1, 1, 1], m: 2 }).carries).toEqual([]); // inga minnessiffror
+    expect(setupLayout({ digits: [5, 7, 3], m: [4] }).carries).toEqual([1, 2, 2]); // 573 × 4
+    expect(setupLayout({ digits: [9, 9, 9], m: [9] }).carries).toEqual([8, 8, 8]);
+    expect(setupLayout({ digits: [1, 1, 1], m: [2] }).carries).toEqual([]); // inga minnessiffror
+    expect(setupLayout({ digits: [5, 7, 3], m: [2, 4] }).partialRows[1]!.carries).toEqual([1, 2, 2]);
   });
 
   it("invariant: produkten rättlinjad mot faktorerna för slumpade uppgifter", () => {
-    for (const t of genSetup([2, 9], 25)) {
+    for (const t of [...genSetup(), ...genSetup([2, 4], [2, 3], 25)]) {
       const L = setupLayout(t);
       const topStart = L.topRow.findIndex((d) => d !== "");
+      const top = digitValue(t.digits);
+      const bottom = digitValue(t.m);
+      const key = `${t.digits.join("")}×${t.m.join("")}`;
       // ×-tecknet ligger i samma kolumn som första siffran i den övre faktorn
-      expect(L.signCol, `× för ${t.digits.join("")}×${t.m}`).toBe(topStart);
-      // Faktorn och den övre faktorns sista siffra delar entalskolumn
-      expect(L.topRow[L.factorCol], `ental för ${t.digits.join("")}×${t.m}`).toBe(
+      // (eller ett steg vänster om den undre faktorn när den är minst lika lång)
+      if (t.digits.length > t.m.length) {
+        expect(L.signCol, `× för ${key}`).toBe(topStart);
+        expect(L.signCol, `× vänster om undre faktorn för ${key}`).toBeLessThan(
+          L.bottomRow.findIndex((d) => d !== ""),
+        );
+      } else {
+        expect(L.signCol, `× för ${key}`).toBe(
+          L.bottomRow.findIndex((d) => d !== "") - 1,
+        );
+      }
+      // Den undre faktorn och den övre faktorns sista siffra delar entalskolumn
+      expect(L.topRow[L.nCols - 1], `ental för ${key}`).toBe(
         String(t.digits[t.digits.length - 1]),
       );
-      // Produkten är högerställd: sista produktsiffran i entalskolumnen,
-      // övriga produktsiffror sammanhängande ett steg till vänster
+      expect(L.bottomRow[L.nCols - 1], `faktorens ental för ${key}`).toBe(
+        String(t.m[t.m.length - 1]),
+      );
+      // Produkten är högerställd: sista produktsiffran i entalskolumnen
+      const product = String(setupValue(t));
       const filled = L.productRow.map((d, i) => (d !== "" ? i : -1)).filter((i) => i >= 0);
-      const product = String(setupValue(t) * t.m);
-      expect(filled, `produktkolumner för ${t.digits.join("")}×${t.m}`).toEqual(
+      expect(filled, `produktkolumner för ${key}`).toEqual(
         Array.from({ length: product.length }, (_, i) => L.nCols - product.length + i),
       );
-      expect(L.productRow[L.factorCol]).toBe(product.slice(-1));
+      // Delprodukterna är förskjutna ett steg per position och stämmer värdemässigt
+      L.partialRows.forEach((p, r) => {
+        const digit = t.m[r]!; // mest signifikanta siffran först
+        const expected = String(top * digit);
+        const shift = t.m.length - 1 - r;
+        const pFilled = p.cells.map((d, i) => (d !== "" ? i : -1)).filter((i) => i >= 0);
+        expect(pFilled, `delprodukt ${r} för ${key}`).toEqual(
+          Array.from(
+            { length: expected.length },
+            (_, i) => L.nCols - 1 - shift - expected.length + 1 + i,
+          ),
+        );
+        expect(p.cells.filter((d) => d !== "").join("")).toBe(expected);
+      });
       // Minst fyra sifferkolumner
       expect(L.nCols).toBeGreaterThanOrEqual(4);
+      expect(L.bottomRow.findIndex((d) => d !== "")).toBeGreaterThan(L.signCol - 2);
     }
   });
 });
 
 describe("genSetup", () => {
-  it("ger önskat antal uppgifter med standardinställningen (3 siffror)", () => {
-    const tasks = genSetup([2, 9]);
+  it("ger önskat antal uppgifter med standardinställningen (3 siffror, 1-siffrig faktor)", () => {
+    const tasks = genSetup();
     expect(tasks).toHaveLength(12);
     for (const t of tasks) {
       expect(t.digits).toHaveLength(3);
-      expect(t.m).toBeGreaterThanOrEqual(2);
-      expect(t.m).toBeLessThanOrEqual(9);
+      expect(t.m).toHaveLength(1);
+      expect(setupValue(t)).toBeGreaterThan(0);
     }
   });
 
-  it("respekterar valt antal siffror i det övre talet (1–5 siffror)", () => {
-    for (const digitCount of [1, 2, 3, 4, 5] as const) {
-      const tasks = genSetup([2, 9], 20, [digitCount, digitCount]);
+  it("respekterar valt antal siffror i det övre talet (1–3 siffror)", () => {
+    for (const digitCount of [1, 2, 3] as const) {
+      const tasks = genSetup([digitCount, digitCount], [1, 1], 20);
       for (const t of tasks) {
         expect(t.digits, `${digitCount} siffror`).toHaveLength(digitCount);
+        expect(digitValue(t.digits)).toBeLessThanOrEqual(999);
+      }
+    }
+  });
+
+  it("respekterar valt antal siffror i den undre faktorn (1–3 siffror)", () => {
+    for (const digitCount of [1, 2, 3] as const) {
+      const tasks = genSetup([3, 3], [digitCount, digitCount], 20);
+      for (const t of tasks) {
+        expect(t.m, `${digitCount} siffror`).toHaveLength(digitCount);
+        expect(digitValue(t.m)).toBeLessThanOrEqual(999);
       }
     }
   });
 
   it("blandar talsort när sifferintervallet spänner över flera värden", () => {
-    const tasks = genSetup([2, 9], 40, [2, 4]);
-    const lengths = new Set(tasks.map((t) => t.digits.length));
-    expect(lengths.size).toBeGreaterThan(1);
+    const tasks = genSetup([2, 3], [1, 3], 40);
+    expect(new Set(tasks.map((t) => t.digits.length)).size).toBeGreaterThan(1);
+    expect(new Set(tasks.map((t) => t.m.length)).size).toBeGreaterThan(1);
     for (const t of tasks) {
       expect(t.digits.length).toBeGreaterThanOrEqual(2);
-      expect(t.digits.length).toBeLessThanOrEqual(4);
+      expect(t.digits.length).toBeLessThanOrEqual(3);
+      expect(t.m.length).toBeGreaterThanOrEqual(1);
+      expect(t.m.length).toBeLessThanOrEqual(3);
     }
   });
 
-  it("alla siffror och faktorn håller sig inom faktorintervallet", () => {
-    for (const t of genSetup([3, 7], 30, [2, 4])) {
-      for (const d of t.digits) {
-        expect(d).toBeGreaterThanOrEqual(3);
-        expect(d).toBeLessThanOrEqual(7);
-      }
-      expect(t.m).toBeGreaterThanOrEqual(3);
-      expect(t.m).toBeLessThanOrEqual(7);
-    }
-  });
-
-  it("första siffran i det övre talet är aldrig 0", () => {
-    for (const t of genSetup([0, 9], 60, [2, 5])) {
+  it("första siffran är aldrig 0, i något av talen", () => {
+    for (const t of genSetup([1, 3], [1, 3], 60)) {
       expect(t.digits[0], `första siffran i ${t.digits.join("")}`).toBeGreaterThan(0);
+      expect(t.m[0], `första siffran i ${t.m.join("")}`).toBeGreaterThan(0);
     }
   });
 
   it("tål omvända sifferintervall (max före min)", () => {
-    const tasks = genSetup([2, 9], 12, [4, 2]);
+    const tasks = genSetup([4, 2], [3, 1], 12);
     for (const t of tasks) {
       expect(t.digits.length).toBeGreaterThanOrEqual(2);
       expect(t.digits.length).toBeLessThanOrEqual(4);
+      expect(t.m.length).toBeGreaterThanOrEqual(1);
+      expect(t.m.length).toBeLessThanOrEqual(3);
     }
+  });
+
+  it("ensiffriga faktorer är aldrig 1 (båda talen, alla blandade intervall)", () => {
+    // Båda talen ensiffriga: värdet är alltid 2–9
+    for (const t of genSetup([1, 1], [1, 1], 30)) {
+      expect(digitValue(t.digits), `övre talet ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
+      expect(digitValue(t.m), `undre faktorn ${t.m.join("")}`).toBeGreaterThanOrEqual(2);
+    }
+    // Blandade intervall: varje ensiffrigt tal (oavsett position) är aldrig 1
+    for (const t of genSetup([1, 3], [1, 3], 100)) {
+      if (t.digits.length === 1) expect(t.digits[0], `övre ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
+      if (t.m.length === 1) expect(t.m[0], `undre ${t.m.join("")}`).toBeGreaterThanOrEqual(2);
+    }
+  });
+});
+
+describe("sidfyllnad (fitGridCount / evenRowGap)", () => {
+  it("fler uppgifter ryms när talen är små än när de är stora", () => {
+    // 1×1-siffrigt: smala och låga uppgifter (bredd 46 mm, höjd 29 mm)
+    const small = fitGridCount(182, 227, 46, 29, 10, 12);
+    // 3×3-siffrigt: breda och höga uppgifter (bredd 56 mm, höjd 47 mm)
+    const large = fitGridCount(182, 227, 56, 47, 4, 8);
+    expect(small.count).toBeGreaterThan(large.count);
+    expect(small.count).toBeGreaterThanOrEqual(15);
+    expect(large.count).toBeGreaterThanOrEqual(12);
+  });
+
+  it("rymmer aldrig fler uppgifter än poolen innehåller", () => {
+    const f = fitGridCount(182, 227, 46, 29, 10, 12, 12);
+    expect(f.count).toBeLessThanOrEqual(12);
+  });
+
+  it("ger minst en uppgift även när det knappt ryms", () => {
+    const f = fitGridCount(182, 20, 56, 47, 4, 8);
+    expect(f.cols).toBeGreaterThanOrEqual(1);
+    expect(f.rows).toBeGreaterThanOrEqual(1);
+    expect(f.count).toBeGreaterThanOrEqual(1);
+  });
+
+  it("kolumner efter bredd: smala uppgifter ger fler kolumner", () => {
+    expect(fitGridCount(182, 227, 46, 29, 10, 12).cols).toBe(3);
+    expect(fitGridCount(182, 227, 80, 29, 10, 12).cols).toBe(2);
+  });
+
+  it("evenRowGap fördelar resthöjden jämnt men aldrig under grundmellanrummet", () => {
+    // 5 rader à 29 mm ger 145 mm; resten av 227 mm fördelas på 4 mellanrum
+    expect(evenRowGap(227, 5, 29, 12)).toBeCloseTo((227 - 145) / 4, 5);
+    // Endast en rad: grundmellanrummet
+    expect(evenRowGap(227, 1, 29, 12)).toBe(12);
+    // Knapp ryms: aldrig mindre än grundmellanrummet
+    expect(evenRowGap(150, 5, 29, 12)).toBe(12);
   });
 });
