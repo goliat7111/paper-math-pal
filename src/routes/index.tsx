@@ -131,8 +131,8 @@ function Index() {
           ) : (
             <>
               <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
-              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={3} />
-              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet.</p>
+              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={Math.max(...sd)} />
+              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet, och gränserna korrigeras automatiskt.</p>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
@@ -223,6 +223,8 @@ function RangeInput({
     const n = Math.max(min, Math.min(max, Number(s) || 0));
     const next: [number, number] = [...value] as [number, number];
     next[i] = n;
+    // Den undre gränsen får aldrig överstiga den övre – den korrigeras automatiskt
+    if (next[0] > next[1]) next[0] = next[1];
     onChange(next);
   };
   return (
