@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gen102, genSetup, setupLayout, setupValue } from "./worksheets";
+import { digitValue, gen102, genSetup, setupLayout, setupValue } from "./worksheets";
 
 const count = <T,>(items: T[]) => {
   const m = new Map<T, number>();
