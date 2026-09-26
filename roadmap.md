@@ -14,6 +14,10 @@
 - [x] Förhandsgranskning i inställningarna: "N uppgifter ryms på A4-sidan (rader × kolumner)"
 - [x] Mellanrummen fördelas jämnt över sidan (aldrig mindre än grundmellanrummet, inom utskriftsmarginalerna)
 - [x] Varje uppgift hålls ihop vid utskrift (break-inside: avoid)
+- [x] PDF-export: "Ladda ner PDF" ger utskriftsklar A4 (stående) med bevarad layout; varje blad = en sida så uppgifter hålls alltid ihop
+- [x] Diskreta sidnummer ("Sida X av Y") ritas i PDF-exportens nedre marginal – påverkar inte bladets utskriftsmarginaler
+- [x] Sammanfattning före export: antal sidor och uppgifter (102-tal eller uppställning), A4 stående
+- [x] Liggande A4 byggdes och togs sedan bort på Magnus önskan – stående är enda formatet
 
 ## Senare (väntar på Magnus)
 - [ ] Decimaltal i uppställningen – välja decimaltal som faktorer (heltal är klart)
