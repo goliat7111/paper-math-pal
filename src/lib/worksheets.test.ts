@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { gen102 } from "./worksheets";
 
-const count = (nums: number[]) => {
-  const m = new Map<number, number>();
-  for (const n of nums) m.set(n, (m.get(n) ?? 0) + 1);
+const count = <T,>(items: T[]) => {
+  const m = new Map<T, number>();
+  for (const n of items) m.set(n, (m.get(n) ?? 0) + 1);
   return m;
 };
 
