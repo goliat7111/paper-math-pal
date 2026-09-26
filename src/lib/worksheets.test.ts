@@ -171,7 +171,7 @@ describe("setupLayout", () => {
     expect(L.productRow).toEqual(["", "9", "6", "6"]);
     expect(L.signCol).toBe(1); // × under "4"
     expect(L.partialRows).toEqual([]);
-    expect(L.carries).toEqual([1, 2, 2]);
+    expect(L.carries).toEqual([1]); // 483 × 2 = 966, minnessiffra 1 vid hundratalet
   });
 
   it("tre­siffrigt tal med fyrsiffrig produkt: produkten fyller vänstra kolumnen", () => {
@@ -205,7 +205,7 @@ describe("setupLayout", () => {
     expect(L.bottomRow).toEqual(["", "", "", "2", "3"]);
     expect(L.signCol).toBe(1); // × under "3" (3456 × 23 → × under 3, 23 till höger)
     expect(L.partialRows).toEqual([
-      { cells: ["", "6", "9", "1", "2"], carries: [1, 1] }, // 3456 × 2
+      { cells: ["6", "9", "1", "2", ""], carries: [1, 1] }, // 3456 × 2
       { cells: ["1", "0", "3", "6", "8"], carries: [1, 1, 1, 1] }, // 3456 × 3
     ]);
     expect(L.productRow).toEqual(["7", "9", "4", "8", "8"]);
@@ -216,8 +216,8 @@ describe("setupLayout", () => {
     const L = setupLayout({ digits: [4, 7], m: [2, 3] }); // 47 × 23 = 1081
     expect(L.nCols).toBe(4);
     expect(L.signCol).toBe(1);
-    expect(L.topRow).toEqual(["", "4", "7"]);
-    expect(L.bottomRow).toEqual(["", "2", "3"]);
+    expect(L.topRow).toEqual(["", "", "4", "7"]);
+    expect(L.bottomRow).toEqual(["", "", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
       ["", "9", "4", ""], // 47 × 2
       ["", "1", "4", "1"], // 47 × 3
@@ -229,7 +229,7 @@ describe("setupLayout", () => {
     const L = setupLayout({ digits: [2, 5], m: [1, 2, 3] }); // 25 × 123 = 3075
     expect(L.nCols).toBe(5);
     expect(L.signCol).toBe(1);
-    expect(L.topRow).toEqual(["", "", "2", "5"]);
+    expect(L.topRow).toEqual(["", "", "", "2", "5"]);
     expect(L.bottomRow).toEqual(["", "", "1", "2", "3"]);
     expect(L.partialRows.map((p) => p.cells)).toEqual([
       ["", "2", "5", "", ""], // 25 × 1
