@@ -18,7 +18,7 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
   // Blanda alla unika kombinationer
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [all[i], all[j]] = [all[j], all[i]];
+    [all[i], all[j]] = [all[j]!, all[i]!];
   }
   const tasks = all.slice(0, 102);
   // Fyll upp till 102 med slumpade dubbletter om kombinationerna inte räcker
