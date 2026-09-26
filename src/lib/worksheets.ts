@@ -135,10 +135,11 @@ export function setupLayout(t: SetupTask): SetupLayout {
 
   const partialRows: SetupPartial[] = [];
   if (bottomLen > 1) {
-    for (let p = bottomLen - 1; p >= 0; p--) {
+    for (let pos = bottomLen - 1; pos >= 0; pos--) {
+      const d = bottom[bottomLen - 1 - pos]!; // pos = position från ental
       partialRows.push({
-        cells: align(String(topValue * bottom[p]!), nCols - 1 - p),
-        carries: rowCarries(top, bottom[p]!).filter((c) => c > 0),
+        cells: align(String(topValue * d), nCols - 1 - pos),
+        carries: rowCarries(top, d).filter((c) => c > 0),
       });
     }
   }
