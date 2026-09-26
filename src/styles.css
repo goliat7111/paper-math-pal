@@ -164,6 +164,7 @@ body { font-family: var(--font-sans); }
   background: var(--sheet-paper); color: var(--sheet-ink);
   box-shadow: 0 2px 16px oklch(0 0 0 / 0.12); box-sizing: border-box;
 }
+.a4-page.landscape { width: 297mm; min-height: 210mm; }
 .grid-sheet { display: grid; }
 @page { size: A4 portrait; margin: 0; }
 @media print {
@@ -171,6 +172,7 @@ body { font-family: var(--font-sans); }
   body { background: var(--sheet-paper) !important; }
   .print-area { gap: 0 !important; display: block !important; }
   .a4-page { box-shadow: none; height: 297mm; overflow: hidden; break-after: page; page-break-after: always; }
+  .a4-page.landscape { height: 210mm; }
   .a4-page:last-child { break-after: auto; page-break-after: auto; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body > * .min-h-screen, main { padding: 0 !important; margin: 0 !important; }

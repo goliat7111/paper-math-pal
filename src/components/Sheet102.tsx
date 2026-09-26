@@ -1,16 +1,41 @@
 import { chunk, type MulTask } from "@/lib/worksheets";
 
-const BLOCKS = [5, 5, 5, 5, 5, 5, 4];
+// Block om 5 uppgifter (sista blocket fylls ut); t.ex. 34 rader → 5×6 + 4
+const blockSizes = (rows: number) => {
+  const sizes: number[] = [];
+  let left = rows;
+  while (left > 0) {
+    sizes.push(Math.min(5, left));
+    left -= 5;
+  }
+  return sizes;
+};
 
-export function Sheet102({ tasks, answers }: { tasks: MulTask[]; answers: boolean }) {
-  const cols = [tasks.slice(0, 34), tasks.slice(34, 68), tasks.slice(68, 102)];
+export function Sheet102({
+  tasks,
+  answers,
+  orientation = "portrait",
+}: {
+  tasks: MulTask[];
+  answers: boolean;
+  orientation?: "portrait" | "landscape";
+}) {
+  const landscape = orientation === "landscape";
+  const cols = landscape ? 6 : 3;
+  const perCol = Math.ceil(tasks.length / cols); // 17 (liggande) / 34 (stående)
+  const columns = Array.from({ length: cols }, (_, c) =>
+    tasks.slice(c * perCol, (c + 1) * perCol),
+  );
   return (
-    <div className="a4-page">
+    <div className={`a4-page${landscape ? " landscape" : ""}`}>
       <SheetHeader title={answers ? "102 tal – Facit" : "102 tal"} subtitle="Multiplikation · 5 minuter" score="av 102" />
-      <div className="mt-5 grid grid-cols-3 gap-x-8">
-        {cols.map((col, ci) => (
+      <div
+        className="mt-5 grid"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
+      >
+        {columns.map((col, ci) => (
           <div key={ci}>
-            {chunk(col, BLOCKS).map((block, bi) => (
+            {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi} className="mb-[3.2mm]">
                 {block.map((t, ti) => (
                   <div key={ti} className="flex h-[6.4mm] items-end font-mono text-[15px] leading-none tabular-nums">
