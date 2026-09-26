@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
 const operations = [
   {
     title: "Multiplikation",
-    description: "102 tal (5 min) och uppställning med anpassningsbara faktorer och sifferantal.",
+    description: "102 tal (6 min) och uppställning med anpassningsbara faktorer och sifferantal.",
     to: "/multiplikation",
     icon: Grid3X3,
     ready: true,
@@ -97,7 +97,7 @@ function StartPage() {
                 <p className="mt-3 text-sm text-muted-foreground">{op.description}</p>
                 <ul className="mt-4 space-y-1.5 text-sm text-foreground">
                   <li className="flex items-center gap-2">
-                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> 102 tal (5 min) – multiplikationsdiagnos
+                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> 102 tal (6 min) – multiplikationsdiagnos
                   </li>
                   <li className="flex items-center gap-2">
                     <Grid3X3 className="h-4 w-4 text-muted-foreground" /> Uppställning med minnessiffror
