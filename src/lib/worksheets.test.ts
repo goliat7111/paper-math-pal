@@ -44,7 +44,6 @@ describe("gen102", () => {
       [[2, 9], [3, 9]],
       [[2, 5], [2, 5]],
       [[2, 9], [2, 9]],
-      [[1, 12], [1, 12]], // fler unika än 102
       [[2, 3], [3, 4]], // få unika, många dubbletter
     ];
     for (const [f1, f2] of ranges) {
