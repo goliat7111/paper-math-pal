@@ -118,6 +118,28 @@ function Index() {
               </p>
             </>
           )}
+          <div>
+            <div className="mb-1.5 text-sm font-medium text-foreground">A4-riktning</div>
+            <div className="flex rounded-lg bg-muted p-1">
+              {([
+                ["portrait", "Stående"],
+                ["landscape", "Liggande"],
+              ] as const).map(([k, label]) => (
+                <button
+                  key={k}
+                  onClick={() => setOrientation(k)}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    orientation === k
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <FileText className={`h-3.5 w-3.5 ${k === "landscape" ? "rotate-90" : ""}`} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="flex items-center gap-2 text-sm text-foreground">
             <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
             Skriv ut med facit (extra sida)
@@ -125,6 +147,9 @@ function Index() {
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
+            </button>
+            <button onClick={downloadPdf} disabled={exporting} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-60">
+              <FileDown className="h-4 w-4" /> {exporting ? "Skapar PDF…" : "Ladda ner PDF"}
             </button>
             <button onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
               <Printer className="h-4 w-4" /> Skriv ut
@@ -136,15 +161,15 @@ function Index() {
         <main className="print-area flex flex-1 flex-col items-center gap-8">
           {tab === "102" && t102 && (
             <>
-              <Sheet102 tasks={t102} answers={false} />
-              {withKey && <Sheet102 tasks={t102} answers />}
+              <Sheet102 tasks={t102} answers={false} orientation={orientation} />
+              {withKey && <Sheet102 tasks={t102} answers orientation={orientation} />}
             </>
           )}
           {tab === "setup" && tSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} orientation={orientation} onFit={applyFit} />
               {withKey && (
-                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} orientation={orientation} onFit={applyFit} />
               )}
             </>
           )}

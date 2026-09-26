@@ -1,3 +1,5 @@
+export type Orientation = "portrait" | "landscape";
+
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 
