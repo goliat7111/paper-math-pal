@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Printer, RefreshCw, FileDown, FileText } from "lucide-react";
+import { Printer, RefreshCw, FileDown } from "lucide-react";
 import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
-import type { Orientation } from "@/lib/exportPdf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,7 +30,6 @@ function Index() {
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [withKey, setWithKey] = useState(true);
-  const [orientation, setOrientation] = useState<Orientation>("portrait");
   const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
   const applyFit = (f: SetupFit) =>
