@@ -176,8 +176,20 @@ export function fitGridCount(
   colGap: number,
   rowGap: number,
   max = Infinity,
-): { cols: number; count: number } {
+): { cols: number; rows: number; count: number } {
   const cols = Math.max(1, Math.floor((innerW + colGap) / (w + colGap)));
   const rows = Math.max(1, Math.floor((availH + rowGap) / (h + rowGap)));
-  return { cols, count: Math.min(max, cols * rows) };
+  return { cols, rows, count: Math.min(max, cols * rows) };
+}
+
+/** Radmellanrum som fördelar resten av sidhöjden jämnt mellan raderna,
+ *  men aldrig mindre än grundmellanrummet. */
+export function evenRowGap(
+  availH: number,
+  rows: number,
+  h: number,
+  minGap: number,
+): number {
+  if (rows <= 1) return minGap;
+  return Math.max(minGap, (availH - rows * h) / (rows - 1));
 }
