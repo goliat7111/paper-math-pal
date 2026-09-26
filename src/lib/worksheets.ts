@@ -77,7 +77,8 @@ export function genSetup(
 ): SetupTask[] {
   const genNumber = (range: [number, number]) => {
     const k = Math.max(1, rand(...range));
-    return Array.from({ length: k }, (_, i) => (i === 0 ? rand(1, 9) : rand(0, 9)));
+    // Ensiffriga faktorer är aldrig 1 (trivial multiplikation) – minst 2
+    return Array.from({ length: k }, (_, i) => (i === 0 ? rand(k === 1 ? 2 : 1, 9) : rand(0, 9)));
   };
   return Array.from({ length: count }, () => ({
     digits: genNumber(topDigits),

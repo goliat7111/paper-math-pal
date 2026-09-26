@@ -358,4 +358,17 @@ describe("genSetup", () => {
       expect(t.m.length).toBeLessThanOrEqual(3);
     }
   });
+
+  it("ensiffriga faktorer är aldrig 1 (båda talen, alla blandade intervall)", () => {
+    // Båda talen ensiffriga: värdet är alltid 2–9
+    for (const t of genSetup([1, 1], [1, 1], 30)) {
+      expect(digitValue(t.digits), `övre talet ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
+      expect(digitValue(t.m), `undre faktorn ${t.m.join("")}`).toBeGreaterThanOrEqual(2);
+ Everything    }
+    // Blandade intervall: varje ensiffrigt tal (oavsett position) är aldrig 1
+    for (const t of genSetup([1, 3], [1, 3], 100)) {
+      if (t.digits.length === 1) expect(t.digits[0], `övre ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
+      if (t.m.length === 1) expect(t.m[0], `undre ${t.m.join("")}`).toBeGreaterThanOrEqual(2);
+    }
+  });
 });
