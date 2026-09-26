@@ -183,8 +183,10 @@ function Problem({
             ))}
           </Fragment>
         ))}
-        {/* Plus-tecken i additionsuträkningen */}
-        {multi && <Cell v="+" col={L.signCol} row={productRowIdx} height={cellH} rule />}
+        {/* Plus-tecken i additionsuträkningen, ett steg vänster om produkten */}
+        {multi && (
+          <Cell v="+" col={Math.max(1, L.nCols - L.productRow.length)} row={productRowIdx} height={cellH} rule />
+        )}
         {/* Produkten, med streck ovanför när det finns delprodukter */}
         {L.productRow.map((c, i) => (
           <Cell
