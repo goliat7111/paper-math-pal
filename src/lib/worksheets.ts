@@ -74,6 +74,46 @@ export function setupCarries(t: SetupTask): number[] {
 
 export const setupValue = (t: SetupTask) => Number(t.digits.join(""));
 
+export type SetupLayout = {
+  /** Antal sifferkolumner (vänster till höger; sista kolumnen är ental). */
+  nCols: number;
+  /** Övre faktorn per kolumn; "" = tom cell. */
+  topRow: string[];
+  /** Kolumnindex för ×-tecknet (under första siffran i den övre faktorn). */
+  signCol: number;
+  /** Kolumnindex för den ensiffriga faktorn (ental). */
+  factorCol: number;
+  /** Produkten per kolumn, högerställd mot ental; "" = tom cell. */
+  productRow: string[];
+  /** Minnessiffror i beräkningsordning (ental först), endast de som uppstår. */
+  carries: number[];
+};
+
+/** Räknar ut exakt kolumnplacering för en uppställning: talen högerställda
+ *  mot ental, × under första siffran i den övre faktorn, produkten under
+ *  faktorerna, minnessiffror i beräkningsordning. */
+export function setupLayout(t: SetupTask): SetupLayout {
+  const product = String(setupValue(t) * t.m);
+  const k = t.digits.length;
+  const nCols = Math.max(k, product.length, 4);
+  const topRow: string[] = Array.from({ length: nCols }, () => "");
+  t.digits.forEach((d, i) => {
+    topRow[nCols - k + i] = String(d);
+  });
+  const productRow: string[] = Array.from({ length: nCols }, () => "");
+  product.split("").forEach((d, i) => {
+    productRow[nCols - product.length + i] = d;
+  });
+  return {
+    nCols,
+    topRow,
+    signCol: nCols - k,
+    factorCol: nCols - 1,
+    productRow,
+    carries: setupCarries(t).slice(1).filter((c) => c > 0),
+  };
+}
+
 export const chunk = <T,>(arr: T[], sizes: number[]) => {
   const out: T[][] = [];
   let i = 0;
