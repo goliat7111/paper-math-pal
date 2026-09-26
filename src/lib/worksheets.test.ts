@@ -248,6 +248,34 @@ describe("setupLayout", () => {
     expect(setupLayout({ digits: [5, 7, 3], m: [2, 4] }).partialRows[1]!.carries).toEqual([1, 2, 2]);
   });
 
+  it("additionsdelens vänsterkolumn: bredaste raden styr, + -tecknet ryms till vänster", () => {
+    // 3456 × 23: bredaste raden är delprodukten 10368 (5 siffror)
+    expect(setupLayout({ digits: [3, 4, 5, 6], m: [2, 3] }).sumLeft).toBe(1);
+    // 47 × 23: produkten 1081 (4 siffror) är bredast
+    expect(setupLayout({ digits: [4, 7], m: [2, 3] }).sumLeft).toBe(1);
+    // 25 × 123: produkten 3075 är bredast
+    expect(setupLayout({ digits: [2, 5], m: [1, 2, 3] }).sumLeft).toBe(1);
+    // ensiffrig faktor: ingen additionsdel
+    expect(setupLayout({ digits: [4, 8, 3], m: [2] }).sumLeft).toBe(-1);
+  });
+
+  it("invariant: sumLeft är den bredaste radens vänsterkolumn och + ryms till vänster", () => {
+    for (const t of [...genSetup([2, 3], [2, 3], 30), ...genSetup([1, 3], [1, 3], 30)]) {
+      const L = setupLayout(t);
+      const key = `${t.digits.join("")}×${t.m.join("")}`;
+      if (L.partialRows.length === 0) {
+        expect(L.sumLeft, `ingen additionsdel för ${key}`).toBe(-1);
+        continue;
+      }
+      const leftmost = Math.min(
+        L.productRow.findIndex((d) => d !== ""),
+        ...L.partialRows.map((p) => p.cells.findIndex((d) => d !== "")),
+      );
+      expect(L.sumLeft, `sumLeft för ${key}`).toBe(leftmost);
+      expect(L.sumLeft, `+ ryms till vänster för ${key}`).toBeGreaterThanOrEqual(1);
+    }
+  });
+
   it("invariant: produkten rättlinjad mot faktorerna för slumpade uppgifter", () => {
     for (const t of [...genSetup(), ...genSetup([2, 4], [2, 3], 25)]) {
       const L = setupLayout(t);
