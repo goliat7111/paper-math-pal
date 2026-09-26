@@ -164,10 +164,12 @@ function Problem({
         {/* Minnesrutan sitter alltid uppe vid faktorerna, rad 1–2 */}
         {!multi && carryBox(L.carries, "1 / span 2")}
         {multi && carryBox(L.partialRows.flatMap((p) => p.carries), "1 / span 2")}
-        {/* Rad 2: teckenrad med understrykning */}
+        {/* Rad 2: teckenrad */}
         {signRow.map((c, i) => (
-          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} underline />
+          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} />
         ))}
+        {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
+        <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)" }} />
         {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
@@ -183,11 +185,21 @@ function Problem({
             ))}
           </Fragment>
         ))}
-        {/* Plus-tecken i additionsuträkningen, ett steg vänster om produkten */}
+        {/* Plus-tecknet står på sista delproduktraden, vänster om additionsdelen */}
         {multi && (
-          <Cell v="+" col={Math.max(1, L.nCols - L.productRow.length)} row={productRowIdx} height={cellH} rule />
+          <Cell v="+" col={L.sumLeft} row={3 + L.partialRows.length - 1} height={cellH} />
         )}
-        {/* Produkten, med streck ovanför när det finns delprodukter */}
+        {/* Tjockt streck ovanför summan, så brett som additionsdelen */}
+        {multi && (
+          <div
+            style={{
+              gridColumn: `${L.sumLeft} / ${L.nCols + 1}`,
+              gridRow: productRowIdx,
+              borderTop: "2px solid var(--sheet-ink)",
+            }}
+          />
+        )}
+        {/* Produkten */}
         {L.productRow.map((c, i) => (
           <Cell
             key={`pr${i}`}
@@ -196,7 +208,6 @@ function Problem({
             row={productRowIdx}
             height={cellH}
             answer={answers}
-            rule={multi}
           />
         ))}
       </div>
@@ -209,30 +220,24 @@ function Cell({
   col,
   row,
   height,
-  underline,
   answer,
-  rule,
 }: {
   v: string;
   col: number;
   row: number;
   height: string;
-  underline?: boolean;
   answer?: boolean;
-  rule?: boolean;
 }) {
   return (
     <div
       className={[
         "flex items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
-        underline ? "border-b-2 border-b-sheet-ink" : "",
         answer ? "font-bold text-sheet-answer" : "",
       ].join(" ")}
       style={{
         gridColumn: col,
         gridRow: row,
         height,
-        ...(rule ? { borderTop: "2px solid var(--sheet-ink)" } : {}),
       }}
     >
       {v.trim() || "\u00a0"}

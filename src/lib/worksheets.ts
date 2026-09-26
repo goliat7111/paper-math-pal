@@ -153,6 +153,9 @@ export function setupLayout(t: SetupTask): SetupLayout {
     }
   }
 
+  // Additionsdelen (delprodukter + summa): vänsterkolumnen för den bredaste raden
+  const sumLeft = bottomLen > 1 ? nCols - maxExtent : -1;
+
   return {
     nCols,
     topRow: align(top.join(""), nCols - 1),
@@ -161,6 +164,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
     partialRows,
     productRow: align(product, nCols - 1),
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
+    sumLeft,
   };
 }
 
