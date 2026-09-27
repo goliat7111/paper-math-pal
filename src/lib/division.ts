@@ -19,6 +19,7 @@ export const extraCapacity = (d: number) => {
   return Math.max(two, five);
 };
 
+/** dividendDecimals = -1 betyder "Slumpa": varje uppgift får 0–3 decimaler i täljaren. */
 export function genDivision(
   divisorMin: number,
   divisorMax: number,
@@ -31,10 +32,10 @@ export function genDivision(
   if (![divisorMin, divisorMax, quotientDigits, count, dividendDecimals, extraDecimals].every(Number.isInteger)
     || divisorMin < 2 || divisorMax > 9 || divisorMin > divisorMax
     || quotientDigits < 1 || quotientDigits > 3 || count < 1 || count > 40
-    || dividendDecimals < 0 || dividendDecimals > 3 || extraDecimals < 0 || extraDecimals > 3) {
+    || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < 0 || extraDecimals > 3) {
     throw new Error("Välj nämnare mellan 2 och 9 och 1–3 siffror i svaret.");
   }
-  if (withRemainder && (dividendDecimals > 0 || extraDecimals > 0)) {
+  if (withRemainder && (dividendDecimals !== 0 || extraDecimals > 0)) {
     throw new Error("Rest kan bara väljas för heltal utan extra decimaler.");
   }
   if (dividendDecimals === 0 && extraDecimals === 0) {
@@ -51,9 +52,10 @@ export function genDivision(
     const ok = [2, 3, 4, 5, 6, 7, 8, 9].filter(d => extraCapacity(d) >= extraDecimals).join(", ");
     throw new Error(`${extraDecimals} extra decimal${extraDecimals > 1 ? "er" : ""} kräver någon av nämnarna ${ok}.`);
   }
-  const qDec = dividendDecimals + extraDecimals;
   const scale = 10 ** extraDecimals;
   return Array.from({ length: count }, () => {
+    const dd = dividendDecimals === -1 ? rand(0, 3) : dividendDecimals;
+    const qDec = dd + extraDecimals;
     for (let tries = 0; tries < 20000; tries++) {
       const divisor = pool[rand(0, pool.length - 1)]!;
       // Heltalsdelen: en siffra tillåter 0 (t.ex. 4/8 = 0,5)
@@ -64,9 +66,9 @@ export function genDivision(
       const scaled = quotient * divisor;
       if (scaled % scale !== 0) continue;
       const dividend = scaled / scale;
-      if (dividendDecimals > 0 && dividend % 10 === 0) continue; // täljaren har exakt valda decimaler
-      if (dividendDecimals === 0 && dividend < divisor && extraDecimals === 0) continue;
-      return { dividend, divisor, quotient, remainder: 0, dividendDecimals, quotientDecimals: qDec };
+      if (dd > 0 && dividend % 10 === 0) continue; // täljaren har exakt valda decimaler
+      if (dd === 0 && dividend < divisor && extraDecimals === 0) continue;
+      return { dividend, divisor, quotient, remainder: 0, dividendDecimals: dd, quotientDecimals: qDec };
     }
     throw new Error("Hittade inga passande divisioner. Prova andra nämnare.");
   });
