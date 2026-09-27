@@ -363,8 +363,9 @@ body { font-family: var(--font-sans); }
 }
 /* Sex kopior (2×3) och åtta kopior (2×4): positionerna räknas från
    innehållsytan (padding-top räknas inte med) och ligger mitt i varje
-   rad-mellanrum trots att gapet gör raderna lite lägre än 1/N av ytan:
-   position = k/N · 100 % + (k/N − ½) · row-gap. */
+   rad-mellanrum. Två korrektioner ingår: gapet gör raderna lite lägre än
+   1/N av ytan (termen (k/N − ½)·row-gap), och procentpositioner räknas mot
+   (yta − bildhöjd), därför läggs (k/N)·3 px till (bildhöjden är 3 px). */
 .hundred-grid-layout--2,
 .hundred-grid-layout--4,
 .hundred-grid-layout--6,
@@ -372,16 +373,20 @@ body { font-family: var(--font-sans); }
   background-origin: content-box;
   background-clip: content-box;
 }
+.hundred-grid-layout--2,
+.hundred-grid-layout--4 {
+  background-position: 0 calc(50% + 1.5px);
+}
 .hundred-grid-layout--6 {
   background-image: var(--cut-v), var(--cut-h), var(--cut-h);
   background-repeat: repeat-y, repeat-x, repeat-x;
-  background-position: 50% 0, 0 calc(33.333% - 0.667mm), 0 calc(66.667% + 0.667mm);
+  background-position: calc(50% + 1.5px) 0, 0 calc(33.333% - 0.667mm + 1px), 0 calc(66.667% + 0.667mm + 2px);
 }
 /* Åtta kopior (2×4) */
 .hundred-grid-layout--8 {
   background-image: var(--cut-v), var(--cut-h), var(--cut-h), var(--cut-h);
   background-repeat: repeat-y, repeat-x, repeat-x, repeat-x;
-  background-position: 50% 0, 0 calc(25% - 0.5mm), 0 50%, 0 calc(75% + 0.5mm);
+  background-position: calc(50% + 1.5px) 0, 0 calc(25% - 0.5mm + 0.75px), 0 calc(50% + 1.5px), 0 calc(75% + 0.5mm + 2.25px);
 }
 /* Liggande talkamrater: lodrät linje mellan de två halvorna */
 .talkamrat-halves {
