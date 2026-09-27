@@ -37,7 +37,7 @@ export function Sheet102({
         {columns.map((col, ci) => (
           <div key={ci}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
-              <div key={bi} className="mb-[3.2mm]">
+              <div key={bi} className={bi === 0 ? "" : "mb-[7mm]"}>
                 {block.map((t, ti) => (
                   <div key={ti} className="flex h-[6.4mm] items-end font-mono text-[15px] leading-none tabular-nums">
                     <span className="w-6 text-right">{t.a}</span>
