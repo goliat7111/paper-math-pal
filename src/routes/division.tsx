@@ -86,14 +86,14 @@ function DivisionPage() {
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />Med uppställning (kort division)</label>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />Egen uppställning i tom ruta</label>
           </fieldset>
-          <button type="submit" className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent"><RefreshCw className="h-4 w-4" />Ny slumpad variant</button>
           {dirty && <p role="status" className="text-sm text-muted-foreground">Klicka på Ny slumpad variant för att använda de ändrade talinställningarna.</p>}
         </form>
         <PrintContentChoice value={content} onChange={setContent} />
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">8 uppgifter · 4 rader × 2 kolumner.<br />PDF: {pagesLabel(content)} · A4 stående.</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
-        <div className="space-y-2"><button disabled={exporting || !tasks.length} onClick={downloadPdf} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</button>
+        <div className="space-y-2"><button type="button" onClick={generate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent"><RefreshCw className="h-4 w-4" />Ny slumpad variant</button>
+          <button disabled={exporting || !tasks.length} onClick={downloadPdf} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</button>
           <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Printer className="h-4 w-4" />Skriv ut</button></div>
         <p className="text-xs text-muted-foreground">Välj A4 stående, 100 % skala, inga marginaler och inga sidhuvuden eller sidfötter.</p>
       </aside>
