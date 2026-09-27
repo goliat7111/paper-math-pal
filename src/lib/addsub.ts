@@ -136,7 +136,8 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
         terms = order.map(([, i]) => terms[i]!);
         const sortedDecs = order.map(([, i]) => decs[i]!);
         decs.length = 0; decs.push(...sortedDecs);
-        if (terms[0] === terms[1]) continue;
+        // Lika verkliga värden ger differensen 0 — försök igen (differensen ska vara positiv).
+        if (terms[0]! * 10 ** (m - decs[0]!) === terms[1]! * 10 ** (m - decs[1]!)) continue;
       }
       const t: AddSubTask = { op: o.op, terms, decs };
       best = t;
