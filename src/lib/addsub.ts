@@ -124,12 +124,14 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
         o.dec === "slumpa" ? rand(0, Math.min(3, k - 1)) : Math.min(o.dec, k - 1),
       );
       const m = Math.max(...decs);
+      // Termerna lagras alltid med sitt eget sifferantal (aldrig uppskalade).
       let terms = o.regroup
-        ? lens.map((k, i) => genNumber(k, decs[i]!) * 10 ** (m - decs[i]!))
-        : genNoRegroup(o.op, lens, decs);
+        ? lens.map((k, i) => genNumber(k, decs[i]!))
+        : genNoRegroup(o.op, lens, decs).map((v, i) => v / 10 ** (m - decs[i]!));
       if (o.op === "sub") {
-        const order = terms.map((v, i) => [v, i] as const).sort((a, b) => b[0] - a[0]);
-        terms = order.map(([v]) => v);
+        // Sortera fallande på verkligt värde (skalat), så största talet kommer överst.
+        const order = terms.map((v, i) => [v * 10 ** (m - decs[i]!), i] as const).sort((a, b) => b[0] - a[0]);
+        terms = order.map(([, i]) => terms[i]!);
         const sortedDecs = order.map(([, i]) => decs[i]!);
         decs.length = 0; decs.push(...sortedDecs);
         if (terms[0] === terms[1]) continue;
@@ -170,6 +172,15 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
     const str = String(v).padStart(m + 1, "0");
     return Array(nCols - str.length).fill("").concat(str.split(""));
   };
+  // Termerna visas med sitt eget sifferantal, decimaljusterade: sista siffran
+  // hamnar i kolumn nCols-1-(m-d) så att kommatecknen i alla rader ligger under varandra.
+  const alignTerm = (v: number, d: number) => {
+    const str = String(v).padStart(d + 1, "0");
+    const end = nCols - 1 - (m - d);
+    const row: string[] = Array(nCols).fill("");
+    str.split("").forEach((ch, i) => { row[end - str.length + 1 + i] = ch; });
+    return row;
+  };
   const carries = Array(nCols).fill("");
   const marks = Array(nCols).fill("");
   const struck = Array(nCols).fill(false);
@@ -184,12 +195,12 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   }
   return {
     nCols,
-    rows: s.map(align),
+    rows: t.terms.map((v, i) => alignTerm(v, t.decs[i]!)),
     result: align(res),
     carries,
     marks,
     struck,
-    commas: t.decs.map((d) => (d > 0 ? nCols - 1 - d : -1)),
+    commas: t.decs.map((d) => (d > 0 ? nCols - 1 - m : -1)),
     resultComma: m > 0 ? nCols - 1 - m : -1,
   };
 }
