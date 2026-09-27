@@ -16,7 +16,7 @@ function HundredGrid() {
 
 export function SheetHundredGrid({ count }: { count: GridCount }) {
   return (
-    <div className="a4-page flex flex-col">
+    <div className="a4-page hundred-grid-page flex flex-col">
       <SheetHeader title="100-rutan" subtitle="Multiplikation · 1–10" score={`av ${count * 100}`} />
       <div className={`hundred-grid-layout hundred-grid-layout--${count}`}>
         {Array.from({ length: count }, (_, i) => <HundredGrid key={i} />)}

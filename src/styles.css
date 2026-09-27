@@ -209,7 +209,8 @@ body { font-family: var(--font-sans); }
 .hundred-grid-layout--6 .hundred-grid th,
 .hundred-grid-layout--6 .hundred-grid td { height: 6.5mm; }
 .hundred-grid-layout--8 .hundred-grid th,
-.hundred-grid-layout--8 .hundred-grid td { height: 5.8mm; }
+.hundred-grid-layout--8 .hundred-grid td { height: 5.1mm; }
+.hundred-grid-page { height: 297mm; }
 .own-setup-instruction { margin: 5mm 0; font-size: 14px; }
 .own-setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
 .own-setup-task { min-width: 0; break-inside: avoid; page-break-inside: avoid; }
