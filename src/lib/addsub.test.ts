@@ -35,7 +35,7 @@ it("addition: minnessiffror och komma", () => {
   expect(L.comma).toBe(1);
 });
 
-test("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => {
+it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => {
   const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 2, regroup: true, count: 60 });
   expect(tasks).toHaveLength(60);
   for (const t of tasks) {
