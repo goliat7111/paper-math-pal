@@ -172,15 +172,8 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
     const str = String(v).padStart(m + 1, "0");
     return Array(nCols - str.length).fill("").concat(str.split(""));
   };
-  // Termerna visas med sitt eget sifferantal, decimaljusterade: sista siffran
-  // hamnar i kolumn nCols-1-(m-d) så att kommatecknen i alla rader ligger under varandra.
-  const alignTerm = (v: number, d: number) => {
-    const str = String(v).padStart(d + 1, "0");
-    const end = nCols - 1 - (m - d);
-    const row: string[] = Array(nCols).fill("");
-    str.split("").forEach((ch, i) => { row[end - str.length + 1 + i] = ch; });
-    return row;
-  };
+  // Alla termer fylls på med decimalnollor upp till maxDec, så att heltal och
+  // decimaltal får lika många siffror och kommatecknen ligger under varandra.
   const carries = Array(nCols).fill("");
   const marks = Array(nCols).fill("");
   const struck = Array(nCols).fill(false);
@@ -195,12 +188,12 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   }
   return {
     nCols,
-    rows: t.terms.map((v, i) => alignTerm(v, t.decs[i]!)),
+    rows: s.map(align),
     result: align(res),
     carries,
     marks,
     struck,
-    commas: t.decs.map((d) => (d > 0 ? nCols - 1 - m : -1)),
+    commas: t.decs.map(() => (m > 0 ? nCols - 1 - m : -1)),
     resultComma: m > 0 ? nCols - 1 - m : -1,
   };
 }
