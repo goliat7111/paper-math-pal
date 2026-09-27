@@ -21,7 +21,7 @@ const operations = [
   {
     title: "Multiplikation",
     to: "/multiplikation",
-    icon: <span className="font-display text-2xl font-semibold leading-none">×</span>,
+    icon: <span className="font-display text-3xl font-bold leading-none">×</span>,
   },
   {
     title: "Addition",
