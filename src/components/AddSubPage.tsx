@@ -12,7 +12,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const title = op === "add" ? "Addition" : "Subtraktion";
   const [lo, setLo] = useState(3);
   const [hi, setHi] = useState(3);
-  const [dec, setDec] = useState(0);
+  const [dec, setDec] = useState<number | "slumpa">(0);
   const [terms, setTerms] = useState(2);
   const [regroup, setRegroup] = useState(true);
   const [ownSetup, setOwnSetup] = useState(false);
@@ -24,7 +24,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [fileName, setFileName] = useState("");
   const previewUrl = useRef<string | null>(null);
 
-  const minDigits = dec + 1;
+  const minDigits = dec === "slumpa" ? 1 : dec + 1;
   useEffect(() => {
     const l = Math.max(lo, minDigits), h = Math.max(hi, l);
     if (l !== lo) setLo(l);
@@ -45,7 +45,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec ? `-${dec}-decimaler` : ""}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -70,11 +70,13 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
         </div></fieldset>
         <fieldset><legend className="mb-2 text-sm font-medium">Tal</legend><div className="flex gap-2">
           <button type="button" className={btn(dec === 0)} onClick={() => setDec(0)}>Heltal</button>
-          <button type="button" className={btn(dec > 0)} onClick={() => setDec(dec || 1)}>Decimaltal</button>
+          <button type="button" className={btn(typeof dec === "number" && dec > 0)} onClick={() => setDec(typeof dec === "number" && dec > 0 ? dec : 1)}>Decimaltal</button>
+          <button type="button" className={btn(dec === "slumpa")} onClick={() => setDec("slumpa")}>Slumpa</button>
         </div>
-          {dec > 0 && <label className="mt-2 block text-sm">Antal decimaler<select className={sel} value={dec} onChange={e => setDec(Number(e.target.value))}>{[1, 2, 3].map(n => <option key={n} value={n}>{n} decimal{n > 1 ? "er" : ""}</option>)}</select></label>}
+          {typeof dec === "number" && dec > 0 && <label className="mt-2 block text-sm">Antal decimaler<select className={sel} value={dec} onChange={e => setDec(Number(e.target.value))}>{[1, 2, 3].map(n => <option key={n} value={n}>{n} decimal{n > 1 ? "er" : ""}</option>)}</select></label>}
+          {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Antalet decimaler slumpas per uppgift utifrån termernas sifferantal.</p>}
         </fieldset>
-        <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
+        <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec !== 0 ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
           <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[1, 2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
           <label className="text-sm">Till<select aria-label="Siffror till" className={sel} value={hi} onChange={e => { const v = Number(e.target.value); setHi(v); if (v < lo) setLo(v); }}>{[1, 2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
         </div></fieldset>
