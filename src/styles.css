@@ -304,7 +304,7 @@ body { font-family: var(--font-sans); }
 .addsub-cell.addsub-small { height: 4.5mm; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
 .addsub-cell.is-struck { background-image: linear-gradient(to top right, transparent calc(50% - 0.55px), var(--sheet-answer) calc(50% - 0.55px), var(--sheet-answer) calc(50% + 0.55px), transparent calc(50% + 0.55px)); }
 .addsub-cell.is-answer { font-weight: bold; color: var(--sheet-answer); }
-.addsub-line { border-top: 2px solid var(--sheet-ink); height: 0; }
+.addsub-line { position: relative; z-index: 1; border-top: 2px solid var(--sheet-ink); height: 0; }
 @media screen { .a4-page { zoom: calc(var(--fit, 1) * var(--zoom, 1)); } }
 
 /* Talkamratshäfte (A6, vikt A4) */
