@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Grid3X3, ListOrdered, Plus, Minus, Divide } from "lucide-react";
+import { ArrowRight, Grid3X3, ListOrdered, Plus, Minus, Divide, Grid2X2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -107,6 +107,14 @@ function StartPage() {
               </Link>
             );
           })}
+        </div>
+        <div className="mt-10 border-t border-border pt-8">
+          <h2 className="font-display text-2xl font-semibold text-foreground">Utskrivbara mallar</h2>
+          <Link to="/mallar" className="group mt-5 flex items-center gap-4 rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Grid2X2 className="h-5 w-5" /></span>
+            <span className="min-w-0"><strong className="block font-display text-xl text-foreground">100-rutan</strong><span className="text-sm text-muted-foreground">Tomma multiplikationsrutor · 2, 4, 6 eller 8 per A4</span></span>
+            <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+          </Link>
         </div>
       </main>
     </div>
