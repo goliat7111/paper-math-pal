@@ -115,4 +115,27 @@ describe("Division med decimaltal", () => {
       }
     }
   });
+  it("Slumpa extra decimaler ger 1–3 extra decimaler per uppgift", () => {
+    for (const dd of [0, 1, -1]) {
+      const tasks = genDivision(2, 99, 2, 9, 40, false, dd, -1);
+      const extras = new Set(tasks.map(t => (t.quotientDecimals ?? 0) - (t.dividendDecimals ?? 0)));
+      expect(extras.size).toBeGreaterThan(1);
+      for (const t of tasks) {
+        const extra = (t.quotientDecimals ?? 0) - (t.dividendDecimals ?? 0);
+        expect(extra).toBeGreaterThanOrEqual(1);
+        expect(extra).toBeLessThanOrEqual(3);
+        expect(t.quotient % 10).not.toBe(0);
+        expect(t.quotient * t.divisor).toBe(t.dividend * 10 ** extra);
+        if (extra === 3) expect(t.divisor).toBe(8);
+        if (extra === 2) expect([4, 8]).toContain(t.divisor);
+        const steps = divisionSteps(t);
+        expect(steps.filter(s => s.added)).toHaveLength(extra);
+        expect(steps.at(-1)?.remainder).toBe(0);
+      }
+    }
+  });
+  it("slumpade extra decimaler avvisar nämnare utan kapacitet", () => {
+    expect(() => genDivision(2, 99, 7, 7, 8, false, 0, -1)).toThrow();
+    expect(() => genDivision(2, 99, 2, 9, 8, true, 0, -1)).toThrow();
+  });
 });
