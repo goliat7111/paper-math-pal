@@ -200,7 +200,8 @@ body { font-family: var(--font-sans); }
    blir kvadratiska i stället för utdragna; raderna centreras på sidan. */
 .hundred-grid-layout--4 .hundred-grid { font-size: 12px; height: 88mm; align-self: center; }
 .hundred-grid-layout--6 .hundred-grid { font-size: 11px; }
-.hundred-grid tr, .hundred-grid thead { height: 9.09%; }
+/* Radhöjden sätts inline per ruta (100 / antal rader) så att alla rader blir
+   lika höga oavsett om rutan har 6 eller 11 rader. */
 .hundred-grid th, .hundred-grid td {
   border: 1px solid var(--sheet-line);
   padding: 0;
