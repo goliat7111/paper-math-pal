@@ -41,11 +41,12 @@ export function talkamratColumns(range: "10" | "20"): { sum: number; pairs: Pair
   });
 }
 
-/** Talkamrater för valda summor (2–18) — alla heltalskombinationer, termer 0–9. */
+/** Talkamrater för valda summor (2–20) — alla heltalskombinationer, termer 0–9 (vid 19–20 tillåts 10). */
 export function customColumns(sums: number[]): { sum: number; pairs: Pair[] }[] {
   return [...sums].sort((a, b) => a - b).map(s => {
     const pairs: Pair[] = [];
-    for (let a = Math.min(9, s); a >= Math.max(0, s - 9); a--) pairs.push([a, s - a]);
+    const maxTerm = s <= 18 ? 9 : 10;
+    for (let a = Math.min(maxTerm, s); a >= Math.max(0, s - maxTerm); a--) pairs.push([a, s - a]);
     return { sum: s, pairs };
   });
 }
