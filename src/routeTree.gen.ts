@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdditionRouteImport } from './routes/addition'
+import { Route as BlandadeMallarRouteImport } from './routes/blandade-mallar'
 import { Route as DivisionRouteImport } from './routes/division'
 import { Route as MallarRouteImport } from './routes/mallar'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdditionRoute = AdditionRouteImport.update({
   id: '/addition',
   path: '/addition',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlandadeMallarRoute = BlandadeMallarRouteImport.update({
+  id: '/blandade-mallar',
+  path: '/blandade-mallar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DivisionRoute = DivisionRouteImport.update({
@@ -50,6 +56,7 @@ const SubtraktionRoute = SubtraktionRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
+  '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
+  '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
+  '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/addition'
+    | '/blandade-mallar'
     | '/division'
     | '/mallar'
     | '/multiplikation'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/addition'
+    | '/blandade-mallar'
     | '/division'
     | '/mallar'
     | '/multiplikation'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/addition'
+    | '/blandade-mallar'
     | '/division'
     | '/mallar'
     | '/multiplikation'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdditionRoute: typeof AdditionRoute
+  BlandadeMallarRoute: typeof BlandadeMallarRoute
   DivisionRoute: typeof DivisionRoute
   MallarRoute: typeof MallarRoute
   MultiplikationRoute: typeof MultiplikationRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/addition'
       fullPath: '/addition'
       preLoaderRoute: typeof AdditionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blandade-mallar': {
+      id: '/blandade-mallar'
+      path: '/blandade-mallar'
+      fullPath: '/blandade-mallar'
+      preLoaderRoute: typeof BlandadeMallarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/division': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdditionRoute: AdditionRoute,
+  BlandadeMallarRoute: BlandadeMallarRoute,
   DivisionRoute: DivisionRoute,
   MallarRoute: MallarRoute,
   MultiplikationRoute: MultiplikationRoute,
