@@ -87,7 +87,6 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <button type="button" className={btn(!ownSetup)} onClick={() => setOwnSetup(false)}>Färdig uppställning</button>
           <button type="button" className={btn(ownSetup)} onClick={() => setOwnSetup(true)}>Tom ruta</button>
         </div></fieldset>
-        <button onClick={generate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent"><RefreshCw className="h-4 w-4" />Ny slumpad variant</button>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={withKey} onChange={e => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />Skriv ut med facit (extra sida)</label>
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">{COUNT} uppgifter · 4 rader × 3 kolumner.<br />PDF: {withKey ? "2 sidor (blad + facit)" : "1 sida"} · A4 stående.</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
