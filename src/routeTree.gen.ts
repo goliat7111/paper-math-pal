@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DivisionRouteImport } from './routes/division'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DivisionRoute = DivisionRouteImport.update({
+  id: '/division',
+  path: '/division',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MultiplikationRoute = MultiplikationRouteImport.update({
@@ -25,27 +31,31 @@ const MultiplikationRoute = MultiplikationRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/division': typeof DivisionRoute
   '/multiplikation': typeof MultiplikationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/division': typeof DivisionRoute
   '/multiplikation': typeof MultiplikationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/division': typeof DivisionRoute
   '/multiplikation': typeof MultiplikationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/multiplikation'
+  fullPaths: '/' | '/division' | '/multiplikation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/multiplikation'
-  id: '__root__' | '/' | '/multiplikation'
+  to: '/' | '/division' | '/multiplikation'
+  id: '__root__' | '/' | '/division' | '/multiplikation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DivisionRoute: typeof DivisionRoute
   MultiplikationRoute: typeof MultiplikationRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/division': {
+      id: '/division'
+      path: '/division'
+      fullPath: '/division'
+      preLoaderRoute: typeof DivisionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/multiplikation': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DivisionRoute: DivisionRoute,
   MultiplikationRoute: MultiplikationRoute,
 }
 export const routeTree = rootRouteImport
