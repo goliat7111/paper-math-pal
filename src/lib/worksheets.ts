@@ -217,3 +217,18 @@ export function evenRowGap(
   if (rows <= 1) return minGap;
   return Math.max(minGap, (availH - rows * h) / (rows - 1));
 }
+
+/** Snabba tal: `sheets` olika övningar (4 per A4), var och en med `perSheet`
+ *  slumpade multiplikationer. Båda faktorerna dras ur samma talområde,
+ *  precis som i Excel-mallen ("Slumptal mellan"). */
+export function genSnabba(
+  range: [number, number],
+  perSheet = 10,
+  sheets = 4,
+): MulTask[][] {
+  const lo = Math.min(...range);
+  const hi = Math.max(...range);
+  return Array.from({ length: sheets }, () =>
+    Array.from({ length: perSheet }, () => ({ a: rand(lo, hi), b: rand(lo, hi) })),
+  );
+}
