@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addSubLayout, genAddSub, hasRegroup, subBorrows } from "./addsub";
+import { addSubLayout, addSubResult, genAddSub, hasRegroup, scaledTerms, subBorrows } from "./addsub";
 
 describe("genAddSub", () => {
   for (const op of ["add", "sub"] as const)
@@ -14,6 +14,24 @@ describe("genAddSub", () => {
             if (dec) t.terms.forEach((v) => expect(v % 10).not.toBe(0));
           }
         });
+});
+
+describe("subtraktion: alltid positiv differens", () => {
+  it("ingen genererad subtraktion ger negativ eller noll differens", () => {
+    for (const regroup of [true, false])
+      for (const dec of [0, 1, 2, "slumpa" as const])
+        for (const digits of [[2, 2], [2, 5], [4, 4]] as const) {
+          const tasks = genAddSub({
+            op: "sub", digits: [...digits], dec, terms: 2, regroup, count: 40,
+          });
+          for (const t of tasks) {
+            // jämför på verkligt värde (skalat till gemensam decimalantal)
+            const s = scaledTerms(t);
+            expect(s[0]!).toBeGreaterThan(s[1]!);
+            expect(addSubResult(t)).toBeGreaterThan(0);
+          }
+        }
+  });
 });
 
 describe("växling i subtraktion", () => {
