@@ -1,7 +1,7 @@
 // ============= Full file contents =============
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Plus, Minus, Divide, Grid2X2 } from "lucide-react";
+import { ArrowRight, Plus, Minus, Divide, Grid2X2, Shuffle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,11 +76,26 @@ function StartPage() {
         </div>
         <div className="mt-10 border-t border-border pt-8">
           <h2 className="font-display text-2xl font-semibold text-foreground">Utskrivbara mallar</h2>
-          <Link to="/mallar" className="group mt-5 flex items-center gap-4 rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Grid2X2 className="h-5 w-5" /></span>
-            <span className="min-w-0"><strong className="block font-display text-xl text-foreground">100-rutan</strong></span>
-            <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-          </Link>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <Link to="/mallar" className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Grid2X2 className="h-5 w-5" />
+                </span>
+                <h3 className="font-display text-xl font-semibold text-foreground">100-rutan</h3>
+                <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </div>
+            </Link>
+            <Link to="/blandade-mallar" className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Shuffle className="h-5 w-5" />
+                </span>
+                <h3 className="font-display text-xl font-semibold text-foreground">Blandade mallar</h3>
+                <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </div>
+            </Link>
+          </div>
         </div>
       </main>
     </div>
