@@ -44,8 +44,8 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
     t.decs.forEach((d, i) => {
       expect(d).toBeGreaterThanOrEqual(0);
       expect(d).toBeLessThanOrEqual(3);
-      // termens sifferantal (oskalt, inkl. ev. inledande nolla som 0,54) rymmer decimalerna
-      const len = Math.max(String(t.terms[i]!).length - (Math.max(...t.decs) - d), d + 1);
+      // termens sifferantal (inkl. ev. inledande nolla som 0,54) rymmer decimalerna
+      const len = Math.max(String(t.terms[i]!).length, d + 1);
       expect(len).toBeGreaterThanOrEqual(2);
       expect(len).toBeLessThanOrEqual(4);
       expect(len).toBeGreaterThan(d);
@@ -56,4 +56,19 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
   expect(tasks.some((t) => t.decs.some((d) => d > 0))).toBe(true);
   // termerna ska kunna ha olika antal decimaler
   expect(tasks.some((t) => t.decs[0] !== t.decs[1])).toBe(true);
+});
+
+it("slumpa: termerna behåller sitt sifferantal och kommatecknen ligger under varandra", () => {
+  const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 3, regroup: true, count: 50 });
+  for (const t of tasks) {
+    const L = addSubLayout(t);
+    const m = Math.max(...t.decs);
+    t.terms.forEach((v, i) => {
+      // Varje term visas med exakt sitt eget sifferantal (minst dec+1 siffror).
+      const shown = L.rows[i]!.filter((ch) => ch !== "").length;
+      expect(shown).toBe(Math.max(String(v).length, t.decs[i]! + 1));
+      // Kommatecknet (om termen har decimaler) ligger i samma kolumn för alla rader.
+      if (t.decs[i]! > 0) expect(L.commas[i]).toBe(L.nCols - 1 - m);
+    });
+  }
 });
