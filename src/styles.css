@@ -236,10 +236,11 @@ body { font-family: var(--font-sans); }
 .hundred-grid-page { height: 297mm; }
 /* Talkamrater: trappformade tabeller, tomma rutor utan ram, färg per strategi. */
 .talkamrat-layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6mm; padding-top: 5mm; }
-.talkamrat-layout--stack { padding-top: 3mm; gap: 6mm; }
-.talkamrat-set { flex: 1; min-height: 0; padding-top: 0; }
-.talkamrat-layout--landscape { flex-direction: row; gap: 8mm; }
-.talkamrat-layout--landscape .hundred-grid-box { flex: 1; height: auto; min-height: 0; }
+/* Liggande "Båda": två identiska halvor sida vid sida, klipp mitt i. */
+.talkamrat-halves { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; padding-top: 3mm; }
+.talkamrat-half { display: flex; flex-direction: column; gap: 3mm; min-width: 0; min-height: 0; }
+.talkamrat-half .talkamrat-section { flex: 1; min-height: 0; overflow: hidden; }
+.talkamrat-half .talkamrat-legend { padding-top: 1mm; font-size: 11px; gap: 1.5mm 4mm; }
 .hundred-grid-page.talkamrat-page--landscape { height: 210mm; }
 .talkamrat-section { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2mm; break-inside: avoid; page-break-inside: avoid; }
 .talkamrat-grid, .talkamrat-grid tr { break-inside: avoid; page-break-inside: avoid; }
