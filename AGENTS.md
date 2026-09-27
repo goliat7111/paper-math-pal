@@ -13,3 +13,4 @@
 
 - Kolumnplacering i uppställningsbladet (minnessiffror, ×-tecken, produkt) räknas ut i `setupLayout()` i `src/lib/worksheets.ts` och renderas med explicit `gridColumn`/`gridRow` — aldrig grid auto-placering, som placerade minnessiffrorna fel (span-cellen hamnade först). Layoutlogiken är därmed enhetstestad.
 - Additionens minnessiffror beräknas kolumnvis i `setupLayout()` och visas i en 4 mm hög rad direkt under övre strecket endast vid flersiffrig undre faktor, så arbetsblad och facit behåller samma radplacering.
+- Alla nuvarande och framtida hela arbetsblad och facit använder `SheetHeader` med titel, undertitel och skrivrader för namn, datum och poäng; `Snabba tal` är undantaget eftersom dess fyra övningar ska klippas isär.

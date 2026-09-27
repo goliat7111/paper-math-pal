@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { evenRowGap, fitGridCount, setupLayout, type SetupTask } from "@/lib/worksheets";
-import { SheetHeader } from "./Sheet102";
+import { SheetHeader } from "./SheetHeader";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
 const colsFor = (tasks: SetupTask[]) => Math.max(...tasks.map((t) => setupLayout(t).nCols));

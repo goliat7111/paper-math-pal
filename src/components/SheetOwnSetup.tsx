@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { digitValue, formatDecimal, type SetupTask } from "@/lib/worksheets";
-import { SheetHeader } from "./Sheet102";
+import { SheetHeader } from "./SheetHeader";
 import { Problem, type SetupFit } from "./SheetSetup";
 
 /** Samma åtta uppgifter och samma placering på elevblad och facit. */

@@ -1,4 +1,5 @@
 import { chunk, type MulTask } from "@/lib/worksheets";
+import { SheetHeader } from "./SheetHeader";
 
 // Block om 5 uppgifter (sista blocket fylls ut); t.ex. 34 rader → 5×6 + 4
 const blockSizes = (rows: number) => {
@@ -53,37 +54,6 @@ export function Sheet102({
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-export function SheetHeader({ title, subtitle, score }: { title: string; subtitle: string; score?: string }) {
-  return (
-    <div className="border-b-2 border-sheet-ink pb-3">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-[22px] font-semibold text-sheet-ink">{title}</h2>
-        <span className="text-[12px] uppercase tracking-widest text-sheet-muted">{subtitle}</span>
-      </div>
-      <div className="mt-3 flex gap-6 text-[13px] text-sheet-ink">
-        <Field label="Namn" grow />
-        <Field label="Datum" w="32mm" />
-        {score && (
-          <div className="flex items-end gap-2">
-            <span>Poäng:</span>
-            <span className="inline-block w-[14mm] border-b border-sheet-ink" />
-            <span>{score}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, grow, w }: { label: string; grow?: boolean; w?: string }) {
-  return (
-    <div className={`flex items-end gap-2 ${grow ? "flex-1" : ""}`}>
-      <span>{label}:</span>
-      <span className="inline-block flex-1 border-b border-sheet-ink" style={w ? { width: w, flex: "none" } : undefined} />
     </div>
   );
 }

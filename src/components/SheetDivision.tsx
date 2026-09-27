@@ -1,6 +1,6 @@
 import { divisionSteps, type DivisionTask } from "@/lib/division";
 import { formatDecimal } from "@/lib/worksheets";
-import { SheetHeader } from "./Sheet102";
+import { SheetHeader } from "./SheetHeader";
 
 export function SheetDivision({ tasks, answers, ownSetup }: {
   tasks: DivisionTask[];
