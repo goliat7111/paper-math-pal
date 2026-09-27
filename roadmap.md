@@ -7,4 +7,4 @@
 - Utskrivbara mallar: 100-ruta efter Excel-mallen, välj 2, 4, 6 eller 8 sidfyllande rutor på A4 och visa eller dölj produkterna
 
 ## Senare (väntar på Magnus)
-- Addition och subtraktion (kort på startsidan: Kommer snart)
+- [x] Addition och subtraktion (med/utan växling, heltal/decimaltal, färdig uppställning/tom ruta)

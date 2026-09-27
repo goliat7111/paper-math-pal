@@ -25,15 +25,17 @@ const operations = [
   },
   {
     title: "Addition",
-    description: "Diagnoser och uppställningar i addition.",
+    description: "Uppställningar med eller utan växling, heltal eller decimaltal.",
+    to: "/addition",
     icon: Plus,
-    ready: false,
+    ready: true,
   },
   {
     title: "Subtraktion",
-    description: "Diagnoser och uppställningar i subtraktion.",
+    description: "Uppställningar med eller utan växling, heltal eller decimaltal.",
+    to: "/subtraktion",
     icon: Minus,
-    ready: false,
+    ready: true,
   },
   {
     title: "Division",
@@ -98,10 +100,10 @@ function StartPage() {
                 <p className="mt-3 text-sm text-muted-foreground">{op.description}</p>
                 <ul className="mt-4 space-y-1.5 text-sm text-foreground">
                   <li className="flex items-center gap-2">
-                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> {op.to === "/division" ? "8 uppgifter per A4-sida" : "102 tal (6 min) – multiplikationsdiagnos"}
+                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> {op.to === "/division" ? "8 uppgifter per A4-sida" : op.to === "/multiplikation" ? "102 tal (6 min) – multiplikationsdiagnos" : "12 uppgifter per A4-sida"}
                   </li>
                   <li className="flex items-center gap-2">
-                    <Grid3X3 className="h-4 w-4 text-muted-foreground" /> {op.to === "/division" ? "Egen uppställning och separat facit" : "Uppställning med minnessiffror"}
+                    <Grid3X3 className="h-4 w-4 text-muted-foreground" /> {op.to === "/multiplikation" ? "Uppställning med minnessiffror" : "Egen uppställning och separat facit"}
                   </li>
                 </ul>
               </Link>

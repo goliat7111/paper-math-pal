@@ -15,3 +15,4 @@
 - Additionens minnessiffror beräknas kolumnvis i `setupLayout()` och visas i en 4 mm hög rad direkt under övre strecket endast vid flersiffrig undre faktor, så arbetsblad och facit behåller samma radplacering.
 - Alla nuvarande och framtida hela arbetsblad och facit använder `SheetHeader` med titel, undertitel och skrivrader för namn, datum och poäng; `Snabba tal` är undantaget eftersom dess fyra övningar ska klippas isär.
 - Utskrivbara mallar bor på en egen sida (`/mallar`); 100-rutan ritas som en 11×11 HTML-tabell vars produkter kan visas eller döljas, och rutorna fyller tillgänglig A4-yta via antalstyrd grid så direktutskrift och PDF får samma rutindelning.
+- Addition och subtraktion delar `AddSubPage`/`SheetAddSub` och logiken i `src/lib/addsub.ts`; uppgifter utan växling konstrueras kolumnvis (slumpa-och-förkasta hittar dem inte vid 3 termer och decimaler).

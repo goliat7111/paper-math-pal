@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdditionRouteImport } from './routes/addition'
 import { Route as DivisionRouteImport } from './routes/division'
 import { Route as MallarRouteImport } from './routes/mallar'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
+import { Route as SubtraktionRouteImport } from './routes/subtraktion'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdditionRoute = AdditionRouteImport.update({
+  id: '/addition',
+  path: '/addition',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DivisionRoute = DivisionRouteImport.update({
@@ -34,39 +41,71 @@ const MultiplikationRoute = MultiplikationRouteImport.update({
   path: '/multiplikation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubtraktionRoute = SubtraktionRouteImport.update({
+  id: '/subtraktion',
+  path: '/subtraktion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/addition': typeof AdditionRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/subtraktion': typeof SubtraktionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/addition': typeof AdditionRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/subtraktion': typeof SubtraktionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/addition': typeof AdditionRoute
   '/division': typeof DivisionRoute
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/subtraktion': typeof SubtraktionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/division' | '/mallar' | '/multiplikation'
+  fullPaths:
+    | '/'
+    | '/addition'
+    | '/division'
+    | '/mallar'
+    | '/multiplikation'
+    | '/subtraktion'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/division' | '/mallar' | '/multiplikation'
-  id: '__root__' | '/' | '/division' | '/mallar' | '/multiplikation'
+  to:
+    | '/'
+    | '/addition'
+    | '/division'
+    | '/mallar'
+    | '/multiplikation'
+    | '/subtraktion'
+  id:
+    | '__root__'
+    | '/'
+    | '/addition'
+    | '/division'
+    | '/mallar'
+    | '/multiplikation'
+    | '/subtraktion'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdditionRoute: typeof AdditionRoute
   DivisionRoute: typeof DivisionRoute
   MallarRoute: typeof MallarRoute
   MultiplikationRoute: typeof MultiplikationRoute
+  SubtraktionRoute: typeof SubtraktionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/addition': {
+      id: '/addition'
+      path: '/addition'
+      fullPath: '/addition'
+      preLoaderRoute: typeof AdditionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/division': {
@@ -99,14 +145,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MultiplikationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/subtraktion': {
+      id: '/subtraktion'
+      path: '/subtraktion'
+      fullPath: '/subtraktion'
+      preLoaderRoute: typeof SubtraktionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdditionRoute: AdditionRoute,
   DivisionRoute: DivisionRoute,
   MallarRoute: MallarRoute,
   MultiplikationRoute: MultiplikationRoute,
+  SubtraktionRoute: SubtraktionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -239,3 +239,12 @@ body { font-family: var(--font-sans); }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body > * .min-h-screen, main { padding: 0 !important; margin: 0 !important; }
 }
+.addsub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.addsub-expression { font-size: 15px; white-space: nowrap; }
+.addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; }
+.addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
+.addsub-cell { position: relative; height: 6.5mm; display: flex; align-items: center; justify-content: center; }
+.addsub-cell.addsub-small { height: 4.5mm; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
+.addsub-cell.is-struck { text-decoration: line-through; text-decoration-color: var(--sheet-answer); }
+.addsub-cell.is-answer { font-weight: bold; color: var(--sheet-answer); }
+.addsub-line { border-top: 2px solid var(--sheet-ink); height: 0; }
