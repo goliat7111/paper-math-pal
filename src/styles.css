@@ -73,9 +73,12 @@
 :root {
   --radius: 0.625rem;
   --sheet-ink: oklch(0.2 0 0);
+  --sheet-ink-strong: oklch(0.08 0 0);
   --sheet-muted: oklch(0.5 0 0);
   --sheet-line: oklch(0.55 0 0);
+  --sheet-line-strong: oklch(0.35 0 0);
   --sheet-grid: oklch(0.82 0.02 230);
+  --sheet-grid-strong: oklch(0.74 0.03 230);
   --sheet-answer: oklch(0.5 0.17 25);
   --sheet-paper: oklch(1 0 0);
   --background: oklch(0.955 0.012 85);
