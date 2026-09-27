@@ -72,9 +72,9 @@ function MallarPage() {
         </fieldset>
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Produkter i rutorna</legend>
-          <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
-            <Button type="button" size="sm" variant={showProducts ? "default" : "ghost"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
-            <Button type="button" size="sm" variant={!showProducts ? "default" : "ghost"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={showProducts ? "default" : "outline"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
           </div>
         </fieldset>
         <p className="text-sm text-muted-foreground">{count} {showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida</p>
