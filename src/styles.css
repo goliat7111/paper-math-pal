@@ -196,7 +196,10 @@ body { font-family: var(--font-sans); }
      utgår från rutans höjd, och --rows (sätts inline per ruta) ger radantalet. */
   container-type: size;
 }
-.hundred-grid th, .hundred-grid td { font-size: calc(38cqh / var(--rows, 11)); }
+/* Siffrorna är proportionella mot cellhöjden (~30 %), så stora rutor får stora
+   siffror. cqh utgår från rutans höjd (container-type: size) och --rows sätts
+   inline per ruta. Kantradernas siffror är lite större och fetstilta. */
+.hundred-grid th, .hundred-grid td { font-size: calc(30cqh / var(--rows, 11)); }
 /* 1 ruta: kvadratiska celler — höjd = sidans inre bredd (210-28 = 182 mm), centrerad. */
 .hundred-grid-layout--1 .hundred-grid { height: 182mm; align-self: center; }
 /* 4 rutor: rutan får höjd = kolumnbredd ((210-28-6)/2 = 88 mm) så cellerna
@@ -211,7 +214,7 @@ body { font-family: var(--font-sans); }
   vertical-align: middle;
   font-weight: 400;
 }
-.hundred-grid th { background-color: var(--sheet-grid); font-weight: 700; font-size: 1.25em; }
+.hundred-grid th { background-color: var(--sheet-grid); font-weight: 700; font-size: calc(36cqh / var(--rows, 11)); }
 .hundred-grid-page { height: 297mm; }
 .own-setup-instruction { margin: 5mm 0; font-size: 14px; }
 .own-setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
