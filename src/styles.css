@@ -330,3 +330,6 @@ body { font-family: var(--font-sans); }
 .fold-steps h3 { font-size: 4.6mm; font-weight: 700; margin-bottom: 1mm; }
 .fold-steps p { font-size: 3.8mm; line-height: 1.45; }
 .fold-svg { width: 45mm; height: 34mm; flex-shrink: 0; border: 0.3mm solid var(--sheet-grid); border-radius: 2mm; }
+
+.talkamrat-grid-2 { flex: 1; min-height: 0; display: grid; grid-template-rows: 1fr 1fr; gap: 6mm; }
+.talkamrat-grid-2 .talkamrat-section { overflow: hidden; }
