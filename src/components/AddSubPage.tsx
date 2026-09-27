@@ -25,7 +25,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const previewUrl = useRef<string | null>(null);
 
   useEffect(() => {
-    const l = Math.max(lo, minDigits), h = Math.max(hi, l);
+    const l = lo, h = Math.max(hi, l);
     if (l !== lo) setLo(l);
     if (h !== hi) setHi(h);
     setTasks(genAddSub({ op, digits: [l, h], dec, terms, regroup, count: COUNT }));
