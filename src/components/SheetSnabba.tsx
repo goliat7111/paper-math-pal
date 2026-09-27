@@ -15,7 +15,7 @@ export function SheetSnabba({
         {answers ? "Snabba tal – Facit" : "Snabba tal"}
       </h1>
       <p className="mt-0.5 text-center text-xs text-sheet-ink/70">Multiplikation</p>
-      <div className="mt-4 grid flex-1 grid-cols-2 grid-rows-2 gap-[6mm]">
+      <div className="snabba-grid mt-4 grid flex-1 grid-cols-2 grid-rows-2 gap-[6mm]">
         {exercises.map((tasks, ei) => (
           <section
             key={ei}
