@@ -15,14 +15,11 @@ export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean })
   const top = L.rows.length;
   const totalCols = cols + 2;
   const totalRows = top + 5;
-  const ring: React.ReactNode[] = [];
-  for (let c = 1; c <= totalCols; c++) {
-    ring.push(<div key={`rt${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: 1 }} aria-hidden />);
-    ring.push(<div key={`rb${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: totalRows }} aria-hidden />);
-  }
-  for (let r = 2; r < totalRows; r++) {
-    ring.push(<div key={`rl${r}`} className="addsub-cell" style={{ gridColumn: 1, gridRow: r }} aria-hidden />);
-    ring.push(<div key={`rr${r}`} className="addsub-cell" style={{ gridColumn: totalCols, gridRow: r }} aria-hidden />);
+  const bg: React.ReactNode[] = [];
+  for (let r = 1; r <= totalRows; r++) {
+    for (let c = 1; c <= totalCols; c++) {
+      bg.push(<div key={`bg${r}-${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: r }} aria-hidden />);
+    }
   }
   return (
     <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, 6.5mm)` }}>
