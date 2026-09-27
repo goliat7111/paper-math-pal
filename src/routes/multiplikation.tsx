@@ -32,7 +32,7 @@ function MultiplikationPage() {
   const [sb, setSb] = useState<[number, number]>([1, 1]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
-  const [sr, setSr] = useState<[number, number]>([3, 6]);
+  const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
   const [withKey, setWithKey] = useState(true);
   const [exporting, setExporting] = useState(false);
