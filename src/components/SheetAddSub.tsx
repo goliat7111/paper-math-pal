@@ -8,18 +8,29 @@ export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean })
   const L = addSubLayout(t);
   const cols = L.nCols + 1;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
-    <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 2, gridRow: row }}>
+    <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
       {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="division-comma">,</span>}
     </div>
   );
   const top = L.rows.length;
+  const totalCols = cols + 2;
+  const totalRows = top + 5;
+  const ring: React.ReactNode[] = [];
+  for (let c = 1; c <= totalCols; c++) {
+    ring.push(<div key={`rt${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: 1 }} aria-hidden />);
+    ring.push(<div key={`rb${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: totalRows }} aria-hidden />);
+  }
+  for (let r = 2; r < totalRows; r++) {
+    ring.push(<div key={`rl${r}`} className="addsub-cell" style={{ gridColumn: 1, gridRow: r }} aria-hidden />);
+    ring.push(<div key={`rr${r}`} className="addsub-cell" style={{ gridColumn: totalCols, gridRow: r }} aria-hidden />);
+  }
   return (
-    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${cols}, 6.5mm)` }}>
-      <div className="addsub-frame" style={{ gridColumn: "1 / -1", gridRow: `2 / ${L.rows.length + 4}` }} aria-hidden />
+    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, 6.5mm)` }}>
+      {ring}
       {L.rows[0]!.map((_, c) => cell(answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "", c, 1, "addsub-small", `m${c}`))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
-      <div className="addsub-cell" style={{ gridColumn: 1, gridRow: top + 1 }}>{SIGN[t.op]}</div>
-      <div className="addsub-line" style={{ gridColumn: "1 / -1", gridRow: top + 2 }} />
+      <div className="addsub-cell" style={{ gridColumn: 2, gridRow: top + 2 }}>{SIGN[t.op]}</div>
+      <div className="addsub-line" style={{ gridColumn: "2 / -2", gridRow: top + 3 }} />
       {L.result.map((d, c) => cell(answers ? d : "", c, top + 3, "is-answer", `r${c}`, L.resultComma === c))}
     </div>
   );
