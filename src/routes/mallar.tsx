@@ -3,6 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid";
+import { SheetSumGrid, type SumRange } from "@/components/SheetSumGrid";
+
+type Template = "hundred" | "sum10" | "sum20";
+const TEMPLATES: { id: Template; label: string }[] = [
+  { id: "hundred", label: "100-rutan" },
+  { id: "sum10", label: "Addition 2–10" },
+  { id: "sum20", label: "Addition 2–20" },
+];
 
 export const Route = createFileRoute("/mallar")({
   head: () => ({ meta: [
@@ -17,6 +25,7 @@ export const Route = createFileRoute("/mallar")({
 });
 
 function MallarPage() {
+  const [template, setTemplate] = useState<Template>("hundred");
   const [count, setCount] = useState<GridCount>(4);
   const [showProducts, setShowProducts] = useState(true);
   const [exporting, setExporting] = useState(false);
