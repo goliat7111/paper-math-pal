@@ -8,6 +8,7 @@ import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
+import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
@@ -39,6 +40,7 @@ function MultiplikationPage() {
   const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
   const [content, setContent] = useState<PrintContent>("both");
+  const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
   const applyFit = (f: SetupFit) =>
@@ -195,6 +197,7 @@ function MultiplikationPage() {
             PDF: {pagesLabel(content)} ·{" "}
             {tab === "102" ? 102 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
           </p>
+          <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
@@ -209,7 +212,7 @@ function MultiplikationPage() {
           <p className="text-xs text-muted-foreground">Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.</p>
         </aside>
 
-        <main className="print-area flex flex-1 flex-col items-center gap-8">
+        <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
           {tab === "102" && t102 && (
             <>
               {showSheet(content) && <Sheet102 tasks={t102} answers={false} />}
