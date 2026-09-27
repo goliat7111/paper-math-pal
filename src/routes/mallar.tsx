@@ -107,10 +107,15 @@ function MallarPage() {
         </fieldset>
         {tkRange === "custom" && (
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">Vilken kamrat? (välj ett tal)</legend>
-          <div className="flex flex-wrap gap-1.5">
-            {Array.from({ length: 17 }, (_, i) => i + 2).map(n => <Button key={n} type="button" size="sm" className="h-7 w-9 px-0 text-xs font-semibold" variant={tkSums[0] === n ? "default" : "outline"} aria-pressed={tkSums[0] === n} aria-label={`${n}-kamrater`} onClick={() => selectSum(n)}>{n}</Button>)}
-          </div>
+          <legend className="mb-2 text-sm font-medium text-foreground">Välj tal</legend>
+          <select
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+            value={tkSums[0]}
+            aria-label="Välj tal för talkamrater"
+            onChange={e => selectSum(Number(e.target.value))}
+          >
+            {Array.from({ length: 19 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n}-kamrater</option>)}
+          </select>
         </fieldset>
         )}
         {tkRange !== "custom" && (
