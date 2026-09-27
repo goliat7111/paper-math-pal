@@ -3,13 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid";
+import { SheetSumGrid, type SumRange } from "@/components/SheetSumGrid";
+
+type Template = "hundred" | "sum10" | "sum20";
+const TEMPLATES: { id: Template; label: string }[] = [
+  { id: "hundred", label: "100-rutan" },
+  { id: "sum10", label: "Addition 2–10" },
+  { id: "sum20", label: "Addition 2–20" },
+];
 
 export const Route = createFileRoute("/mallar")({
   head: () => ({ meta: [
     { title: "Utskrivbara mallar – Räknebladet" },
-    { name: "description", content: "Skriv ut ifyllda eller tomma multiplikationsrutor med 2, 4, 6 eller 8 rutor per A4-sida." },
+    { name: "description", content: "Skriv ut ifyllda eller tomma multiplikationsrutor och additionsrutor med summor 2–10 eller 2–20 på A4." },
     { property: "og:title", content: "Utskrivbara mallar – Räknebladet" },
-    { property: "og:description", content: "Skriv ut ifyllda eller tomma 100-rutor i multiplikation på A4." },
+    { property: "og:description", content: "Skriv ut ifyllda eller tomma 100-rutor i multiplikation och additionsrutor på A4." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
@@ -17,6 +25,7 @@ export const Route = createFileRoute("/mallar")({
 });
 
 function MallarPage() {
+  const [template, setTemplate] = useState<Template>("hundred");
   const [count, setCount] = useState<GridCount>(4);
   const [showProducts, setShowProducts] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -41,7 +50,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(`100-rutan-${count}-per-a4`);
+      setFileName(template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -58,33 +67,43 @@ function MallarPage() {
       <div className="mx-auto max-w-6xl px-6 py-4">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Till startsidan</Link>
         <h1 className="font-display text-2xl font-semibold text-foreground">Utskrivbara mallar</h1>
-        <p className="text-sm text-muted-foreground">100-rutan · Multiplikation</p>
+        <p className="text-sm text-muted-foreground">100-rutan · Additionsrutor</p>
       </div>
     </header>
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
       <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
-        <h2 className="font-display text-lg font-semibold text-foreground">100-rutan</h2>
-       <fieldset>
+        <h2 className="font-display text-lg font-semibold text-foreground">{TEMPLATES.find(t => t.id === template)?.label}</h2>
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Mall</legend>
+          <div className="flex flex-wrap gap-2">
+            {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
+          </div>
+        </fieldset>
+       {template === "hundred" && <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="flex flex-wrap gap-2">
             {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
           </div>
-        </fieldset>
+        </fieldset>}
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">Produkter i rutorna</legend>
+          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : "Summor i rutan"}</legend>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={showProducts ? "default" : "outline"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
           </div>
         </fieldset>
-        <p className="text-sm text-muted-foreground">{count} {showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida</p>
+        <p className="text-sm text-muted-foreground">{template === "hundred"
+          ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
+          : `En ${showProducts ? "ifylld" : "tom"} ruta med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           <Button type="button" variant="outline" className="w-full" onClick={createPdf} disabled={exporting}><FileDown />{exporting ? "Skapar PDF…" : "Förhandsgranska & ladda ner PDF"}</Button>
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-       <main className="print-area flex flex-1 flex-col items-center gap-8"><SheetHundredGrid count={count} showProducts={showProducts} /></main>
+<main className="print-area flex flex-1 flex-col items-center gap-8">{template === "hundred"
+        ? <SheetHundredGrid count={count} showProducts={showProducts} />
+        : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} showSums={showProducts} />}</main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
