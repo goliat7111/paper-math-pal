@@ -1,3 +1,4 @@
+import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
@@ -68,7 +69,7 @@ function MultiplikationPage() {
     else setTSnabba(genSnabba(sr));
   };
 
-  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number } | null>(null);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
   const [fileName, setFileName] = useState("");
 
   const suggestName = () => {
@@ -87,7 +88,7 @@ function MultiplikationPage() {
       const r = await buildSheetsPdf("portrait");
       if (r) {
         setFileName(suggestName() + keySuffix(content));
-        setPreview({ url: URL.createObjectURL(r.blob), blob: r.blob, pages: r.pages });
+        setPreview({ url: URL.createObjectURL(r.blob), blob: r.blob, pages: r.pages, images: r.images });
       }
     } finally {
       setExporting(false);
@@ -244,7 +245,7 @@ function MultiplikationPage() {
               <h2 className="text-lg font-semibold text-foreground">Förhandsgranskning av PDF · {preview.pages} {preview.pages === 1 ? "sida" : "sidor"}</h2>
               <button onClick={closePreview} className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent">Stäng</button>
             </div>
-            <iframe title="PDF-förhandsgranskning" src={preview.url} className="min-h-0 flex-1 rounded-md border border-input" />
+            <PdfPagesPreview images={preview.images} />
             <div className="flex flex-wrap items-end gap-2">
               <label className="flex-1 text-sm font-medium text-foreground">
                 Filnamn

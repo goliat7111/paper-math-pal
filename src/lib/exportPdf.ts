@@ -9,12 +9,13 @@ import { jsPDF } from "jspdf";
  *  Diskreta sidnummer ritas i bladets nedre marginal. */
 export async function buildSheetsPdf(
   orientation: Orientation,
-): Promise<{ blob: Blob; pages: number } | null> {
+): Promise<{ blob: Blob; pages: number; images: string[] } | null> {
   const pages = Array.from(
     document.querySelectorAll<HTMLElement>(".print-area .a4-page"),
   );
   if (pages.length === 0) return null;
   const pdf = new jsPDF({ orientation, unit: "mm", format: "a4", compress: true });
+  const images: string[] = [];
   const w = orientation === "portrait" ? 210 : 297;
   const h = orientation === "portrait" ? 297 : 210;
   for (let i = 0; i < pages.length; i++) {
@@ -26,6 +27,7 @@ export async function buildSheetsPdf(
       height: page.offsetHeight,
       style: { boxShadow: "none" },
     });
+    images.push(png);
     if (i > 0) pdf.addPage("a4", orientation);
     pdf.addImage(png, "PNG", 0, 0, w, h);
     pdf.setFont("helvetica", "normal");
@@ -34,7 +36,7 @@ export async function buildSheetsPdf(
     pdf.text(`Sida ${i + 1} av ${pages.length}`, w / 2, h - 6, { align: "center" });
     pdf.setTextColor(0);
   }
-  return { blob: pdf.output("blob"), pages: pages.length };
+  return { blob: pdf.output("blob"), pages: pages.length, images };
 }
 
 /** Gör ett säkert filnamn som slutar på .pdf */
