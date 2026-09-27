@@ -72,7 +72,7 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
             // Bredaste additionen ("10+10") får en aning mindre storlek så den inte nuddar kanten.
             const wide = range === "20" && label.length > 4;
             const st = colors ? strategyFor(p[0], p[1]) : null;
-            return <td key={c.sum} className={st ? `tk-${st}` : undefined} style={wide ? ({ "--fs": 0.76 } as CSSProperties) : undefined}>{label}</td>;
+            return <td key={c.sum} className={st ? `tk-${st}` : undefined} style={wide ? ({ "--fs": 0.76 } as CSSProperties) : undefined}>{showPairs ? label : null}</td>;
           })}</tr>
         ))}</tbody>
       </table>
