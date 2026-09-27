@@ -183,6 +183,7 @@ body { font-family: var(--font-sans); }
 .hundred-grid-layout--8 { grid-template-rows: repeat(4, 1fr); }
 .hundred-grid {
   width: 100%;
+  align-self: center;
   table-layout: fixed;
   border-collapse: collapse;
   color: var(--sheet-ink);
