@@ -88,25 +88,25 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
       {STRATEGIES.map(s => <li key={s.id}><span className={`tk-swatch tk-${s.id}`} />{s.label}</li>)}
     </ul>
   );
-  // Flera sidor: en tabell per A4-sida (endast för enskilda talområden).
-  const pageCount = count > 1 && (range === "10" || range === "20") ? count : 1;
-  if (pageCount > 1) {
+  // Flera tabeller på samma A4-sida (endast för enskilda talområden).
+  const perPage = count > 1 && (range === "10" || range === "20") ? count : 1;
+  if (perPage > 1) {
     const r = range as "10" | "20";
     return (
-    <>
-      {Array.from({ length: pageCount }, (_, i) => (
-        <div key={i} className="a4-page hundred-grid-page flex flex-col">
-          <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
-          <div className="talkamrat-layout">
-            <section className="talkamrat-section">
-              <h3 className="talkamrat-title">{`Talkamrater – upp till ${r}`}</h3>
-              <Table range={r} colors={useColors} showPairs={showPairs} sums={sorted} />
-            </section>
+      <div className="a4-page hundred-grid-page flex flex-col">
+        <SheetHeader title="Talkamrater" subtitle={subtitle} score="" compact={perPage === 4} />
+        <div className="talkamrat-layout">
+          <div className={perPage === 4 ? "talkamrat-grid-4" : "talkamrat-grid-2"}>
+            {Array.from({ length: perPage }, (_, i) => (
+              <section key={i} className="talkamrat-section">
+                <h3 className="talkamrat-title">{`Talkamrater – upp till ${r}`}</h3>
+                <Table range={r} colors={useColors} showPairs={showPairs} sums={sorted} />
+              </section>
+            ))}
           </div>
-          {legend}
         </div>
-      ))}
-    </>
+        {legend}
+      </div>
     );
   }
   return (
