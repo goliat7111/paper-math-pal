@@ -50,7 +50,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}`);
+      setFileName(template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
