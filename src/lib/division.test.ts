@@ -79,5 +79,21 @@ describe("Division med decimaltal", () => {
   it("avvisar omöjliga val", () => {
     expect(() => genDivision(3, 3, 1, 8, false, 0, 1)).toThrow();
     expect(() => genDivision(2, 9, 1, 8, true, 1, 0)).toThrow();
+    expect(() => genDivision(2, 9, 1, 8, true, -1, 0)).toThrow();
+  });
+  it("Slumpa ger 0–3 decimaler per uppgift och alla går jämnt ut", () => {
+    for (const extra of [0, 1, 2]) {
+      const tasks = genDivision(2, 9, 1, 60, false, -1, extra);
+      const decs = new Set(tasks.map(t => t.dividendDecimals ?? 0));
+      expect(decs.size).toBeGreaterThan(1);
+      for (const t of tasks) {
+        expect(t.dividendDecimals ?? 0).toBeGreaterThanOrEqual(0);
+        expect(t.dividendDecimals ?? 0).toBeLessThanOrEqual(3);
+        expect(t.quotientDecimals).toBe((t.dividendDecimals ?? 0) + extra);
+        expect(t.quotient * t.divisor).toBe(t.dividend * 10 ** extra);
+        const steps = divisionSteps(t);
+        expect(steps.at(-1)?.remainder).toBe(0);
+      }
+    }
   });
 });

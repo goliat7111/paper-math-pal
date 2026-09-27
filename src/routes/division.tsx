@@ -50,7 +50,7 @@ function DivisionPage() {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`division-${ownSetup ? "egen-uppstallning" : "kort-division"}-${tasks.some(t => t.remainder > 0) ? "med-rest" : mode === "extra" ? `${extra}-extra-decimaler` : "utan-rest"}${dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`division-${ownSetup ? "egen-uppstallning" : "kort-division"}-${tasks.some(t => t.remainder > 0) ? "med-rest" : mode === "extra" ? `${extra}-extra-decimaler` : "utan-rest"}${dec === -1 ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -81,7 +81,7 @@ function DivisionPage() {
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={mode === "extra"} onChange={() => { setMode("extra"); setDirty(true); }} />Extra decimaler i svaret</label>
             {mode === "extra" && <select aria-label="Antal extra decimaler" className="ml-6 block rounded-md border border-input bg-background px-2 py-1.5 text-sm" value={extra} onChange={e => { setExtra(Number(e.target.value)); setDirty(true); }}><option value={1}>1 extra decimal</option><option value={2}>2 extra decimaler</option><option value={3}>3 extra decimaler</option></select>}
           </fieldset>
-          <p className="text-sm text-muted-foreground">{mode === "rest" ? "Alla uppgifter får en rest. Antalet siffror avser svarets heltalsdel." : mode === "extra" ? `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}` : dec > 0 ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2." : "Alla uppgifter går jämnt ut."}</p>
+          <p className="text-sm text-muted-foreground">{dec === -1 ? "Varje uppgift får ett slumpat antal decimaler (0–3) i täljaren. Alla uppgifter går jämnt ut." : mode === "rest" ? "Alla uppgifter får en rest. Antalet siffror avser svarets heltalsdel." : mode === "extra" ? `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}` : dec > 0 ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2." : "Alla uppgifter går jämnt ut."}</p>
           <fieldset className="space-y-2"><legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />Med uppställning (kort division)</label>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />Egen uppställning i tom ruta</label>
