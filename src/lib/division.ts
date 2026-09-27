@@ -56,6 +56,12 @@ export function genDivision(
   return Array.from({ length: count }, () => {
     const dd = dividendDecimals === -1 ? rand(0, 3) : dividendDecimals;
     const qDec = dd + extraDecimals;
+    if (qDec === 0) {
+      // Slumpa valde 0 decimaler: vanlig jämn heltalsdivision
+      const divisor = pool[rand(0, pool.length - 1)]!;
+      const quotient = rand(10 ** (quotientDigits - 1), 10 ** quotientDigits - 1);
+      return { dividend: divisor * quotient, divisor, quotient, remainder: 0 };
+    }
     for (let tries = 0; tries < 20000; tries++) {
       const divisor = pool[rand(0, pool.length - 1)]!;
       // Heltalsdelen: en siffra tillåter 0 (t.ex. 4/8 = 0,5)
