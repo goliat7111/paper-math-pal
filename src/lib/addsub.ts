@@ -17,8 +17,6 @@ export type AddSubOptions = {
   count: number;
 };
 
-const digitsOf = (v: number, n: number) => String(v).padStart(n, "0").split("").map(Number);
-
 /** Minnessiffror (addition) per kolumn räknat från ental: index i = kolumn i får minnessiffran. */
 export function addCarries(terms: number[]): number[] {
   const n = String(Math.max(...terms)).length + 1;
@@ -119,7 +117,6 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
       else if (c.received) marks[col] = "10";
     });
   }
-  void digitsOf;
   return {
     nCols,
     rows: t.terms.map(align),
