@@ -19,7 +19,8 @@ export const extraCapacity = (d: number) => {
   return Math.max(two, five);
 };
 
-/** dividendDecimals = -1 betyder "Slumpa": varje uppgift får 0–3 decimaler i täljaren. */
+/** dividendDecimals = -1 betyder "Slumpa": varje uppgift får 0–3 decimaler i täljaren.
+ *  extraDecimals = -1 betyder "Slumpa": varje uppgift får 1–3 extra decimaler i svaret. */
 export function genDivision(
   dividendMin: number,
   dividendMax: number,
@@ -34,10 +35,10 @@ export function genDivision(
     || dividendMin < 2 || dividendMax > 9999 || dividendMin > dividendMax
     || divisorMin < 2 || divisorMax > 9 || divisorMin > divisorMax
     || count < 1 || count > 40
-    || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < 0 || extraDecimals > 3) {
+    || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < -1 || extraDecimals > 3) {
     throw new Error("Välj täljare mellan 2 och 9999 och nämnare mellan 2 och 9.");
   }
-  if (withRemainder && (dividendDecimals !== 0 || extraDecimals > 0)) {
+  if (withRemainder && (dividendDecimals !== 0 || extraDecimals !== 0)) {
     throw new Error("Rest kan bara väljas för heltal utan extra decimaler.");
   }
   if (dividendDecimals === 0 && extraDecimals === 0) {
@@ -56,15 +57,21 @@ export function genDivision(
       throw new Error("Hittade inga passande divisioner. Prova ett större talområde för täljaren.");
     });
   }
-  const pool: number[] = [];
-  for (let d = divisorMin; d <= divisorMax; d++) if (extraCapacity(d) >= extraDecimals) pool.push(d);
-  if (!pool.length) {
+  const pools = new Map<number, number[]>();
+  for (const k of extraDecimals === -1 ? [1, 2, 3] : [extraDecimals]) {
+    pools.set(k, [2, 3, 4, 5, 6, 7, 8, 9].filter(d => d >= divisorMin && d <= divisorMax && extraCapacity(d) >= k));
+  }
+  const avail = [...pools.entries()].filter(([, p]) => p.length);
+  if (!avail.length) {
+    if (extraDecimals === -1) throw new Error("Extra decimaler kräver någon av nämnarna 2, 4, 5, 6 eller 8.");
     const ok = [2, 3, 4, 5, 6, 7, 8, 9].filter(d => extraCapacity(d) >= extraDecimals).join(", ");
     throw new Error(`${extraDecimals} extra decimal${extraDecimals > 1 ? "er" : ""} kräver någon av nämnarna ${ok}.`);
   }
   return Array.from({ length: count }, () => {
     for (let tries = 0; tries < 20000; tries++) {
       const dd = dividendDecimals === -1 ? rand(0, 3) : dividendDecimals;
+      const extraN = extraDecimals === -1 ? avail[rand(0, avail.length - 1)]![0] : extraDecimals;
+      const pool = pools.get(extraN)!;
       const divisor = pool[rand(0, pool.length - 1)]!;
       const scaledDividend = rand(dividendMin * 10 ** dd, dividendMax * 10 ** dd);
       if (dd > 0 && scaledDividend % 10 === 0) continue; // täljaren har exakt valda decimaler
