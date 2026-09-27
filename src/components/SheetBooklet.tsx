@@ -59,11 +59,12 @@ export function SheetBooklet({ showPairs }: { showPairs: boolean }) {
 function Diagram({ step }: { step: number }) {
   const c = "var(--sheet-ink)";
   return <svg viewBox="0 0 120 90" className="fold-svg" aria-hidden="true">
+    {step === 0 && <><rect x="35" y="5" width="50" height="80" fill="none" stroke={c} strokeWidth="1.2" /><line x1="35" y1="45" x2="85" y2="45" stroke={c} strokeDasharray="1 2" /><line x1="60" y1="5" x2="60" y2="85" stroke={c} strokeDasharray="1 2" /><text x="72" y="70" fontSize="9" textAnchor="middle" fill={c}>1</text><text x="72" y="22" fontSize="9" textAnchor="middle" fill={c} transform="rotate(180 72 19)">4</text></>}
     {step === 1 && <><rect x="35" y="5" width="50" height="80" fill="none" stroke={c} strokeWidth="1.2" /><line x1="35" y1="45" x2="85" y2="45" stroke={c} strokeDasharray="3 2" /><path d="M92 20 q12 25 0 45" fill="none" stroke={c} markerEnd="url(#a)" /></>}
     {step === 2 && <><rect x="20" y="25" width="80" height="40" fill="none" stroke={c} strokeWidth="1.2" /><line x1="60" y1="25" x2="60" y2="65" stroke={c} strokeDasharray="3 2" /><path d="M30 20 q30 -14 60 0" fill="none" stroke={c} markerEnd="url(#a)" /><text x="60" y="80" fontSize="7" textAnchor="middle" fill={c}>vikt kant uppåt</text></>}
     {step === 3 && <><rect x="40" y="20" width="40" height="55" fill="none" stroke={c} strokeWidth="1.2" /><text x="60" y="50" fontSize="9" textAnchor="middle" fill={c}>1</text><line x1="40" y1="20" x2="80" y2="20" stroke={c} strokeWidth="2.5" /><text x="60" y="14" fontSize="7" textAnchor="middle" fill={c}>skär här</text></>}
     {step === 4 && <><rect x="30" y="15" width="60" height="60" fill="none" stroke={c} strokeWidth="1.2" /><rect x="34" y="19" width="52" height="52" fill="none" stroke={c} strokeWidth="0.8" /><rect x="38" y="23" width="44" height="44" fill="none" stroke={c} strokeWidth="0.8" /><text x="60" y="87" fontSize="7" textAnchor="middle" fill={c}>ark 3 innerst, ark 1 ytterst</text></>}
-    {step === 5 && <><rect x="40" y="15" width="40" height="60" fill="none" stroke={c} strokeWidth="1.2" /><line x1="40" y1="30" x2="46" y2="30" stroke={c} strokeWidth="2" /><line x1="40" y1="60" x2="46" y2="60" stroke={c} strokeWidth="2" /><text x="60" y="87" fontSize="7" textAnchor="middle" fill={c}>häfta i vänsterkanten</text></>}
+    {step === 5 && <><rect x="40" y="15" width="40" height="60" fill="none" stroke={c} strokeWidth="1.2" /><line x1="40" y1="30" x2="46" y2="30" stroke={c} strokeWidth="2" /><line x1="40" y1="60" x2="46" y2="60" stroke={c} strokeWidth="2" /><text x="60" y="87" fontSize="7" textAnchor="middle" fill={c}>ark i varandra, häfta i ryggen</text></>}
     <defs><marker id="a" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill={c} /></marker></defs>
   </svg>;
 }
@@ -80,7 +81,7 @@ export function SheetFoldGuide() {
   return <div className="a4-page fold-guide">
     <h2 className="fold-guide-title">Så viker du talkamratshäftet</h2>
     <p className="fold-guide-lead">Häftet blir A6 med 24 sidor: framsida, en sida för varje tal 2–20, anteckningssidor och baksida.</p>
-    <ol className="fold-steps">{STEPS.map((s, i) => <li key={i}><Diagram step={i + 1} /><div><h3>{i + 1}. {s.t}</h3><p>{s.d}</p></div></li>)}</ol>
+    <ol className="fold-steps">{STEPS.map((s, i) => <li key={i}><Diagram step={i === 4 ? 5 : i} /><div><h3>{i + 1}. {s.t}</h3><p>{s.d}</p></div></li>)}</ol>
     <p className="fold-guide-tip">Tips: Skriv först ut ett ark som prov och kontrollera att siffran på baksidan står åt samma håll som på framsidan.</p>
   </div>;
 }
