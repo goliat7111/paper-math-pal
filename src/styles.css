@@ -295,7 +295,8 @@ body { font-family: var(--font-sans); }
   body > * .min-h-screen, main { padding: 0 !important; margin: 0 !important; }
 }
 .addsub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.addsub-expression { font-size: 15px; white-space: nowrap; }
+.addsub-expression { font-size: 15px; white-space: nowrap; height: 6mm; align-items: flex-end; }
+.addsub-expression .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; border: none; }
 .addsub-box--own { border: 1px solid var(--sheet-ink-strong); }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
