@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Klart
-- Startsida med val av räknesätt (/), multiplikation flyttad till /multiplikation med tillbakalänk
+- Startsida med val av räknesätt, multiplikation, division, snabba tal
+- Decimaltal i multiplikationsuppställning (0–2 decimaler per faktor) och division (0–3 decimaler i täljaren, jämnt ut eller 1–3 extra decimaler)
 
 ## Senare (väntar på Magnus)
-- Decimaltal i uppställning
-- Addition, subtraktion, division (kort på startsidan: Kommer snart)
+- Addition och subtraktion (kort på startsidan: Kommer snart)

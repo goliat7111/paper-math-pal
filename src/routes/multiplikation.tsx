@@ -30,6 +30,8 @@ function MultiplikationPage() {
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
   const [sb, setSb] = useState<[number, number]>([1, 1]);
+  const [dt, setDt] = useState(0);
+  const [db, setDb] = useState(0);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
@@ -56,12 +58,12 @@ function MultiplikationPage() {
   // Stor pool: bladet visar själv så många uppgifter som ryms på A4-sidan
   const SETUP_POOL = 40;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
-  useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL)), [sd, sb]);
+  useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL, dt, db)), [sd, sb, dt, db]);
   useEffect(() => setTSnabba(genSnabba(sr)), [sr]);
 
   const regenerate = () => {
     if (tab === "102") setT102(gen102(f1, f2));
-    else if (tab === "setup") setTSetup(genSetup(sd, sb, SETUP_POOL));
+    else if (tab === "setup") setTSetup(genSetup(sd, sb, SETUP_POOL, dt, db));
     else setTSnabba(genSnabba(sr));
   };
 
@@ -74,7 +76,7 @@ function MultiplikationPage() {
     if (tab === "snabba") return `snabba-tal-multiplikation-${sr[0]}-${sr[1]}-${d}`;
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
-    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror-${d}`;
+    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror${dt || db ? `-decimaler-${dt}x${db}` : ""}-${d}`;
   };
 
   const downloadPdf = async () => {
@@ -152,6 +154,22 @@ function MultiplikationPage() {
               <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
               <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={Math.max(...sd)} />
               <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet, och gränserna korrigeras automatiskt.</p>
+              <fieldset>
+                <legend className="mb-2 text-sm font-medium">Decimaler</legend>
+                <div className="flex gap-3">
+                  {([["Övre talet", dt, setDt], ["Undre talet", db, setDb]] as const).map(([label, v, set]) => (
+                    <label key={label} className="text-sm">
+                      {label}
+                      <select value={v} onChange={(e) => set(Number(e.target.value))} className="mt-1 block w-28 rounded-md border border-input bg-background px-2 py-1.5">
+                        <option value={0}>Heltal</option>
+                        <option value={1}>1 decimal</option>
+                        <option value={2}>2 decimaler</option>
+                      </select>
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">Decimaltalen slutar aldrig på 0. På elevbladet sätter eleven själv ut kommat i svaret.</p>
+              </fieldset>
               <fieldset className="space-y-2">
                 <legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
                 <label className="flex items-center gap-2 text-sm">

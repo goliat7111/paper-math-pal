@@ -180,6 +180,8 @@ body { font-family: var(--font-sans); }
 .division-numerator { display: flex; justify-content: center; border-bottom: 2px solid var(--sheet-ink); padding: 4mm 1mm 1mm; }
 .division-digit { position: relative; min-width: 7mm; }
 .division-digit sup { position: absolute; top: -2mm; left: -1mm; font-size: 11px; color: var(--sheet-answer); }
+.division-comma { position: absolute; right: -0.8mm; bottom: 0; }
+.division-digit.is-added { color: var(--sheet-answer); font-weight: bold; }
 .division-denominator { padding-top: 1mm; }
 .division-answer { min-width: 20mm; min-height: 8mm; border-bottom: 1px solid var(--sheet-line); }
 .division-answer.is-answer { border-bottom: 0; font-weight: bold; color: var(--sheet-answer); }
