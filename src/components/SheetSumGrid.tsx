@@ -10,7 +10,7 @@ function sizeFor(range: SumRange) {
 }
 
 /** Additionsruta med termerna längs kanterna och summorna i cellerna. */
-function SumGrid({ range, count, showSums }: { range: SumRange; count: GridCount; showSums: boolean }) {
+function SumGrid({ range, showSums }: { range: SumRange; count: GridCount; showSums: boolean }) {
   const n = sizeFor(range);
   const rowH = `${100 / (n + 1)}%`; // rubrikrad + n rader — alla lika höga
   return (
