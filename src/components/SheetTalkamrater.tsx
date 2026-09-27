@@ -56,12 +56,12 @@ export function customColumns(sums: number[]): { sum: number; pairs: Pair[] }[] 
   });
 }
 
-function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "custom"; colors: boolean; showPairs: boolean; sums?: number[] }) {
+function Table({ range, colors, showPairs, sums = [], fs = 1 }: { range: "10" | "20" | "custom"; colors: boolean; showPairs: boolean; sums?: number[]; fs?: number }) {
   const cols = range === "custom" ? customColumns(sums) : talkamratColumns(range);
   const rows = Math.max(...cols.map(c => c.pairs.length));
   const rowH = `${100 / (rows + 1)}%`;
   return (
-    <div className={"hundred-grid-box" + (range === "custom" ? " talkamrat-box--custom" : "")} style={{ "--rows": rows + 1 } as CSSProperties}>
+    <div className={"hundred-grid-box" + (range === "custom" ? " talkamrat-box--custom" : "")} style={{ "--rows": rows + 1, "--fs": range === "20" ? fs : 1 } as CSSProperties}>
       <table className="hundred-grid talkamrat-grid" aria-label={range === "custom" ? "Valda talkamrater" : `Talkamrater upp till ${range}`}>
         <thead><tr style={{ height: rowH }}>{cols.map(c => <th key={c.sum} scope="col">{c.sum}</th>)}</tr></thead>
         <tbody>{Array.from({ length: rows }, (_, r) => (
@@ -72,7 +72,7 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
             // Bredaste additionen ("10+10") får en aning mindre storlek så den inte nuddar kanten.
             const wide = range === "20" && label.length > 4;
             const st = colors ? strategyFor(p[0], p[1]) : null;
-            return <td key={c.sum} className={st ? `tk-${st}` : undefined} style={wide ? ({ "--fs": 0.82 } as CSSProperties) : undefined}>{showPairs ? label : null}</td>;
+            return <td key={c.sum} className={st ? `tk-${st}` : undefined} style={wide ? ({ "--fs": fs * 0.78 } as CSSProperties) : undefined}>{showPairs ? label : null}</td>;
           })}</tr>
         ))}</tbody>
       </table>
