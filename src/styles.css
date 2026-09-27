@@ -195,15 +195,15 @@ body { font-family: var(--font-sans); }
 .hundred-grid-layout--2 .hundred-grid { font-size: 20px; }
 .hundred-grid-layout--4 .hundred-grid { font-size: 12px; }
 .hundred-grid-layout--6 .hundred-grid { font-size: 11px; }
+.hundred-grid tr, .hundred-grid thead { height: 9.09%; }
 .hundred-grid th, .hundred-grid td {
   border: 1px solid var(--sheet-line);
   padding: 0;
   text-align: center;
   vertical-align: middle;
   font-weight: 400;
-  height: 9.09%;
 }
-.hundred-grid th { background-color: var(--sheet-grid); font-weight: 700; }
+.hundred-grid th { background-color: var(--sheet-grid); font-weight: 700; font-size: 1.25em; }
 .hundred-grid-page { height: 297mm; }
 .own-setup-instruction { margin: 5mm 0; font-size: 14px; }
 .own-setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
