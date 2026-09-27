@@ -62,6 +62,38 @@ function genNumber(k: number, dec: number): number {
   return Number(ds.join(""));
 }
 
+/** Konstruerar tal kolumnvis så att ingen växling uppstår. */
+function genNoRegroup(op: AddSubOp, lens: number[], dec: number): number[] {
+  const w = Math.max(...lens);
+  const ds = lens.map(() => [] as number[]);
+  for (let col = 0; col < w; col++) {
+    const minOf = (k: number) => {
+      const len = lens[k]!;
+      if (col >= len) return -1; // saknar siffra här
+      if (dec > 0 && col === 0) return 1;
+      if (col === len - 1 && len > dec + 1) return 1;
+      return 0;
+    };
+    if (op === "add") {
+      let left = 9;
+      const mins = lens.map((_, k) => Math.max(0, minOf(k)));
+      lens.forEach((_, k) => {
+        if (minOf(k) < 0) return;
+        const rest = mins.slice(k + 1).reduce((a, b) => a + b, 0);
+        const d = rand(mins[k]!, Math.max(mins[k]!, left - rest));
+        ds[k]!.push(d); left -= d;
+      });
+    } else {
+      const bMin = minOf(1);
+      const b = bMin < 0 ? 0 : rand(bMin, Math.max(bMin, 8));
+      const a = rand(Math.max(b, minOf(0)), 9);
+      ds[0]!.push(a);
+      if (bMin >= 0) ds[1]!.push(b);
+    }
+  }
+  return ds.map((d) => Number(d.reverse().join("")));
+}
+
 export function genAddSub(o: AddSubOptions): AddSubTask[] {
   const lo = Math.min(...o.digits), hi = Math.max(...o.digits);
   const nTerms = o.op === "sub" ? 2 : Math.min(3, Math.max(2, o.terms));
@@ -69,7 +101,9 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
   for (let n = 0; n < o.count; n++) {
     let best: AddSubTask | null = null;
     for (let tries = 0; tries < 5000; tries++) {
-      let terms = Array.from({ length: nTerms }, () => genNumber(rand(lo, hi), o.dec));
+      const lens = Array.from({ length: nTerms }, () => Math.max(rand(lo, hi), o.dec + 1));
+      if (o.op === "sub") lens.sort((x, y) => y - x);
+      let terms = o.regroup ? lens.map((k) => genNumber(k, o.dec)) : genNoRegroup(o.op, lens, o.dec);
       if (o.op === "sub") {
         terms.sort((x, y) => y - x);
         if (terms[0] === terms[1]) continue;
