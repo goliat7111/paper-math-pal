@@ -33,7 +33,7 @@ export function SheetSumGrid({ range, count, showSums }: { range: SumRange; coun
     <div className="a4-page hundred-grid-page flex flex-col">
       <SheetHeader title={`Additionsrutan 2–${range}`} subtitle="Addition" score={`av ${count * n * n}`} />
       <div className={`hundred-grid-layout hundred-grid-layout--${count}`}>
-        {Array.from({ length: count }, (_, i) => <SumGrid key={i} range={range} showSums={showSums} />)}
+        {Array.from({ length: count }, (_, i) => <SumGrid key={i} range={range} count={count} showSums={showSums} />)}
       </div>
     </div>
   );
