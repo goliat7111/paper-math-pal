@@ -112,7 +112,9 @@ function genNoRegroup(op: AddSubOp, lens: number[], decs: number[]): number[] {
 }
 
 export function genAddSub(o: AddSubOptions): AddSubTask[] {
-  const lo = Math.min(...o.digits), hi = Math.max(...o.digits);
+  const lo = Math.min(...o.digits);
+  // Med slumpade decimaler begränsas heltalsdelen till 9999 (4 siffror).
+  const hi = Math.min(Math.max(...o.digits), o.dec === "slumpa" ? 4 : 5);
   const nTerms = o.op === "sub" ? 2 : Math.min(3, Math.max(2, o.terms));
   const out: AddSubTask[] = [];
   for (let n = 0; n < o.count; n++) {
