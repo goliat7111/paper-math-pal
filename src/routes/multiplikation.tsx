@@ -232,7 +232,7 @@ function MultiplikationPage() {
           {tab === "setup" && tSetup && ownSetup && (
             <>
               {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} onFit={applyFit} />}
-              {showKey(content) && <SheetOwnSetup tasks={tSetup} answers onFit={content === "key" ? applyFit : undefined} />}
+              {showKey(content) && <SheetOwnSetup tasks={tSetup} answers {...(content === "key" ? { onFit: applyFit } : {})} />}
             </>
           )}
         </main>
