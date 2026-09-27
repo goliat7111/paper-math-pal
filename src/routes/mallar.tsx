@@ -79,12 +79,12 @@ function MallarPage() {
             {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
           </div>
         </fieldset>
-       {template === "hundred" && <fieldset>
+        <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="flex flex-wrap gap-2">
-            {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
+            {([1, 2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
           </div>
-        </fieldset>}
+        </fieldset>
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : "Summor i rutan"}</legend>
           <div className="flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ function MallarPage() {
         </fieldset>
         <p className="text-sm text-muted-foreground">{template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
-          : `En ${showProducts ? "ifylld" : "tom"} ruta med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
+          : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           <Button type="button" variant="outline" className="w-full" onClick={createPdf} disabled={exporting}><FileDown />{exporting ? "Skapar PDF…" : "Förhandsgranska & ladda ner PDF"}</Button>
@@ -103,7 +103,7 @@ function MallarPage() {
       </aside>
 <main className="print-area flex flex-1 flex-col items-center gap-8">{template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
-        : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} showSums={showProducts} />}</main>
+        : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} count={count} showSums={showProducts} />}</main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
