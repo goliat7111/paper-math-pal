@@ -8,11 +8,15 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
   ownSetup: boolean;
 }) {
   const withRemainder = tasks.some(task => task.remainder > 0);
-  const extra = Math.max(0, ...tasks.map(t => (t.quotientDecimals ?? 0) - (t.dividendDecimals ?? 0)));
+  const extras = tasks.map(t => Math.max(0, (t.quotientDecimals ?? 0) - (t.dividendDecimals ?? 0)));
+  const extra = Math.max(0, ...extras);
+  const extraText = extra === 0 ? "går jämnt ut"
+    : extras.every(e => e === extras[0]) ? `${extra} extra decimal${extra > 1 ? "er" : ""} i svaret`
+    : `${Math.min(...extras)}–${extra} extra decimaler i svaret`;
   const decimal = tasks.some(t => (t.dividendDecimals ?? 0) > 0) || extra > 0;
   const subtitle = withRemainder ? "Med rest"
     : !decimal ? "Utan rest"
-    : `Decimaltal · ${extra ? `${extra} extra decimal${extra > 1 ? "er" : ""} i svaret` : "går jämnt ut"}`;
+    : `Decimaltal · ${extraText}`;
   const task = withRemainder ? " Ange svaret och resten." : extra ? " Lägg till nollor och räkna tills det går jämnt ut." : "";
   return <div className="a4-page">
     <SheetHeader title={answers ? "Division – Facit" : "Division"} subtitle={subtitle} score={`av ${tasks.length}`} />
