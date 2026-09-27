@@ -74,20 +74,21 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
 export function SheetTalkamrater({ range, colors, showPairs, landscape = false, sums = [] }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean; sums?: number[] }) {
   const parts: ("10" | "20" | "custom")[] = range === "both" ? ["10", "20"] : [range];
   const sorted = [...sums].sort((a, b) => a - b);
-  const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : range === "custom" ? `${sorted.join("-, ")}-kamrater` : "Addition upp till 10 och 20";
+  const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : range === "custom" ? `${sorted.join(", ")}-kamrater` : "Addition upp till 10 och 20";
   const wide = range === "both" && landscape;
+  const useColors = range === "custom" ? false : colors;
   return (
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
       <div className={wide ? "talkamrat-layout talkamrat-layout--landscape" : "talkamrat-layout"}>
         {parts.map(p => (
           <section key={p} className="talkamrat-section">
-            <h3 className="talkamrat-title">{p === "custom" ? `Talkamrater – ${sorted.join(", ")}` : `Talkamrater – upp till ${p}`}</h3>
-            <Table range={p} colors={colors} showPairs={showPairs} sums={sorted} />
+            <h3 className="talkamrat-title">{p === "custom" ? `${sorted.join(", ")}-kamrater — alla kombinationer` : `Talkamrater – upp till ${p}`}</h3>
+            <Table range={p} colors={useColors} showPairs={showPairs} sums={sorted} />
           </section>
         ))}
       </div>
-      {colors && (
+      {useColors && (
         <ul className="talkamrat-legend" aria-label="Förklaring av färger">
           {STRATEGIES.map(s => <li key={s.id}><span className={`tk-swatch tk-${s.id}`} />{s.label}</li>)}
         </ul>
