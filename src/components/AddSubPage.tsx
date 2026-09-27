@@ -74,7 +74,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <button type="button" className={btn(dec === "slumpa")} onClick={() => setDec("slumpa")}>Slumpa</button>
         </div>
           {typeof dec === "number" && dec > 0 && <label className="mt-2 block text-sm">Antal decimaler<select className={sel} value={dec} onChange={e => setDec(Number(e.target.value))}>{[1, 2, 3].map(n => <option key={n} value={n}>{n} decimal{n > 1 ? "er" : ""}</option>)}</select></label>}
-          {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Antalet decimaler slumpas per uppgift utifrån termernas sifferantal.</p>}
+          {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.</p>}
         </fieldset>
         <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec !== 0 ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
           <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[1, 2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
