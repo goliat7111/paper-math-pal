@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, FileDown, Printer } from "lucide-react";
+import { ArrowLeft, FileDown, Printer, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid";
 import { SheetSumGrid, type SumRange } from "@/components/SheetSumGrid";
@@ -42,6 +42,8 @@ function MallarPage() {
   const previewUrl = useRef<string | null>(null);
   const mainRef = useRef<HTMLElement>(null);
   const [fit, setFit] = useState(1);
+  const [zoom, setZoom] = useState(1);
+  const zoomStep = (dir: number) => setZoom(z => Math.min(3, Math.max(0.5, Math.round((z + dir * 0.25) * 100) / 100)));
   useEffect(() => {
     const el = mainRef.current; if (!el) return;
     const ro = new ResizeObserver(() => setFit(Math.min(1, el.clientWidth / (297 * 96 / 25.4))));
@@ -145,12 +147,21 @@ function MallarPage() {
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Zoom i förhandsgranskningen</legend>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={zoom === 1 ? "default" : "outline"} aria-pressed={zoom === 1} onClick={() => setZoom(1)}>Hel sida</Button>
+            <Button type="button" size="sm" className="h-7 w-7 px-0" variant="outline" aria-label="Zooma ut" disabled={zoom <= 0.5} onClick={() => zoomStep(-1)}><ZoomOut className="h-3.5 w-3.5" /></Button>
+            <span className="w-12 text-center text-xs font-semibold tabular-nums" aria-live="polite">{Math.round(zoom * 100)} %</span>
+            <Button type="button" size="sm" className="h-7 w-7 px-0" variant="outline" aria-label="Zooma in" disabled={zoom >= 3} onClick={() => zoomStep(1)}><ZoomIn className="h-3.5 w-3.5" /></Button>
+          </div>
+        </fieldset>
         <div className="space-y-2">
           <Button type="button" variant="outline" className="w-full" onClick={createPdf} disabled={exporting}><FileDown />{exporting ? "Skapar PDF…" : "Förhandsgranska & ladda ner PDF"}</Button>
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-<main ref={mainRef} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8" style={{ ["--fit" as string]: fit }}>{template === "talkamrater"
+<main ref={mainRef} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8" style={{ ["--fit" as string]: fit, ["--zoom" as string]: zoom }}>{template === "talkamrater"
         ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} landscape={tkRange === "both" && tkLayout === "liggande"} sums={tkSums} />
         : template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
