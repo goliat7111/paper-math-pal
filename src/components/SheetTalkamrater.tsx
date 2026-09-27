@@ -41,11 +41,11 @@ export function talkamratColumns(range: "10" | "20"): { sum: number; pairs: Pair
   });
 }
 
-/** Talkamrater för valda summor (2–18), termer 1–9. */
+/** Talkamrater för valda summor (2–18) — alla heltalskombinationer, termer 0–9. */
 export function customColumns(sums: number[]): { sum: number; pairs: Pair[] }[] {
   return [...sums].sort((a, b) => a - b).map(s => {
     const pairs: Pair[] = [];
-    for (let a = Math.min(9, s - 1); a >= Math.max(1, s - 9); a--) pairs.push([a, s - a]);
+    for (let a = Math.min(9, s); a >= Math.max(0, s - 9); a--) pairs.push([a, s - a]);
     return { sum: s, pairs };
   });
 }
@@ -55,7 +55,7 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
   const rows = Math.max(...cols.map(c => c.pairs.length));
   const rowH = `${100 / (rows + 1)}%`;
   return (
-    <div className="hundred-grid-box" style={{ "--rows": rows + 1 } as CSSProperties}>
+    <div className={"hundred-grid-box" + (range === "custom" ? " talkamrat-box--custom" : "")} style={{ "--rows": rows + 1 } as CSSProperties}>
       <table className="hundred-grid talkamrat-grid" aria-label={range === "custom" ? "Valda talkamrater" : `Talkamrater upp till ${range}`}>
         <thead><tr style={{ height: rowH }}>{cols.map(c => <th key={c.sum} scope="col">{c.sum}</th>)}</tr></thead>
         <tbody>{Array.from({ length: rows }, (_, r) => (
