@@ -1,8 +1,9 @@
+import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Printer, Wand2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, FileDown, Printer, Wand2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { PrintContentChoice, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
+import { PrintContentChoice, keySuffix, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { SheetHeader } from "@/components/SheetHeader";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { generateTextTasks, type TextTask } from "@/lib/textuppgifter.functions";
