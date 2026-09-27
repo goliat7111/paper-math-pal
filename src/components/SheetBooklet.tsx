@@ -50,10 +50,10 @@ function Side({ pages, showPairs, label }: { pages: number[]; showPairs: boolean
 }
 
 export function SheetBooklet({ showPairs }: { showPairs: boolean }) {
-  return <>{bookletSheets().map((s, i) => <div key={i} className="contents">
-    <Side pages={s.front} showPairs={showPairs} label={`Ark ${i + 1} framsida`} />
-    <Side pages={s.back} showPairs={showPairs} label={`Ark ${i + 1} baksida`} />
-  </div>)}</>;
+  return <>{bookletSheets().flatMap((s, i) => [
+    <Side key={`f${i}`} pages={s.front} showPairs={showPairs} label={`Ark ${i + 1} framsida`} />,
+    <Side key={`b${i}`} pages={s.back} showPairs={showPairs} label={`Ark ${i + 1} baksida`} />,
+  ])}</>;
 }
 
 function Diagram({ step }: { step: number }) {

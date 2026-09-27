@@ -299,3 +299,32 @@ body { font-family: var(--font-sans); }
 .addsub-cell.is-answer { font-weight: bold; color: var(--sheet-answer); }
 .addsub-line { border-top: 2px solid var(--sheet-ink); height: 0; }
 @media screen { .a4-page { zoom: calc(var(--fit, 1) * var(--zoom, 1)); } }
+
+/* Talkamratshäfte (A6, vikt A4) */
+.a4-page.booklet-sheet { padding: 0; height: 297mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.booklet-cell { position: relative; overflow: hidden; padding: 9mm 8mm; display: flex; flex-direction: column; outline: 0.2mm dashed var(--sheet-grid); }
+.booklet-cell.is-flipped { transform: rotate(180deg); }
+.booklet-cell > div { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.booklet-cover { align-items: center; justify-content: center; text-align: center; gap: 3mm; border: 0.6mm solid var(--sheet-ink); border-radius: 3mm; }
+.booklet-kicker { font-size: 4mm; letter-spacing: 0.1em; text-transform: uppercase; }
+.booklet-cover-title { font-family: var(--font-display); font-size: 11mm; font-weight: 700; }
+.booklet-cover-sub { font-family: var(--font-display); font-size: 16mm; font-weight: 700; line-height: 1; }
+.booklet-name { margin-top: 8mm; font-size: 4mm; display: flex; gap: 2mm; width: 70%; }
+.booklet-name span { flex: 1; border-bottom: 0.3mm solid var(--sheet-ink); }
+.booklet-num-title { font-family: var(--font-display); font-size: 6mm; font-weight: 600; text-align: center; margin-bottom: 4mm; }
+.booklet-num-title span { font-size: 11mm; font-weight: 700; }
+.booklet-table { margin: 0 auto; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.booklet-table td { border-bottom: 0.25mm solid var(--sheet-grid-strong, var(--sheet-grid)); padding: 1.2mm 2mm; min-width: 22mm; height: 8mm; text-align: center; }
+.booklet-table td:nth-child(2), .booklet-table td:nth-child(3) { min-width: 6mm; }
+.booklet-folio { position: absolute; bottom: 4mm; left: 0; right: 0; text-align: center; font-size: 3mm; color: var(--sheet-ink); opacity: 0.6; }
+.booklet-notes p { font-family: var(--font-display); font-size: 5mm; text-align: center; margin-bottom: 4mm; }
+.booklet-notes { background-image: repeating-linear-gradient(to bottom, transparent 0 9mm, var(--sheet-grid) 9mm 9.25mm); }
+.booklet-back { align-items: center; justify-content: flex-end; font-size: 3.5mm; opacity: 0.6; }
+.fold-guide { display: flex; flex-direction: column; gap: 5mm; }
+.fold-guide-title { font-family: var(--font-display); font-size: 8mm; font-weight: 700; }
+.fold-guide-lead, .fold-guide-tip { font-size: 4mm; }
+.fold-steps { display: flex; flex-direction: column; gap: 4mm; }
+.fold-steps li { display: flex; gap: 6mm; align-items: center; }
+.fold-steps h3 { font-size: 4.6mm; font-weight: 700; margin-bottom: 1mm; }
+.fold-steps p { font-size: 3.8mm; line-height: 1.45; }
+.fold-svg { width: 45mm; height: 34mm; flex-shrink: 0; border: 0.3mm solid var(--sheet-grid); border-radius: 2mm; }
