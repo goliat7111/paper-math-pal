@@ -103,7 +103,7 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
             {Array.from({ length: perPage }, (_, i) => (
               <section key={i} className="talkamrat-section">
                 <h3 className="talkamrat-title">{`Talkamrater – upp till ${r}`}</h3>
-                <Table range={r} colors={useColors} showPairs={showPairs} sums={sorted} />
+                <Table range={r} colors={useColors} showPairs={showPairs} sums={sorted} fs={perPage === 4 ? 0.95 : 1} />
               </section>
             ))}
           </div>
