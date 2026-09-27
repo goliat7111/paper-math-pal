@@ -101,9 +101,10 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
   for (let n = 0; n < o.count; n++) {
     let best: AddSubTask | null = null;
     for (let tries = 0; tries < 5000; tries++) {
+      let lens = Array.from({ length: nTerms }, () => rand(lo, hi));
       const dec =
-        o.dec === "slumpa" ? rand(0, Math.min(3, hi - 1)) : o.dec;
-      const lens = Array.from({ length: nTerms }, () => Math.max(rand(lo, hi), dec + 1));
+        o.dec === "slumpa" ? rand(0, Math.min(3, Math.min(...lens) - 1)) : o.dec;
+      lens = lens.map((k) => Math.max(k, dec + 1));
       if (o.op === "sub") lens.sort((x, y) => y - x);
       let terms = o.regroup ? lens.map((k) => genNumber(k, dec)) : genNoRegroup(o.op, lens, dec);
       if (o.op === "sub") {
