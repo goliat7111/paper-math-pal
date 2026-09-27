@@ -1,8 +1,9 @@
+import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Printer, Wand2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, FileDown, Printer, Wand2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { PrintContentChoice, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
+import { PrintContentChoice, keySuffix, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { SheetHeader } from "@/components/SheetHeader";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { generateTextTasks, type TextTask } from "@/lib/textuppgifter.functions";
@@ -50,6 +51,33 @@ function TextuppgifterPage() {
   const [meta, setMeta] = useState({ grade: 3, theme: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
+  const [fileName, setFileName] = useState("");
+  const previewUrl = useRef<string | null>(null);
+  useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }, []);
+  const closePreview = () => {
+    if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+    previewUrl.current = null; setPreview(null);
+  };
+  const downloadPdf = async () => {
+    setExporting(true); setError("");
+    try {
+      const { buildSheetsPdf } = await import("@/lib/exportPdf");
+      const result = await buildSheetsPdf("portrait");
+      if (!result) throw new Error("Inga blad att spara. Skapa uppgifter först.");
+      if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+      const url = URL.createObjectURL(result.blob); previewUrl.current = url;
+      setPreview({ ...result, url });
+      setFileName(`textuppgifter-ak${meta.grade}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+    } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
+    finally { setExporting(false); }
+  };
+  const savePreview = async () => {
+    if (!preview) return;
+    const { saveBlob } = await import("@/lib/exportPdf");
+    saveBlob(preview.blob, fileName); closePreview();
+  };
   const input = "mt-1 block rounded-md border border-input bg-background px-2 py-1.5";
 
   const run = async () => {
@@ -83,12 +111,23 @@ function TextuppgifterPage() {
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <PrintContentChoice value={content} onChange={setContent} />
         <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
-        <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"><Printer className="h-4 w-4" />Skriv ut</button>
+        <div className="space-y-2">
+          <button disabled={exporting || !tasks.length} onClick={downloadPdf} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</button>
+          <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"><Printer className="h-4 w-4" />Skriv ut</button>
+        </div>
       </aside>
       <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
         {!tasks.length && <p className="no-print mt-10 text-muted-foreground">{loading ? "Skapar uppgifter – det tar några sekunder…" : "Välj inställningar och klicka på Skapa uppgifter."}</p>}
         {tasks.length > 0 && <>{showSheet(content) && <Sheet tasks={tasks} answers={false} {...meta} />}{showKey(content) && <Sheet tasks={tasks} answers {...meta} />}</>}
       </main>
     </div>
+    {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
+      <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-xl bg-background p-4 shadow-xl">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Förhandsgranskning av PDF · {preview.pages} {preview.pages === 1 ? "sida" : "sidor"}</h2><button onClick={closePreview} className="rounded-md px-2 py-1 text-sm hover:bg-accent">Stäng</button></div>
+        <PdfPagesPreview images={preview.images} />
+        <div className="flex flex-wrap items-end gap-2"><label className="flex-1 text-sm font-medium">Filnamn<div className="mt-1 flex items-center gap-1"><input className="w-full rounded-md border border-input bg-background px-2 py-1.5" value={fileName} onChange={e => setFileName(e.target.value)} /><span>.pdf</span></div></label>
+          <button onClick={closePreview} className="rounded-lg border border-input px-4 py-2 text-sm">Avbryt</button><button onClick={savePreview} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Ladda ner</button></div>
+      </div>
+    </div>}
   </div>;
 }
