@@ -32,9 +32,10 @@ function MallarPage() {
   const [showProducts, setShowProducts] = useState(true);
   const [tkRange, setTkRange] = useState<TalkamratRange>("10");
   const [tkColors, setTkColors] = useState(true);
-  const [tkSums, setTkSums] = useState<number[]>([8, 13]);
-  const toggleSum = (n: number) => setTkSums(v => v.includes(n) ? (v.length > 1 ? v.filter(x => x !== n) : v) : [...v, n]);
+  const [tkSums, setTkSums] = useState<number[]>([8]);
+  const selectSum = (n: number) => setTkSums([n]);
   const [tkLayout, setTkLayout] = useState<"staplade" | "liggande">("staplade");
+  const tkColorsEff = tkRange === "custom" ? false : tkColors;
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
@@ -67,7 +68,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") + "-kamrater" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
+      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") : `upp-till-${tkRange}`}${tkColorsEff ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -106,12 +107,13 @@ function MallarPage() {
         </fieldset>
         {tkRange === "custom" && (
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">Vilka kamrater? (välj ett eller flera)</legend>
+          <legend className="mb-2 text-sm font-medium text-foreground">Vilken kamrat? (välj ett tal)</legend>
           <div className="flex flex-wrap gap-1.5">
-            {Array.from({ length: 17 }, (_, i) => i + 2).map(n => <Button key={n} type="button" size="sm" className="h-7 w-9 px-0 text-xs font-semibold" variant={tkSums.includes(n) ? "default" : "outline"} aria-pressed={tkSums.includes(n)} aria-label={`${n}-kamrater`} onClick={() => toggleSum(n)}>{n}</Button>)}
+            {Array.from({ length: 17 }, (_, i) => i + 2).map(n => <Button key={n} type="button" size="sm" className="h-7 w-9 px-0 text-xs font-semibold" variant={tkSums[0] === n ? "default" : "outline"} aria-pressed={tkSums[0] === n} aria-label={`${n}-kamrater`} onClick={() => selectSum(n)}>{n}</Button>)}
           </div>
         </fieldset>
         )}
+        {tkRange !== "custom" && (
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Färgmarkera strategier</legend>
           <div className="flex flex-wrap gap-2">
@@ -119,6 +121,7 @@ function MallarPage() {
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!tkColors ? "default" : "outline"} aria-pressed={!tkColors} onClick={() => setTkColors(false)}>Utan färg</Button>
           </div>
         </fieldset>
+        )}
         {tkRange === "both" && (
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Layout</legend>
@@ -142,7 +145,9 @@ function MallarPage() {
           </div>
         </fieldset>
         <p className="text-sm text-muted-foreground">{template === "talkamrater"
-          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join(", ") : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
+          ? tkRange === "custom"
+            ? `Alla kombinationer som ger ${tkSums[0]} · enkel tabell utan färger · stående A4 · 1 sida`
+            : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
           : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>

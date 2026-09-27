@@ -243,6 +243,7 @@ body { font-family: var(--font-sans); }
 .talkamrat-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--sheet-ink); }
 .talkamrat-grid td { font-size: calc(36cqh / var(--rows, 11)); font-weight: 500; letter-spacing: 0.02em; }
 .talkamrat-grid td.is-empty { border: 0; background: transparent; }
+.talkamrat-box--custom .hundred-grid { max-width: 100mm; margin-inline: auto; }
 .talkamrat-grid th { border-color: var(--sheet-line-strong); }
 .tk-ett { background-color: var(--tk-ett); }
 .tk-tva { background-color: var(--tk-tva); }
