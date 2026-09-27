@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addSubLayout, genAddSub, hasRegroup, subBorrows } from "./addsub";
+import { addSubLayout, addSubResult, genAddSub, hasRegroup, subBorrows } from "./addsub";
 
 describe("genAddSub", () => {
   for (const op of ["add", "sub"] as const)
