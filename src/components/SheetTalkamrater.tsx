@@ -115,17 +115,19 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
   return (
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
-      <div className={wide ? "talkamrat-layout talkamrat-layout--stack" : "talkamrat-layout"}>
+      <div className={wide ? "talkamrat-layout talkamrat-halves" : "talkamrat-layout"}>
         {wide ? (
-          // Två identiska uppsättningar (upp till 10 + upp till 20 sida vid sida) staplade över/under varandra.
+          // Två identiska halvor sida vid sida: upp till 10 överst, upp till 20 under,
+          // färgförklaringen längst ner — ett klipp i mitten ger varje elev en komplett halva.
           [0, 1].map(set => (
-            <div key={set} className="talkamrat-layout talkamrat-layout--landscape talkamrat-set">
+            <div key={set} className="talkamrat-half">
               {parts.map(p => (
                 <section key={p} className="talkamrat-section">
                   <h3 className="talkamrat-title">{`Talkamrater – upp till ${p}`}</h3>
                   <Table range={p} colors={useColors} showPairs={showPairs} sums={sorted} />
                 </section>
               ))}
+              {legend}
             </div>
           ))
         ) : range === "custom" ? (
@@ -144,7 +146,7 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
           </section>
         ))}
       </div>
-      {legend}
+      {!wide && legend}
     </div>
   );
 }
