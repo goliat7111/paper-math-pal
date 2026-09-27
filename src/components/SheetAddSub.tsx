@@ -1,4 +1,4 @@
-import { addSubLayout, addSubResult, maxDec, type AddSubTask } from "@/lib/addsub";
+import { addSubLayout, maxDec, type AddSubTask } from "@/lib/addsub";
 import { formatDecimal } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
