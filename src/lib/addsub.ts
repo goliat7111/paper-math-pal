@@ -9,8 +9,8 @@ export type AddSubOptions = {
   op: AddSubOp;
   /** Antal siffror per term (inklusive decimaler), 1–5. */
   digits: [number, number];
-  /** Antal decimaler, 0–3. */
-  dec: number;
+  /** Antal decimaler, 0–3, eller "slumpa" (slumpas per uppgift utifrån termernas sifferantal). */
+  dec: number | "slumpa";
   /** Antal termer (addition 2–3, subtraktion alltid 2). */
   terms: number;
   regroup: boolean;
@@ -101,14 +101,16 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
   for (let n = 0; n < o.count; n++) {
     let best: AddSubTask | null = null;
     for (let tries = 0; tries < 5000; tries++) {
-      const lens = Array.from({ length: nTerms }, () => Math.max(rand(lo, hi), o.dec + 1));
+      const dec =
+        o.dec === "slumpa" ? rand(0, Math.min(3, hi - 1)) : o.dec;
+      const lens = Array.from({ length: nTerms }, () => Math.max(rand(lo, hi), dec + 1));
       if (o.op === "sub") lens.sort((x, y) => y - x);
-      let terms = o.regroup ? lens.map((k) => genNumber(k, o.dec)) : genNoRegroup(o.op, lens, o.dec);
+      let terms = o.regroup ? lens.map((k) => genNumber(k, dec)) : genNoRegroup(o.op, lens, dec);
       if (o.op === "sub") {
         terms.sort((x, y) => y - x);
         if (terms[0] === terms[1]) continue;
       }
-      const t: AddSubTask = { op: o.op, terms, dec: o.dec };
+      const t: AddSubTask = { op: o.op, terms, dec };
       best = t;
       if (hasRegroup(t) === o.regroup) break;
       terms = [];
