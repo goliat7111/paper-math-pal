@@ -22,7 +22,7 @@ export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean })
       {L.rows[0]!.map((_, c) => cell(answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "", c, 1, "addsub-small", `m${c}`))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
       <div className="addsub-cell" style={{ gridColumn: 2, gridRow: top + 2 }}>{SIGN[t.op]}</div>
-      <div className="addsub-line" style={{ gridColumn: "2 / -2", gridRow: top + 3, alignSelf: "start" }} />
+      <div className="addsub-line" style={{ gridColumn: "2 / -1", gridRow: top + 3, alignSelf: "start" }} />
       {L.result.map((d, c) => cell(answers ? d : "", c, top + 2, "is-answer", `r${c}`, L.resultComma === c))}
     </div>
   );
