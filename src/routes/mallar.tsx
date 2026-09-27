@@ -7,9 +7,9 @@ import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid"
 export const Route = createFileRoute("/mallar")({
   head: () => ({ meta: [
     { title: "Utskrivbara mallar – Räknebladet" },
-    { name: "description", content: "Skriv ut tomma multiplikationsrutor med 2, 4, 6 eller 8 rutor per A4-sida." },
+    { name: "description", content: "Skriv ut ifyllda eller tomma multiplikationsrutor med 2, 4, 6 eller 8 rutor per A4-sida." },
     { property: "og:title", content: "Utskrivbara mallar – Räknebladet" },
-    { property: "og:description", content: "Skriv ut tomma 100-rutor i multiplikation på A4." },
+    { property: "og:description", content: "Skriv ut ifyllda eller tomma 100-rutor i multiplikation på A4." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/mallar")({
 
 function MallarPage() {
   const [count, setCount] = useState<GridCount>(4);
+  const [showProducts, setShowProducts] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
@@ -63,20 +64,27 @@ function MallarPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
       <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
         <h2 className="font-display text-lg font-semibold text-foreground">100-rutan</h2>
-        <fieldset>
+       <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1">
             {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" variant={count === n ? "default" : "ghost"} aria-pressed={count === n} onClick={() => setCount(n)}>{n}</Button>)}
           </div>
         </fieldset>
-        <p className="text-sm text-muted-foreground">{count} tomma rutor med faktorerna 1–10 · A4 stående · 1 sida</p>
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Produkter i rutorna</legend>
+          <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+            <Button type="button" size="sm" variant={showProducts ? "default" : "ghost"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
+            <Button type="button" size="sm" variant={!showProducts ? "default" : "ghost"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
+          </div>
+        </fieldset>
+        <p className="text-sm text-muted-foreground">{count} {showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           <Button type="button" variant="outline" className="w-full" onClick={createPdf} disabled={exporting}><FileDown />{exporting ? "Skapar PDF…" : "Förhandsgranska & ladda ner PDF"}</Button>
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-      <main className="print-area flex flex-1 flex-col items-center gap-8"><SheetHundredGrid count={count} /></main>
+       <main className="print-area flex flex-1 flex-col items-center gap-8"><SheetHundredGrid count={count} showProducts={showProducts} /></main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
