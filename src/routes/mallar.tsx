@@ -176,7 +176,7 @@ function MallarPage() {
           : template === "talkamrater"
           ? tkRange === "custom"
             ? `Alla kombinationer som ger ${tkSums[0]} · enkel tabell utan färger · stående A4 · 1 sida`
-            : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : tkCountEff > 1 ? `stående A4, ${tkCountEff} tabeller på sidan` : "stående A4"} · ${tkPages} ${tkPages === 1 ? "sida" : "sidor"}`
+            : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, två uppsättningar staplade" : tkCountEff > 1 ? `stående A4, ${tkCountEff} tabeller på sidan` : "stående A4"} · ${tkPages} ${tkPages === 1 ? "sida" : "sidor"}`
           : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
