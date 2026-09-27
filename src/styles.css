@@ -199,7 +199,6 @@ body { font-family: var(--font-sans); }
 .hundred-grid th, .hundred-grid td { font-size: calc(38cqh / var(--rows, 11)); }
 /* 1 ruta: kvadratiska celler — höjd = sidans inre bredd (210-28 = 182 mm), centrerad. */
 .hundred-grid-layout--1 .hundred-grid { height: 182mm; align-self: center; }
-.hundred-grid-layout--2 .hundred-grid { }
 /* 4 rutor: rutan får höjd = kolumnbredd ((210-28-6)/2 = 88 mm) så cellerna
    blir kvadratiska i stället för utdragna; raderna centreras på sidan. */
 .hundred-grid-layout--4 .hundred-grid { height: 88mm; align-self: center; }
