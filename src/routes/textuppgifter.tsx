@@ -111,7 +111,10 @@ function TextuppgifterPage() {
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <PrintContentChoice value={content} onChange={setContent} />
         <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
-        <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"><Printer className="h-4 w-4" />Skriv ut</button>
+        <div className="space-y-2">
+          <button disabled={exporting || !tasks.length} onClick={downloadPdf} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</button>
+          <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"><Printer className="h-4 w-4" />Skriv ut</button>
+        </div>
       </aside>
       <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
         {!tasks.length && <p className="no-print mt-10 text-muted-foreground">{loading ? "Skapar uppgifter – det tar några sekunder…" : "Välj inställningar och klicka på Skapa uppgifter."}</p>}
