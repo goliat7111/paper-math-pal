@@ -61,7 +61,7 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
 it("genAddSub slumpa: hela sifferintervallet (inkl. decimaler) används", () => {
   const tasks = genAddSub({ op: "add", digits: [2, 5], dec: "slumpa", terms: 2, regroup: true, count: 120 });
   const lens = tasks.flatMap((t) =>
-    t.terms.map((v, i) => Math.max(String(v * 10 ** (Math.max(...t.decs) - t.decs[i]!)).length, Math.max(...t.decs) + 1)),
+    t.terms.map((v, i) => String(Math.round(v * 10 ** t.decs[i]!)).length + (Math.max(...t.decs) - t.decs[i]!)),
   );
   expect(Math.min(...lens)).toBeLessThanOrEqual(2);
   expect(Math.max(...lens)).toBe(5);
