@@ -264,7 +264,8 @@ body { font-family: var(--font-sans); }
 .addsub-expression { font-size: 15px; white-space: nowrap; }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
-.addsub-cell { position: relative; height: 6.5mm; display: flex; align-items: center; justify-content: center; }
+.addsub-cell { position: relative; height: 6.5mm; display: flex; align-items: center; justify-content: center; border: 1px solid var(--sheet-grid); }
+.addsub-cell.addsub-small { border: 0; }
 .addsub-cell.addsub-small { height: 4.5mm; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
 .addsub-cell.is-struck { text-decoration: line-through; text-decoration-color: var(--sheet-answer); }
 .addsub-cell.is-answer { font-weight: bold; color: var(--sheet-answer); }
