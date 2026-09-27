@@ -5,6 +5,7 @@ import { ArrowLeft, FileDown, Printer, RefreshCw } from "lucide-react";
 import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { genDivision, type DivisionTask } from "@/lib/division";
 import { SheetDivision } from "@/components/SheetDivision";
+import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 
 export const Route = createFileRoute("/division")({
   head: () => ({ meta: [{ title: "Division – Räknebladet" }, { name: "description", content: "Skapa divisionsblad med åtta uppgifter, egen uppställning och facit på A4." }] }),
@@ -21,6 +22,7 @@ function DivisionPage() {
   const [extra, setExtra] = useState(1);
   const [ownSetup, setOwnSetup] = useState(true);
   const [content, setContent] = useState<PrintContent>("both");
+  const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<DivisionTask[]>([]);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
@@ -90,11 +92,12 @@ function DivisionPage() {
         <PrintContentChoice value={content} onChange={setContent} />
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">8 uppgifter · 4 rader × 2 kolumner.<br />PDF: {pagesLabel(content)} · A4 stående.</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
         <div className="space-y-2"><button disabled={exporting || !tasks.length} onClick={downloadPdf} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</button>
           <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Printer className="h-4 w-4" />Skriv ut</button></div>
         <p className="text-xs text-muted-foreground">Välj A4 stående, 100 % skala, inga marginaler och inga sidhuvuden eller sidfötter.</p>
       </aside>
-      <main className="print-area flex flex-1 flex-col items-center gap-8">{tasks.length > 0 && <>{showSheet(content) && <SheetDivision tasks={tasks} answers={false} ownSetup={ownSetup} />}{showKey(content) && <SheetDivision tasks={tasks} answers ownSetup={ownSetup} />}</>}</main>
+      <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">{tasks.length > 0 && <>{showSheet(content) && <SheetDivision tasks={tasks} answers={false} ownSetup={ownSetup} />}{showKey(content) && <SheetDivision tasks={tasks} answers ownSetup={ownSetup} />}</>}</main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-xl bg-background p-4 shadow-xl">
