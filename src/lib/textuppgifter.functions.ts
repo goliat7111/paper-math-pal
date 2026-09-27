@@ -1,0 +1,54 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+export type TextTask = { question: string; answer: string };
+
+const Input = z.object({
+  grade: z.number().int().min(1).max(9),
+  tableMin: z.number().int().min(0).max(12),
+  tableMax: z.number().int().min(0).max(12),
+  theme: z.string().trim().min(1).max(80),
+  count: z.number().int().min(4).max(10),
+});
+
+export const generateTextTasks = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => Input.parse(d))
+  .handler(async ({ data }): Promise<{ tasks: TextTask[] } | { error: string }> => {
+    const key = process.env.LOVABLE_API_KEY;
+    if (!key) return { error: "AI-tjänsten är inte konfigurerad." };
+    const lo = Math.min(data.tableMin, data.tableMax), hi = Math.max(data.tableMin, data.tableMax);
+    const prompt = `Skriv ${data.count} textuppgifter (problemlösning) i matematik på svenska för elever i årskurs ${data.grade}.
+Tema: ${data.theme}.
+Varje uppgift ska lösas med multiplikation (ibland kombinerat med addition/subtraktion eller division för äldre elever) där minst en faktor ligger i tabellerna ${lo}–${hi}.
+Anpassa språk, meningslängd och svårighet till årskursen. Öka svårigheten något genom bladet. Max 3 meningar per uppgift. Svaren ska vara korrekta och kontrollerade.
+Svara ENDAST med JSON: {"tasks":[{"question":"...","answer":"kort svar med enhet, t.ex. '24 äpplen' och uträkning i parentes, t.ex. '(6 · 4 = 24)'"}]}`;
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
+      body: JSON.stringify({ model: "openai/gpt-6-astra", input: prompt, stream: true, store: false, reasoning: { effort: "low" } }),
+    });
+    if (!res.ok || !res.body) {
+      if (res.status === 429) return { error: "För många förfrågningar just nu. Vänta en stund och försök igen." };
+      if (res.status === 402) return { error: "AI-krediterna är slut. Fyll på under Inställningar → Planer och krediter." };
+      return { error: `Uppgifterna kunde inte skapas (fel ${res.status}).` };
+    }
+    const reader = res.body.getReader(); const dec = new TextDecoder();
+    let buf = "", text = "";
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith("data:")) continue;
+        const p = line.slice(5).trim(); if (!p || p === "[DONE]") continue;
+        try { const ev = JSON.parse(p); if (ev.type === "response.output_text.delta") text += ev.delta; if (ev.type === "response.failed" || ev.type === "error") return { error: "AI-tjänsten svarade med ett fel. Försök igen." }; } catch { /* ofullständig rad */ }
+      }
+    }
+    const m = text.match(/\{[\s\S]*\}/);
+    try {
+      const parsed = z.object({ tasks: z.array(z.object({ question: z.string(), answer: z.string() })) }).parse(JSON.parse(m?.[0] ?? ""));
+      if (!parsed.tasks.length) throw new Error();
+      return { tasks: parsed.tasks.slice(0, data.count) };
+    } catch { return { error: "Svaret från AI:n gick inte att tolka. Försök igen." }; }
+  });

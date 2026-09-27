@@ -1,7 +1,7 @@
 // ============= Full file contents =============
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Plus, Minus, Divide, Grid2X2, Shuffle } from "lucide-react";
+import { ArrowRight, Plus, Minus, Divide, Grid2X2, Shuffle, BookOpenText } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +37,11 @@ const operations = [
     title: "Division",
     to: "/division",
     icon: <Divide className="h-5 w-5" />,
+  },
+  {
+    title: "Textuppgifter",
+    to: "/textuppgifter",
+    icon: <BookOpenText className="h-5 w-5" />,
   },
 ] as const;
 
