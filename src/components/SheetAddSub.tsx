@@ -1,4 +1,4 @@
-import { addSubLayout, addSubResult, maxDec, type AddSubTask } from "@/lib/addsub";
+import { addSubLayout, maxDec, type AddSubTask } from "@/lib/addsub";
 import { formatDecimal } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
@@ -45,7 +45,7 @@ export function SheetAddSub({ tasks, answers, ownSetup }: { tasks: AddSubTask[];
           <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
             <div className="own-setup-expression addsub-expression">
               <span className="own-setup-number">{i + 1})</span>
-              {ownSetup ? t.terms.map((v, j) => formatDecimal(v, t.decs[j]!)).join(` ${SIGN[t.op]} `) + (answers ? ` = ${formatDecimal(addSubResult(t), maxDec(t))}` : "") : ""}
+              {ownSetup ? t.terms.map((v, j) => formatDecimal(v, t.decs[j]!)).join(` ${SIGN[t.op]} `) : ""}
             </div>
             <div className={`own-setup-box addsub-box${ownSetup && !answers ? " addsub-box--own" : ""}`}>
               {(answers || !ownSetup) && <AddSubSetup t={t} answers={answers} />}
