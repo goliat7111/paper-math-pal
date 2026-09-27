@@ -175,7 +175,7 @@ body { font-family: var(--font-sans); }
   row-gap: 4mm;
   padding-top: 4mm;
 }
-.hundred-grid-layout--2 { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); justify-items: center; }
+.hundred-grid-layout--2 { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
 .hundred-grid-layout--4 { grid-template-rows: repeat(2, 1fr); }
 .hundred-grid-layout--6 { grid-template-rows: repeat(3, 1fr); }
 .hundred-grid-layout--8 { grid-template-rows: repeat(4, 1fr); }
@@ -192,7 +192,7 @@ body { font-family: var(--font-sans); }
   break-inside: avoid;
   page-break-inside: avoid;
 }
-.hundred-grid-layout--2 .hundred-grid { max-width: 130mm; font-size: 16px; }
+.hundred-grid-layout--2 .hundred-grid { font-size: 20px; }
 .hundred-grid-layout--4 .hundred-grid { font-size: 12px; }
 .hundred-grid-layout--6 .hundred-grid { font-size: 11px; }
 .hundred-grid th, .hundred-grid td {
