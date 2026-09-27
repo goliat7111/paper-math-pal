@@ -4,14 +4,16 @@ import { ArrowLeft, FileDown, Printer, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid";
 import { SheetSumGrid, type SumRange } from "@/components/SheetSumGrid";
+import { SheetBooklet, SheetFoldGuide } from "@/components/SheetBooklet";
 import { SheetTalkamrater, type TalkamratRange } from "@/components/SheetTalkamrater";
 
-type Template = "hundred" | "sum10" | "sum20" | "talkamrater";
+type Template = "hundred" | "sum10" | "sum20" | "talkamrater" | "hafte";
 const TEMPLATES: { id: Template; label: string }[] = [
   { id: "hundred", label: "100-rutan" },
   { id: "sum10", label: "Addition 2–10" },
   { id: "sum20", label: "Addition 2–20" },
   { id: "talkamrater", label: "Talkamrater" },
+  { id: "hafte", label: "Talkamratshäfte A6" },
 ];
 
 export const Route = createFileRoute("/mallar")({
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/mallar")({
 
 function MallarPage() {
   const [template, setTemplate] = useState<Template>("hundred");
+  const [bkPart, setBkPart] = useState<"hafte" | "instruktion">("hafte");
   const [count, setCount] = useState<GridCount>(4);
   const [showProducts, setShowProducts] = useState(true);
   const [tkRange, setTkRange] = useState<TalkamratRange>("10");
@@ -68,7 +71,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") : `upp-till-${tkRange}`}${tkColorsEff ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
+      setFileName(template === "hafte" ? (bkPart === "hafte" ? `talkamratshafte-a6-2-20${showProducts ? "" : "-tom"}` : "talkamratshafte-vikinstruktion") : template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") : `upp-till-${tkRange}`}${tkColorsEff ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -98,7 +101,13 @@ function MallarPage() {
             {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
           </div>
         </fieldset>
-        {template === "talkamrater" ? <>
+        {template === "hafte" ? <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Skriv ut</legend>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={bkPart === "hafte" ? "default" : "outline"} aria-pressed={bkPart === "hafte"} onClick={() => setBkPart("hafte")}>Häftet</Button>
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={bkPart === "instruktion" ? "default" : "outline"} aria-pressed={bkPart === "instruktion"} onClick={() => setBkPart("instruktion")}>Vikinstruktion</Button>
+          </div>
+        </fieldset> : template === "talkamrater" ? <>
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Talområde</legend>
           <div className="flex flex-wrap gap-2">
@@ -143,13 +152,15 @@ function MallarPage() {
           </div>
         </fieldset>}
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : template === "talkamrater" ? "Talkamrater i rutorna" : "Summor i rutan"}</legend>
+          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : template === "talkamrater" || template === "hafte" ? "Talkamrater i rutorna" : "Summor i rutan"}</legend>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={showProducts ? "default" : "outline"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
           </div>
         </fieldset>
-        <p className="text-sm text-muted-foreground">{template === "talkamrater"
+        <p className="text-sm text-muted-foreground">{template === "hafte"
+          ? bkPart === "hafte" ? `A6-häfte med ett tal per sida (2–20)${showProducts ? "" : " med tomma rader"} · utan färg · 3 A4-ark, skriv ut dubbelsidigt (vänd längs långsidan) · 6 sidor` : "Steg-för-steg-instruktion för att vika och häfta · A4 stående · 1 sida"
+          : template === "talkamrater"
           ? tkRange === "custom"
             ? `Alla kombinationer som ger ${tkSums[0]} · enkel tabell utan färger · stående A4 · 1 sida`
             : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
@@ -171,7 +182,9 @@ function MallarPage() {
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-<main ref={mainRef} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8" style={{ ["--fit" as string]: fit, ["--zoom" as string]: zoom }}>{template === "talkamrater"
+<main ref={mainRef} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8" style={{ ["--fit" as string]: fit, ["--zoom" as string]: zoom }}>{template === "hafte"
+        ? bkPart === "hafte" ? <SheetBooklet showPairs={showProducts} /> : <SheetFoldGuide />
+        : template === "talkamrater"
         ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} landscape={tkRange === "both" && tkLayout === "liggande"} sums={tkSums} />
         : template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
@@ -179,7 +192,7 @@ function MallarPage() {
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
-        <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Förhandsgranskning av PDF · 1 sida</h2><Button type="button" variant="ghost" onClick={closePreview}>Stäng</Button></div>
+        <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Förhandsgranskning av PDF</h2><Button type="button" variant="ghost" onClick={closePreview}>Stäng</Button></div>
         <iframe title="PDF-förhandsgranskning" src={`${preview.url}#view=Fit`} className="min-h-0 flex-1 rounded-md border border-input" />
         <div className="flex flex-wrap items-end gap-2"><label className="flex-1 text-sm font-medium">Filnamn<input className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5" value={fileName} onChange={e => setFileName(e.target.value)} /></label><span className="pb-2 text-sm text-muted-foreground">.pdf</span>
           <Button type="button" variant="outline" onClick={closePreview}>Avbryt</Button><Button type="button" onClick={savePdf}><FileDown /> Ladda ner</Button></div>
