@@ -58,6 +58,15 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
   expect(tasks.some((t) => t.decs[0] !== t.decs[1])).toBe(true);
 });
 
+it("genAddSub slumpa: hela sifferintervallet (inkl. decimaler) används", () => {
+  const tasks = genAddSub({ op: "add", digits: [2, 5], dec: "slumpa", terms: 2, regroup: true, count: 120 });
+  const lens = tasks.flatMap((t) =>
+    t.terms.map((v, i) => Math.max(String(v * 10 ** (Math.max(...t.decs) - t.decs[i]!)).length, Math.max(...t.decs) + 1)),
+  );
+  expect(Math.min(...lens)).toBeLessThanOrEqual(2);
+  expect(Math.max(...lens)).toBe(5);
+});
+
 it("slumpa: heltal fylls på med decimalnollor och kommatecknen ligger under varandra", () => {
   const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 3, regroup: true, count: 50 });
   for (const t of tasks) {
