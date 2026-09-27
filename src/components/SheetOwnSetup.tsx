@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { digitValue, type SetupTask } from "@/lib/worksheets";
+import { digitValue, formatDecimal, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./Sheet102";
 import { Problem, type SetupFit } from "./SheetSetup";
 
@@ -29,7 +29,7 @@ export function SheetOwnSetup({ tasks, answers, onFit }: {
           <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
             <div className="own-setup-expression">
               <span className="own-setup-number">{i + 1})</span>
-              {digitValue(task.digits)} · {digitValue(task.m)}
+              {formatDecimal(digitValue(task.digits), task.dt)} · {formatDecimal(digitValue(task.m), task.db)}
             </div>
             <div className={`own-setup-box${answers ? " own-setup-key" : ""}`}>
               {answers && <Problem n={i + 1} t={task} answers digitMm={5} />}

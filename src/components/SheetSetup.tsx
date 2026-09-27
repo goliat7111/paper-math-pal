@@ -102,7 +102,7 @@ export function SheetSetup({
     <div ref={pageRef} className={`a4-page${landscape ? " landscape" : ""}`}>
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
-        subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}`}
+        subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}${tasks.some((t) => t.dt || t.db) ? " · decimaltal" : ""}`}
         score={`av ${shown.length}`}
       />
       <div
@@ -163,14 +163,14 @@ export function Problem({
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `repeat(3, ${cellH})` }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
-          <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} />
+          <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} comma={i === L.commas.top} />
         ))}
         {/* Minnesrutan sitter alltid uppe vid faktorerna, rad 1–2 */}
         {!multi && carryBox(L.carries, "1 / span 2")}
         {multi && carryBox(L.partialRows.flatMap((p) => p.carries), "1 / span 2")}
         {/* Rad 2: teckenrad */}
         {signRow.map((c, i) => (
-          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} />
+          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} comma={i === L.commas.bottom} />
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
         <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)" }} />
@@ -222,6 +222,7 @@ export function Problem({
             row={productRowIdx}
             height={cellH}
             answer={answers}
+            comma={answers && i === L.commas.product}
           />
         ))}
       </div>
@@ -235,17 +236,19 @@ function Cell({
   row,
   height,
   answer,
+  comma,
 }: {
   v: string;
   col: number;
   row: number;
   height: string;
   answer?: boolean;
+  comma?: boolean;
 }) {
   return (
     <div
       className={[
-        "flex items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
+        "relative flex items-center justify-center border border-sheet-grid font-mono tabular-nums text-[20px] text-sheet-ink",
         answer ? "font-bold text-sheet-answer" : "",
       ].join(" ")}
       style={{
@@ -255,6 +258,7 @@ function Cell({
       }}
     >
       {v.trim() || "\u00a0"}
+      {comma && <span className="absolute -right-[0.3em] bottom-[-0.1em] z-10 leading-none">,</span>}
     </div>
   );
 }

@@ -49,7 +49,14 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
   return tasks;
 }
 
-export type SetupTask = { digits: number[]; m: number[] };
+/** digits/m är sifferlistor; dt/db = antal decimaler i övre/undre talet (0 = heltal). */
+export type SetupTask = { digits: number[]; m: number[]; dt?: number; db?: number };
+
+/** Skriver ett skalat heltal med decimalkomma, t.ex. (48, 1) → "4,8", (6, 2) → "0,06". */
+export function formatDecimal(value: number, decimals = 0): string {
+  const s = String(value).padStart(decimals + 1, "0");
+  return decimals > 0 ? `${s.slice(0, -decimals)},${s.slice(-decimals)}` : s;
+}
 
 /** Läser en sifferlista till ett tal (t.ex. [4, 8, 3] → 483). */
 export const digitValue = (ds: number[]) => ds.reduce((v, d) => v * 10 + d, 0);
@@ -74,15 +81,25 @@ export function genSetup(
   topDigits: [number, number] = [3, 3],
   bottomDigits: [number, number] = [1, 1],
   count = 12,
+  topDecimals = 0,
+  bottomDecimals = 0,
 ): SetupTask[] {
-  const genNumber = (range: [number, number]) => {
+  const genNumber = (range: [number, number], dec: number) => {
     const k = Math.max(1, rand(...range));
-    // Ensiffriga faktorer är aldrig 1 (trivial multiplikation) – minst 2
-    return Array.from({ length: k }, (_, i) => (i === 0 ? rand(k === 1 ? 2 : 1, 9) : rand(0, 9)));
+    // Ensiffriga faktorer är aldrig 1 (trivial multiplikation) – minst 2.
+    // Decimaltal slutar aldrig på 0 (t.ex. aldrig 4,30).
+    const ds = Array.from({ length: k }, (_, i) =>
+      i === 0 ? rand(k === 1 ? 2 : 1, 9) : dec > 0 && i === k - 1 ? rand(1, 9) : rand(0, 9),
+    );
+    // Fler decimaler än siffror: fyll på med inledande nollor (7 → 0,07)
+    while (ds.length < dec + 1) ds.unshift(0);
+    return ds;
   };
   return Array.from({ length: count }, () => ({
-    digits: genNumber(topDigits),
-    m: genNumber(bottomDigits),
+    digits: genNumber(topDigits, topDecimals),
+    m: genNumber(bottomDigits, bottomDecimals),
+    ...(topDecimals > 0 ? { dt: topDecimals } : {}),
+    ...(bottomDecimals > 0 ? { db: bottomDecimals } : {}),
   }));
 }
 
@@ -111,6 +128,8 @@ export type SetupLayout = {
   sumLeft: number;
   /** Additionens minnessiffror, placerade över rätt sifferkolumn. */
   additionCarries: string[];
+  /** Kolumnen vars siffra följs av decimalkomma; -1 = heltal. */
+  commas: { top: number; bottom: number; product: number };
 };
 
 /** Räknar ut exakt kolumnplacering för en uppställning: talen högerställda
@@ -122,7 +141,9 @@ export function setupLayout(t: SetupTask): SetupLayout {
   const topLen = top.length;
   const bottomLen = bottom.length;
   const topValue = digitValue(top);
-  const product = String(setupValue(t));
+  const dt = t.dt ?? 0;
+  const db = t.db ?? 0;
+  const product = String(setupValue(t)).padStart(dt + db + 1, "0");
 
   let nCols = Math.max(topLen, bottomLen + 1, product.length, 4);
   let maxExtent = product.length; // additionsdelens bredaste rad
@@ -177,6 +198,11 @@ export function setupLayout(t: SetupTask): SetupLayout {
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
     sumLeft,
     additionCarries,
+    commas: {
+      top: dt > 0 ? nCols - 1 - dt : -1,
+      bottom: db > 0 ? nCols - 1 - db : -1,
+      product: dt + db > 0 ? nCols - 1 - dt - db : -1,
+    },
   };
 }
 
