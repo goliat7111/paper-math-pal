@@ -4,12 +4,14 @@ import { ArrowLeft, FileDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetHundredGrid, type GridCount } from "@/components/SheetHundredGrid";
 import { SheetSumGrid, type SumRange } from "@/components/SheetSumGrid";
+import { SheetTalkamrater, type TalkamratRange } from "@/components/SheetTalkamrater";
 
-type Template = "hundred" | "sum10" | "sum20";
+type Template = "hundred" | "sum10" | "sum20" | "talkamrater";
 const TEMPLATES: { id: Template; label: string }[] = [
   { id: "hundred", label: "100-rutan" },
   { id: "sum10", label: "Addition 2–10" },
   { id: "sum20", label: "Addition 2–20" },
+  { id: "talkamrater", label: "Talkamrater" },
 ];
 
 export const Route = createFileRoute("/mallar")({
@@ -28,6 +30,8 @@ function MallarPage() {
   const [template, setTemplate] = useState<Template>("hundred");
   const [count, setCount] = useState<GridCount>(4);
   const [showProducts, setShowProducts] = useState(true);
+  const [tkRange, setTkRange] = useState<TalkamratRange>("10");
+  const [tkColors, setTkColors] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
@@ -50,7 +54,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
+      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -67,7 +71,7 @@ function MallarPage() {
       <div className="mx-auto max-w-6xl px-6 py-4">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Till startsidan</Link>
         <h1 className="font-display text-2xl font-semibold text-foreground">Utskrivbara mallar</h1>
-        <p className="text-sm text-muted-foreground">100-rutan · Additionsrutor</p>
+        <p className="text-sm text-muted-foreground">100-rutan · Additionsrutor · Talkamrater</p>
       </div>
     </header>
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
@@ -79,20 +83,36 @@ function MallarPage() {
             {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
           </div>
         </fieldset>
+        {template === "talkamrater" ? <>
         <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Talområde</legend>
+          <div className="flex flex-wrap gap-2">
+            {([["10", "Upp till 10"], ["20", "Upp till 20"], ["both", "Båda"]] as const).map(([v, l]) => <Button key={v} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkRange === v ? "default" : "outline"} aria-pressed={tkRange === v} onClick={() => setTkRange(v)}>{l}</Button>)}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Färgmarkera strategier</legend>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkColors ? "default" : "outline"} aria-pressed={tkColors} onClick={() => setTkColors(true)}>Med färg</Button>
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!tkColors ? "default" : "outline"} aria-pressed={!tkColors} onClick={() => setTkColors(false)}>Utan färg</Button>
+          </div>
+        </fieldset>
+        </> : <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="flex flex-wrap gap-2">
             {([1, 2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
           </div>
-        </fieldset>
+        </fieldset>}
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : "Summor i rutan"}</legend>
+          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : template === "talkamrater" ? "Talkamrater i rutorna" : "Summor i rutan"}</legend>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={showProducts ? "default" : "outline"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
           </div>
         </fieldset>
-        <p className="text-sm text-muted-foreground">{template === "hundred"
+        <p className="text-sm text-muted-foreground">{template === "talkamrater"
+          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · A4 stående · 1 sida`
+          : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
@@ -101,7 +121,9 @@ function MallarPage() {
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-<main className="print-area flex flex-1 flex-col items-center gap-8">{template === "hundred"
+<main className="print-area flex flex-1 flex-col items-center gap-8">{template === "talkamrater"
+        ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} />
+        : template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
         : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} count={count} showSums={showProducts} />}</main>
     </div>
