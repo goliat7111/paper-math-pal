@@ -18,7 +18,7 @@ describe("genAddSub", () => {
 
 describe("växling i subtraktion", () => {
   it("400 − 7 markerar 3, 9 och 10", () => {
-    const L = addSubLayout({ op: "sub", terms: [400, 7], dec: 0 });
+    const L = addSubLayout({ op: "sub", terms: [400, 7], decs: [0, 0] });
     expect(L.marks).toEqual(["3", "9", "10"]);
     expect(L.struck).toEqual([true, true, false]);
     expect(L.result).toEqual(["3", "9", "3"]);
@@ -29,26 +29,31 @@ describe("växling i subtraktion", () => {
 });
 
 it("addition: minnessiffror och komma", () => {
-  const L = addSubLayout({ op: "add", terms: [48, 57], dec: 1 });
+  const L = addSubLayout({ op: "add", terms: [48, 57], decs: [1, 1] });
   expect(L.result).toEqual(["1", "0", "5"]);
   expect(L.carries).toEqual(["1", "1", ""]);
-  expect(L.comma).toBe(1);
+  expect(L.commas).toEqual([1, 1]);
+  expect(L.resultComma).toBe(1);
 });
 
 it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => {
   const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 2, regroup: true, count: 60 });
   expect(tasks).toHaveLength(60);
   for (const t of tasks) {
-    expect(t.dec).toBeGreaterThanOrEqual(0);
-    expect(t.dec).toBeLessThanOrEqual(3);
-    for (const v of t.terms) {
-      const len = String(v).length;
+    expect(t.decs).toHaveLength(t.terms.length);
+    t.decs.forEach((d, i) => {
+      expect(d).toBeGreaterThanOrEqual(0);
+      expect(d).toBeLessThanOrEqual(3);
+      // termens sifferantal (oskalt) håller sig inom intervallet och rymmer decimalerna
+      const len = String(t.terms[i]!).length - (Math.max(...t.decs) - d);
       expect(len).toBeGreaterThanOrEqual(2);
       expect(len).toBeLessThanOrEqual(4);
-      expect(len).toBeGreaterThan(t.dec);
-    }
+      expect(len).toBeGreaterThan(d);
+    });
   }
   // med blandade sifferantal bör både heltal och decimaltal förekomma
-  expect(tasks.some((t) => t.dec === 0)).toBe(true);
-  expect(tasks.some((t) => t.dec > 0)).toBe(true);
+  expect(tasks.some((t) => t.decs.every((d) => d === 0))).toBe(true);
+  expect(tasks.some((t) => t.decs.some((d) => d > 0))).toBe(true);
+  // termerna ska kunna ha olika antal decimaler
+  expect(tasks.some((t) => t.decs[0] !== t.decs[1])).toBe(true);
 });
