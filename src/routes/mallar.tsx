@@ -42,7 +42,7 @@ function MallarPage() {
   const [tkCount, setTkCount] = useState<1 | 2 | 4>(1);
   const tkColorsEff = tkRange === "custom" ? false : tkColors;
   const tkCountEff: 1 | 2 | 4 = tkRange === "10" || tkRange === "20" ? tkCount : 1;
-  const tkPages = tkCountEff > 1 ? tkCountEff : 1;
+  const tkPages = 1;
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob; images: string[] } | null>(null);
@@ -176,7 +176,7 @@ function MallarPage() {
           : template === "talkamrater"
           ? tkRange === "custom"
             ? `Alla kombinationer som ger ${tkSums[0]} · enkel tabell utan färger · stående A4 · 1 sida`
-            : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : tkCountEff > 1 ? "stående A4, en tabell per sida" : "stående A4"} · ${tkPages} ${tkPages === 1 ? "sida" : "sidor"}`
+            : `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColorsEff ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : tkCountEff > 1 ? `stående A4, ${tkCountEff} tabeller på sidan` : "stående A4"} · ${tkPages} ${tkPages === 1 ? "sida" : "sidor"}`
           : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
