@@ -13,9 +13,10 @@ export const Route = createFileRoute("/division")({
 });
 
 function DivisionPage() {
+  const [divMin, setDivMin] = useState("10");
+  const [divMax, setDivMax] = useState("99");
   const [min, setMin] = useState("2");
   const [max, setMax] = useState("9");
-  const [digits, setDigits] = useState(2);
   const [mode, setMode] = useState<"even" | "rest" | "extra">("even");
   const withRemainder = mode === "rest";
   const [dec, setDec] = useState(0);
@@ -30,10 +31,10 @@ function DivisionPage() {
   const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
   const [fileName, setFileName] = useState("");
   const previewUrl = useRef<string | null>(null);
-  useEffect(() => { setTasks(genDivision(2, 9, 2)); return () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }; }, []);
+  useEffect(() => { setTasks(genDivision(10, 99, 2, 9, 8)); return () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }; }, []);
   const generate = () => {
     try {
-      const result = genDivision(Number(min), Number(max), digits, 8, withRemainder, dec, mode === "extra" ? extra : 0);
+      const result = genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 8, withRemainder, dec, mode === "extra" ? extra : 0);
       setTasks(result); setDirty(false); setError("");
     } catch (e) { setError(e instanceof Error ? e.message : "Kontrollera inställningarna."); }
   };
@@ -69,11 +70,14 @@ function DivisionPage() {
       <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
         <h2 className="font-display text-lg font-semibold">Inställningar</h2>
         <form onSubmit={e => { e.preventDefault(); generate(); }} className="space-y-5">
+          <fieldset><legend className="mb-2 text-sm font-medium">Täljare mellan</legend><div className="flex items-end gap-2">
+            <label className="text-sm">Från<input aria-label="Täljare från" className="mt-1 block w-20 rounded-md border border-input bg-background px-2 py-1.5 text-center" type="number" min={2} max={9999} step={1} required value={divMin} onChange={e => { setDivMin(e.target.value); setDirty(true); }} /></label><span className="pb-2">och</span>
+            <label className="text-sm">Till<input aria-label="Täljare till" className="mt-1 block w-20 rounded-md border border-input bg-background px-2 py-1.5 text-center" type="number" min={2} max={9999} step={1} required value={divMax} onChange={e => { setDivMax(e.target.value); setDirty(true); }} /></label>
+          </div></fieldset>
           <fieldset><legend className="mb-2 text-sm font-medium">Nämnare mellan</legend><div className="flex items-end gap-2">
             <label className="text-sm">Från<input aria-label="Nämnare från" className="mt-1 block w-20 rounded-md border border-input bg-background px-2 py-1.5 text-center" type="number" min={2} max={9} step={1} required value={min} onChange={e => { setMin(e.target.value); setDirty(true); }} /></label><span className="pb-2">och</span>
             <label className="text-sm">Till<input aria-label="Nämnare till" className="mt-1 block w-20 rounded-md border border-input bg-background px-2 py-1.5 text-center" type="number" min={2} max={9} step={1} required value={max} onChange={e => { setMax(e.target.value); setDirty(true); }} /></label>
           </div></fieldset>
-          <label className="block text-sm font-medium">Antal siffror i svaret<select className="mt-2 block w-auto rounded-md border border-input bg-background px-2 py-2" value={digits} onChange={e => { setDigits(Number(e.target.value)); setDirty(true); }}><option value={1}>1 siffra (1–9)</option><option value={2}>2 siffror (10–99)</option><option value={3}>3 siffror (100–999)</option></select></label>
           <label className="block text-sm font-medium">Decimaler i täljaren<select className="mt-2 block w-auto rounded-md border border-input bg-background px-2 py-2" value={dec} onChange={e => { const v = Number(e.target.value); setDec(v); if (v !== 0 && mode === "rest") setMode("even"); setDirty(true); }}><option value={0}>Heltal</option><option value={1}>1 decimal</option><option value={2}>2 decimaler</option><option value={3}>3 decimaler</option><option value={-1}>Slumpa (0–3)</option></select></label>
           <fieldset className="space-y-2"><legend className="mb-2 text-sm font-medium">Typ av division</legend>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={mode === "even"} onChange={() => { setMode("even"); setDirty(true); }} />Går jämnt ut</label>
@@ -81,7 +85,7 @@ function DivisionPage() {
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={mode === "extra"} onChange={() => { setMode("extra"); setDirty(true); }} />Extra decimaler i svaret</label>
             {mode === "extra" && <select aria-label="Antal extra decimaler" className="ml-6 block rounded-md border border-input bg-background px-2 py-1.5 text-sm" value={extra} onChange={e => { setExtra(Number(e.target.value)); setDirty(true); }}><option value={1}>1 extra decimal</option><option value={2}>2 extra decimaler</option><option value={3}>3 extra decimaler</option></select>}
           </fieldset>
-          <p className="text-sm text-muted-foreground">{dec === -1 ? "Varje uppgift får ett slumpat antal decimaler (0–3) i täljaren. Alla uppgifter går jämnt ut." : mode === "rest" ? "Alla uppgifter får en rest. Antalet siffror avser svarets heltalsdel." : mode === "extra" ? `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}` : dec > 0 ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2." : "Alla uppgifter går jämnt ut."}</p>
+          <p className="text-sm text-muted-foreground">{dec === -1 ? "Varje uppgift får ett slumpat antal decimaler (0–3) i täljaren. Alla uppgifter går jämnt ut." : mode === "rest" ? "Alla uppgifter får en rest." : mode === "extra" ? `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}` : dec > 0 ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2." : "Alla uppgifter går jämnt ut."}</p>
           <fieldset className="space-y-2"><legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />Med uppställning (kort division)</label>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />Egen uppställning i tom ruta</label>
