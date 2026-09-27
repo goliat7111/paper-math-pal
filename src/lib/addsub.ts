@@ -34,11 +34,11 @@ export function addCarries(terms: number[]): number[] {
 export function subBorrows(a: number, b: number): { received: boolean; lent: boolean; digit: number }[] {
   const n = String(a).length;
   const out: { received: boolean; lent: boolean; digit: number }[] = [];
-  let lent = false; // lånade föregående (lägre) kolumn av denna?
+  let lent: boolean = false; // lånade föregående (lägre) kolumn av denna?
   for (let i = 0; i < n; i++) {
-    const top = Math.floor(a / 10 ** i) % 10 - (lent ? 1 : 0);
+    const top: number = Math.floor(a / 10 ** i) % 10 - (lent ? 1 : 0);
     const bot = Math.floor(b / 10 ** i) % 10;
-    const received = top < bot;
+    const received: boolean = top < bot;
     out.push({ received, lent, digit: top + (received ? 10 : 0) });
     lent = received;
   }
