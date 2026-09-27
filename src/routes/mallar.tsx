@@ -66,8 +66,8 @@ function MallarPage() {
         <h2 className="font-display text-lg font-semibold text-foreground">100-rutan</h2>
        <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
-          <div className="grid grid-cols-4 gap-1 rounded-md bg-muted p-1">
-            {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 min-w-0 px-1 text-xs font-semibold" variant={count === n ? "default" : "ghost"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
+          <div className="flex flex-wrap gap-2">
+            {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
           </div>
         </fieldset>
         <fieldset>
