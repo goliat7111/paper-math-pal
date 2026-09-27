@@ -9,6 +9,7 @@ import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
