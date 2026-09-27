@@ -41,13 +41,13 @@ export function talkamratColumns(range: "10" | "20"): { sum: number; pairs: Pair
   });
 }
 
-/** Talkamrater för valda summor (2–20) — alla heltalskombinationer; över 10 par delas upp i två kolumner. */
+/** Talkamrater för valda summor (2–20) — alla heltalskombinationer; över 8 par delas upp i två kolumner. */
 export function customColumns(sums: number[]): { sum: number; pairs: Pair[] }[] {
   return [...sums].sort((a, b) => a - b).flatMap(s => {
     const pairs: Pair[] = [];
     for (let a = s; a >= Math.ceil(s / 2); a--) pairs.push([a, s - a]);
     const half = Math.ceil(pairs.length / 2);
-    return pairs.length > 10
+    return pairs.length > 8
       ? [{ sum: s, pairs: pairs.slice(0, half) }, { sum: s, pairs: pairs.slice(half) }]
       : [{ sum: s, pairs }];
   });
