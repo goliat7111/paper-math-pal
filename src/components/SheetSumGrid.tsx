@@ -14,12 +14,14 @@ function SumGrid({ range, showSums }: { range: SumRange; showSums: boolean }) {
   const n = sizeFor(range);
   const rowH = `${100 / (n + 1)}%`; // rubrikrad + n rader — alla lika höga
   return (
-    <table className="hundred-grid" style={{ "--rows": n + 1 } as CSSProperties} aria-label={`${showSums ? "Ifylld" : "Tom"} additionsruta med summor 2 till ${range}`}>
+    <div className="hundred-grid-box" style={{ "--rows": n + 1 } as CSSProperties}>
+    <table className="hundred-grid" aria-label={`${showSums ? "Ifylld" : "Tom"} additionsruta med summor 2 till ${range}`}>
       <thead style={{ height: rowH }}><tr style={{ height: rowH }}><th aria-label="Additionstecken">+</th>{Array.from({ length: n }, (_, i) => <th key={i} scope="col">{i + 1}</th>)}</tr></thead>
       <tbody>{Array.from({ length: n }, (_, row) => (
         <tr key={row} style={{ height: rowH }}><th scope="row">{row + 1}</th>{Array.from({ length: n }, (_, col) => <td key={col}>{showSums ? row + col + 2 : null}</td>)}</tr>
       ))}</tbody>
     </table>
+    </div>
   );
 }
 

@@ -14,6 +14,7 @@ function HundredGrid({ showProducts }: { showProducts: boolean }) {
         <tr key={row} style={{ height: rowH }}><th scope="row">{row + 1}</th>{Array.from({ length: 10 }, (_, col) => <td key={col}>{showProducts ? (row + 1) * (col + 1) : null}</td>)}</tr>
       ))}</tbody>
     </table>
+    </div>
   );
 }
 
