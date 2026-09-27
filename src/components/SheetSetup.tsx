@@ -34,7 +34,7 @@ export function SheetSetup({
   const maxCols = colsFor(tasks);
   const digitMm = digitMM(maxCols);
   const colGapMm = gapMM(maxCols);
-  const multi = tasks.some((t) => t.m.length > 1);
+  const multi = tasks.some((t) => setupLayout(t).partialRows.length > 0);
   const rowGapMm = multi ? 8 : 12;
   const landscape = orientation === "landscape";
 

@@ -137,9 +137,13 @@ export type SetupLayout = {
  *  förskjutning, produkten under faktorerna, minnessiffror i beräkningsordning. */
 export function setupLayout(t: SetupTask): SetupLayout {
   const top = t.digits;
-  const bottom = t.m;
+  const bottomAll = t.m;
+  // Inledande nollor (0,7) räknas inte som egna delprodukter
+  const firstSig = Math.max(0, Math.min(bottomAll.findIndex((d) => d !== 0), bottomAll.length - 1));
+  const bottom = bottomAll.slice(firstSig === -1 ? 0 : firstSig);
   const topLen = top.length;
   const bottomLen = bottom.length;
+  const shownBottomLen = bottomAll.length;
   const topValue = digitValue(top);
   const dt = t.dt ?? 0;
   const db = t.db ?? 0;
@@ -153,11 +157,11 @@ export function setupLayout(t: SetupTask): SetupLayout {
     maxExtent = Math.max(maxExtent, len + p);
   }
   // ×-tecknet behöver en egen kolumn när den undre faktorn är minst lika lång
-  if (bottomLen >= topLen) nCols = Math.max(nCols, bottomLen + 2);
+  if (shownBottomLen >= topLen) nCols = Math.max(nCols, shownBottomLen + 2);
   // + -tecknet behöver en egen kolumn vänster om additionsdelen
   if (bottomLen > 1) nCols = Math.max(nCols, maxExtent + 1);
 
-  const signCol = topLen > bottomLen ? nCols - topLen : nCols - bottomLen - 1;
+  const signCol = topLen > shownBottomLen ? nCols - topLen : nCols - shownBottomLen - 1;
 
   const align = (text: string, endCol: number) => {
     const row: string[] = Array(nCols).fill("");
@@ -192,7 +196,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
     nCols,
     topRow: align(top.join(""), nCols - 1),
     signCol,
-    bottomRow: align(bottom.join(""), nCols - 1),
+    bottomRow: align(bottomAll.join(""), nCols - 1),
     partialRows,
     productRow: align(product, nCols - 1),
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
