@@ -62,13 +62,14 @@ function Table({ range, colors, showPairs }: { range: "10" | "20"; colors: boole
   );
 }
 
-export function SheetTalkamrater({ range, colors, showPairs }: { range: TalkamratRange; colors: boolean; showPairs: boolean }) {
+export function SheetTalkamrater({ range, colors, showPairs, landscape = false }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean }) {
   const parts: ("10" | "20")[] = range === "both" ? ["10", "20"] : [range];
   const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : "Addition upp till 10 och 20";
+  const wide = range === "both" && landscape;
   return (
-    <div className="a4-page hundred-grid-page flex flex-col">
+    <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
-      <div className="talkamrat-layout">
+      <div className={wide ? "talkamrat-layout talkamrat-layout--landscape" : "talkamrat-layout"}>
         {parts.map(p => (
           <section key={p} className="talkamrat-section">
             <h3 className="talkamrat-title">Talkamrater – upp till {p}</h3>
