@@ -51,6 +51,33 @@ function TextuppgifterPage() {
   const [meta, setMeta] = useState({ grade: 3, theme: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
+  const [fileName, setFileName] = useState("");
+  const previewUrl = useRef<string | null>(null);
+  useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }, []);
+  const closePreview = () => {
+    if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+    previewUrl.current = null; setPreview(null);
+  };
+  const downloadPdf = async () => {
+    setExporting(true); setError("");
+    try {
+      const { buildSheetsPdf } = await import("@/lib/exportPdf");
+      const result = await buildSheetsPdf("portrait");
+      if (!result) throw new Error("Inga blad att spara. Skapa uppgifter först.");
+      if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+      const url = URL.createObjectURL(result.blob); previewUrl.current = url;
+      setPreview({ ...result, url });
+      setFileName(`textuppgifter-ak${meta.grade}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+    } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
+    finally { setExporting(false); }
+  };
+  const savePreview = async () => {
+    if (!preview) return;
+    const { saveBlob } = await import("@/lib/exportPdf");
+    saveBlob(preview.blob, fileName); closePreview();
+  };
   const input = "mt-1 block rounded-md border border-input bg-background px-2 py-1.5";
 
   const run = async () => {
