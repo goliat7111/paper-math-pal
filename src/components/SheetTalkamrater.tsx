@@ -90,22 +90,25 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
   );
   // Flera sidor: en tabell per A4-sida (endast för enskilda talområden).
   const pageCount = count > 1 && (range === "10" || range === "20") ? count : 1;
-  if (pageCount > 1) return (
+  if (pageCount > 1) {
+    const r = range as "10" | "20";
+    return (
     <>
       {Array.from({ length: pageCount }, (_, i) => (
         <div key={i} className="a4-page hundred-grid-page flex flex-col">
           <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
           <div className="talkamrat-layout">
             <section className="talkamrat-section">
-              <h3 className="talkamrat-title">{`Talkamrater – upp till ${range}`}</h3>
-              <Table range={range} colors={useColors} showPairs={showPairs} sums={sorted} />
+              <h3 className="talkamrat-title">{`Talkamrater – upp till ${r}`}</h3>
+              <Table range={r} colors={useColors} showPairs={showPairs} sums={sorted} />
             </section>
           </div>
           {legend}
         </div>
       ))}
     </>
-  );
+    );
+  }
   return (
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
