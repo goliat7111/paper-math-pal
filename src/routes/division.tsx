@@ -13,9 +13,10 @@ export const Route = createFileRoute("/division")({
 });
 
 function DivisionPage() {
+  const [divMin, setDivMin] = useState("10");
+  const [divMax, setDivMax] = useState("99");
   const [min, setMin] = useState("2");
   const [max, setMax] = useState("9");
-  const [digits, setDigits] = useState(2);
   const [mode, setMode] = useState<"even" | "rest" | "extra">("even");
   const withRemainder = mode === "rest";
   const [dec, setDec] = useState(0);
@@ -30,10 +31,10 @@ function DivisionPage() {
   const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
   const [fileName, setFileName] = useState("");
   const previewUrl = useRef<string | null>(null);
-  useEffect(() => { setTasks(genDivision(2, 9, 2)); return () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }; }, []);
+  useEffect(() => { setTasks(genDivision(10, 99, 2, 9, 8)); return () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }; }, []);
   const generate = () => {
     try {
-      const result = genDivision(Number(min), Number(max), digits, 8, withRemainder, dec, mode === "extra" ? extra : 0);
+      const result = genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 8, withRemainder, dec, mode === "extra" ? extra : 0);
       setTasks(result); setDirty(false); setError("");
     } catch (e) { setError(e instanceof Error ? e.message : "Kontrollera inställningarna."); }
   };
