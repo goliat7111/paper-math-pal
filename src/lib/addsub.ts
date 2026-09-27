@@ -184,8 +184,10 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   } else {
     subBorrows(s[0]!, s[1]!).forEach((c, i) => {
       const col = nCols - 1 - i;
-      if (c.lent) { marks[col] = String(c.digit); struck[col] = true; }
-      else if (c.received) marks[col] = "10";
+      // Endast snedstreck på kolumner som växlar bort, och en liten 10:a i
+      // varje mottagande kolumn — ingen siffra för vad som blir kvar.
+      if (c.lent) struck[col] = true;
+      if (c.received) marks[col] = "10";
     });
   }
   return {
