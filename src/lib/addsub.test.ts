@@ -82,3 +82,18 @@ it("slumpa: heltal fylls på med decimalnollor och kommatecknen ligger under var
     });
   }
 });
+
+it("decimaltal: sifferintervallet 2–5 gäller även med fasta decimaler", () => {
+  const tasks = genAddSub({ op: "add", digits: [2, 5], dec: 2, terms: 2, regroup: true, count: 80 });
+  const lens = tasks.flatMap((t) =>
+    t.terms.map((v, i) => Math.max(String(v).length, t.decs[i]! + 1)),
+  );
+  expect(Math.min(...lens)).toBe(2);
+  expect(Math.max(...lens)).toBe(5);
+  for (const t of tasks) {
+    for (const d of t.decs) {
+      expect(d).toBeGreaterThan(0);
+      expect(d).toBeLessThanOrEqual(2);
+    }
+  }
+});
