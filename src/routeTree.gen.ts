@@ -16,6 +16,7 @@ import { Route as DivisionRouteImport } from './routes/division'
 import { Route as MallarRouteImport } from './routes/mallar'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
 import { Route as SubtraktionRouteImport } from './routes/subtraktion'
+import { Route as TextuppgifterRouteImport } from './routes/textuppgifter'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const SubtraktionRoute = SubtraktionRouteImport.update({
   path: '/subtraktion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TextuppgifterRoute = TextuppgifterRouteImport.update({
+  id: '/textuppgifter',
+  path: '/textuppgifter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/mallar': typeof MallarRoute
   '/multiplikation': typeof MultiplikationRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/mallar'
     | '/multiplikation'
     | '/subtraktion'
+    | '/textuppgifter'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/mallar'
     | '/multiplikation'
     | '/subtraktion'
+    | '/textuppgifter'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/mallar'
     | '/multiplikation'
     | '/subtraktion'
+    | '/textuppgifter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   MallarRoute: typeof MallarRoute
   MultiplikationRoute: typeof MultiplikationRoute
   SubtraktionRoute: typeof SubtraktionRoute
+  TextuppgifterRoute: typeof TextuppgifterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubtraktionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/textuppgifter': {
+      id: '/textuppgifter'
+      path: '/textuppgifter'
+      fullPath: '/textuppgifter'
+      preLoaderRoute: typeof TextuppgifterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   MallarRoute: MallarRoute,
   MultiplikationRoute: MultiplikationRoute,
   SubtraktionRoute: SubtraktionRoute,
+  TextuppgifterRoute: TextuppgifterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
