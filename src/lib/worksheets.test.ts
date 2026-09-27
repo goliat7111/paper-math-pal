@@ -488,7 +488,7 @@ describe("genSnabba – unika multiplikationer", () => {
   const key = (t: { a: number; b: number }) => [Math.min(t.a, t.b), Math.max(t.a, t.b)].join("x");
 
   it("inga dubbletter inom en övning när området räcker (2–9, 3–6, 1–12)", () => {
-    for (const range of [[2, 9], [3, 6], [1, 12]] as const) {
+    for (const range of [[2, 9], [3, 6], [1, 12]] as [number, number][]) {
       for (const s of genSnabba(range)) {
         const keys = s.map(key);
         expect(new Set(keys).size).toBe(keys.length);
