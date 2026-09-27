@@ -35,9 +35,12 @@ export function talkamratColumns(range: "10" | "20"): { sum: number; pairs: Pair
       return { sum: s, pairs: Array.from({ length: s - 1 }, (_, k) => [s - k - 1, k + 1] as Pair) };
     });
   }
-  return Array.from({ length: 8 }, (_, i) => {
+  // Summor 11–20 med ALLA kombinationer a+b=s (a från s ner till hälften, även x+0) — som "Välj tal".
+  return Array.from({ length: 10 }, (_, i) => {
     const s = i + 11;
-    return { sum: s, pairs: Array.from({ length: 19 - s }, (_, k) => [9 - k, s - 9 + k] as Pair) };
+    const pairs: Pair[] = [];
+    for (let a = s; a >= Math.ceil(s / 2); a--) pairs.push([a, s - a] as Pair);
+    return { sum: s, pairs };
   });
 }
 
