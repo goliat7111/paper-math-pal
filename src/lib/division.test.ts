@@ -45,3 +45,39 @@ describe("Divisionsblad", () => {
     }
   });
 });
+
+describe("Division med decimaltal", () => {
+  const value = (n: number, d = 0) => n / 10 ** d;
+  it("går jämnt ut med valt antal decimaler i täljaren", () => {
+    for (const dd of [1, 2, 3]) for (const t of genDivision(2, 9, 1, 40, false, dd, 0)) {
+      expect(t.dividend % 10).not.toBe(0);
+      expect(t.quotientDecimals).toBe(dd);
+      expect(t.quotient * t.divisor).toBe(t.dividend);
+      expect(divisionSteps(t).at(-1)?.remainder).toBe(0);
+    }
+  });
+  it("ger exakt 1–3 extra decimaler i svaret", () => {
+    for (const dd of [0, 1, 2]) for (const extra of [1, 2, 3]) for (const t of genDivision(2, 9, 1, 40, false, dd, extra)) {
+      expect(t.quotientDecimals).toBe(dd + extra);
+      expect(t.quotient % 10).not.toBe(0);
+      expect(t.quotient * t.divisor).toBe(t.dividend * 10 ** extra);
+      expect(value(t.dividend, dd) / t.divisor).toBeCloseTo(value(t.quotient, dd + extra), 9);
+      const steps = divisionSteps(t);
+      expect(steps.filter(s => s.added)).toHaveLength(extra);
+      expect(steps.at(-1)?.remainder).toBe(0);
+      if (extra === 3) expect(t.divisor).toBe(8);
+    }
+  });
+  it("4/8 = 0,5 och 0,8/5 = 0,16 räknas rätt steg för steg", () => {
+    const a = divisionSteps({ dividend: 4, divisor: 8, quotient: 5, remainder: 0, quotientDecimals: 1 });
+    expect(a.map(s => s.quotientDigit)).toEqual([0, 5]);
+    expect(a[0]!.comma).toBe(true);
+    const b = divisionSteps({ dividend: 8, divisor: 5, quotient: 16, remainder: 0, dividendDecimals: 1, quotientDecimals: 2 });
+    expect(b.map(s => s.digit).join("")).toBe("080");
+    expect(b.map(s => s.quotientDigit)).toEqual([0, 1, 6]);
+  });
+  it("avvisar omöjliga val", () => {
+    expect(() => genDivision(3, 3, 1, 8, false, 0, 1)).toThrow();
+    expect(() => genDivision(2, 9, 1, 8, true, 1, 0)).toThrow();
+  });
+});

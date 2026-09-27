@@ -515,3 +515,32 @@ describe("genSnabba – unika multiplikationer", () => {
     }
   });
 });
+
+import { formatDecimal as fd } from "./worksheets";
+describe("Uppställning med decimaltal", () => {
+  it("formaterar decimaltal", () => {
+    expect(fd(48, 1)).toBe("4,8");
+    expect(fd(6, 2)).toBe("0,06");
+    expect(fd(12)).toBe("12");
+  });
+  it("ger faktorer med valda decimaler som aldrig slutar på 0, och kommat i rätt kolumn", () => {
+    for (const [dt, db] of [[1, 0], [2, 1], [0, 2], [2, 2]] as const) {
+      for (const t of genSetup([1, 3], [1, 2], 40, dt, db)) {
+        expect(t.dt ?? 0).toBe(dt);
+        expect(t.db ?? 0).toBe(db);
+        if (dt) expect(t.digits.at(-1)).not.toBe(0);
+        if (db) expect(t.m.at(-1)).not.toBe(0);
+        expect(t.digits.length).toBeGreaterThan(dt);
+        const L = setupLayout(t);
+        expect(L.commas.top).toBe(dt ? L.nCols - 1 - dt : -1);
+        expect(L.commas.product).toBe(dt + db ? L.nCols - 1 - dt - db : -1);
+        expect(L.productRow[L.commas.product === -1 ? 0 : L.commas.product]).not.toBe(undefined);
+      }
+    }
+  });
+  it("0,3 · 0,2 ger produkten 0,06", () => {
+    const L = setupLayout({ digits: [0, 3], m: [0, 2], dt: 1, db: 1 });
+    expect(L.productRow.join("")).toBe("006");
+    expect(L.commas.product).toBe(L.nCols - 3);
+  });
+});

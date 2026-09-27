@@ -13,7 +13,10 @@ function DivisionPage() {
   const [min, setMin] = useState("2");
   const [max, setMax] = useState("9");
   const [digits, setDigits] = useState(2);
-  const [withRemainder, setWithRemainder] = useState(false);
+  const [mode, setMode] = useState<"even" | "rest" | "extra">("even");
+  const withRemainder = mode === "rest";
+  const [dec, setDec] = useState(0);
+  const [extra, setExtra] = useState(1);
   const [ownSetup, setOwnSetup] = useState(true);
   const [withKey, setWithKey] = useState(true);
   const [tasks, setTasks] = useState<DivisionTask[]>([]);
@@ -26,7 +29,7 @@ function DivisionPage() {
   useEffect(() => { setTasks(genDivision(2, 9, 2)); return () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }; }, []);
   const generate = () => {
     try {
-      const result = genDivision(Number(min), Number(max), digits, 8, withRemainder);
+      const result = genDivision(Number(min), Number(max), digits, 8, withRemainder, dec, mode === "extra" ? extra : 0);
       setTasks(result); setDirty(false); setError("");
     } catch (e) { setError(e instanceof Error ? e.message : "Kontrollera inställningarna."); }
   };
@@ -43,7 +46,7 @@ function DivisionPage() {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`division-${ownSetup ? "egen-uppstallning" : "kort-division"}-${tasks.some(t => t.remainder > 0) ? "med-rest" : "utan-rest"}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`division-${ownSetup ? "egen-uppstallning" : "kort-division"}-${tasks.some(t => t.remainder > 0) ? "med-rest" : mode === "extra" ? `${extra}-extra-decimaler` : "utan-rest"}${dec ? `-${dec}-decimaler` : ""}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -67,11 +70,14 @@ function DivisionPage() {
             <label className="text-sm">Till<input aria-label="Nämnare till" className="mt-1 block w-20 rounded-md border border-input bg-background px-2 py-1.5 text-center" type="number" min={2} max={9} step={1} required value={max} onChange={e => { setMax(e.target.value); setDirty(true); }} /></label>
           </div></fieldset>
           <label className="block text-sm font-medium">Antal siffror i svaret<select className="mt-2 block w-full rounded-md border border-input bg-background px-2 py-2" value={digits} onChange={e => { setDigits(Number(e.target.value)); setDirty(true); }}><option value={1}>1 siffra (1–9)</option><option value={2}>2 siffror (10–99)</option><option value={3}>3 siffror (100–999)</option></select></label>
+          <label className="block text-sm font-medium">Decimaler i täljaren<select className="mt-2 block w-full rounded-md border border-input bg-background px-2 py-2" value={dec} onChange={e => { const v = Number(e.target.value); setDec(v); if (v > 0 && mode === "rest") setMode("even"); setDirty(true); }}><option value={0}>Heltal</option><option value={1}>1 decimal</option><option value={2}>2 decimaler</option><option value={3}>3 decimaler</option></select></label>
           <fieldset className="space-y-2"><legend className="mb-2 text-sm font-medium">Typ av division</legend>
-            <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={!withRemainder} onChange={() => { setWithRemainder(false); setDirty(true); }} />Utan rest</label>
-            <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={withRemainder} onChange={() => { setWithRemainder(true); setDirty(true); }} />Med rest</label>
+            <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={mode === "even"} onChange={() => { setMode("even"); setDirty(true); }} />Går jämnt ut</label>
+            <label className={`flex items-center gap-2 text-sm${dec > 0 ? " opacity-50" : ""}`}><input type="radio" name="remainder" disabled={dec > 0} checked={mode === "rest"} onChange={() => { setMode("rest"); setDirty(true); }} />Med rest (bara heltal)</label>
+            <label className="flex items-center gap-2 text-sm"><input type="radio" name="remainder" checked={mode === "extra"} onChange={() => { setMode("extra"); setDirty(true); }} />Extra decimaler i svaret</label>
+            {mode === "extra" && <select aria-label="Antal extra decimaler" className="ml-6 block rounded-md border border-input bg-background px-2 py-1.5 text-sm" value={extra} onChange={e => { setExtra(Number(e.target.value)); setDirty(true); }}><option value={1}>1 extra decimal</option><option value={2}>2 extra decimaler</option><option value={3}>3 extra decimaler</option></select>}
           </fieldset>
-          <p className="text-sm text-muted-foreground">{withRemainder ? "Alla uppgifter får en rest. Antalet siffror avser svarets heltalsdel." : "Alla uppgifter går jämnt ut."}</p>
+          <p className="text-sm text-muted-foreground">{mode === "rest" ? "Alla uppgifter får en rest. Antalet siffror avser svarets heltalsdel." : mode === "extra" ? `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}` : dec > 0 ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2." : "Alla uppgifter går jämnt ut."}</p>
           <fieldset className="space-y-2"><legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />Med uppställning (kort division)</label>
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="division-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />Egen uppställning i tom ruta</label>
