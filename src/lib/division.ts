@@ -21,29 +21,39 @@ export const extraCapacity = (d: number) => {
 
 /** dividendDecimals = -1 betyder "Slumpa": varje uppgift får 0–3 decimaler i täljaren. */
 export function genDivision(
+  dividendMin: number,
+  dividendMax: number,
   divisorMin: number,
   divisorMax: number,
-  quotientDigits: number,
   count = 8,
   withRemainder = false,
   dividendDecimals = 0,
   extraDecimals = 0,
 ): DivisionTask[] {
-  if (![divisorMin, divisorMax, quotientDigits, count, dividendDecimals, extraDecimals].every(Number.isInteger)
+  if (![dividendMin, dividendMax, divisorMin, divisorMax, count, dividendDecimals, extraDecimals].every(Number.isInteger)
+    || dividendMin < 2 || dividendMax > 9999 || dividendMin > dividendMax
     || divisorMin < 2 || divisorMax > 9 || divisorMin > divisorMax
-    || quotientDigits < 1 || quotientDigits > 3 || count < 1 || count > 40
+    || count < 1 || count > 40
     || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < 0 || extraDecimals > 3) {
-    throw new Error("Välj nämnare mellan 2 och 9 och 1–3 siffror i svaret.");
+    throw new Error("Välj täljare mellan 2 och 9999 och nämnare mellan 2 och 9.");
   }
   if (withRemainder && (dividendDecimals !== 0 || extraDecimals > 0)) {
     throw new Error("Rest kan bara väljas för heltal utan extra decimaler.");
   }
   if (dividendDecimals === 0 && extraDecimals === 0) {
     return Array.from({ length: count }, () => {
-      const divisor = rand(divisorMin, divisorMax);
-      const quotient = rand(10 ** (quotientDigits - 1), 10 ** quotientDigits - 1);
-      const remainder = withRemainder ? rand(1, divisor - 1) : 0;
-      return { dividend: divisor * quotient + remainder, divisor, quotient, remainder };
+      for (let tries = 0; tries < 20000; tries++) {
+        const divisor = rand(divisorMin, divisorMax);
+        const qMin = Math.max(1, Math.ceil(dividendMin / divisor));
+        const qMax = Math.floor(dividendMax / divisor);
+        if (qMin > qMax) continue;
+        const quotient = rand(qMin, qMax);
+        const remainder = withRemainder ? rand(1, divisor - 1) : 0;
+        const dividend = divisor * quotient + remainder;
+        if (dividend > dividendMax) continue;
+        return { dividend, divisor, quotient, remainder };
+      }
+      throw new Error("Hittade inga passande divisioner. Prova ett större talområde för täljaren.");
     });
   }
   const pool: number[] = [];
@@ -52,31 +62,20 @@ export function genDivision(
     const ok = [2, 3, 4, 5, 6, 7, 8, 9].filter(d => extraCapacity(d) >= extraDecimals).join(", ");
     throw new Error(`${extraDecimals} extra decimal${extraDecimals > 1 ? "er" : ""} kräver någon av nämnarna ${ok}.`);
   }
-  const scale = 10 ** extraDecimals;
   return Array.from({ length: count }, () => {
-    const dd = dividendDecimals === -1 ? rand(0, 3) : dividendDecimals;
-    const qDec = dd + extraDecimals;
-    if (qDec === 0) {
-      // Slumpa valde 0 decimaler: vanlig jämn heltalsdivision
-      const divisor = pool[rand(0, pool.length - 1)]!;
-      const quotient = rand(10 ** (quotientDigits - 1), 10 ** quotientDigits - 1);
-      return { dividend: divisor * quotient, divisor, quotient, remainder: 0 };
-    }
     for (let tries = 0; tries < 20000; tries++) {
+      const dd = dividendDecimals === -1 ? rand(0, 3) : dividendDecimals;
       const divisor = pool[rand(0, pool.length - 1)]!;
-      // Heltalsdelen: en siffra tillåter 0 (t.ex. 4/8 = 0,5)
-      const intPart = quotientDigits === 1 ? rand(0, 9) : rand(10 ** (quotientDigits - 1), 10 ** quotientDigits - 1);
-      const frac = rand(1, 10 ** qDec - 1);
-      if (frac % 10 === 0) continue; // kvoten slutar aldrig på 0
-      const quotient = intPart * 10 ** qDec + frac;
-      const scaled = quotient * divisor;
-      if (scaled % scale !== 0) continue;
-      const dividend = scaled / scale;
-      if (dd > 0 && dividend % 10 === 0) continue; // täljaren har exakt valda decimaler
-      if (dd === 0 && dividend < divisor && extraDecimals === 0) continue;
-      return { dividend, divisor, quotient, remainder: 0, dividendDecimals: dd, quotientDecimals: qDec };
+      const scaledDividend = rand(dividendMin * 10 ** dd, dividendMax * 10 ** dd);
+      if (dd > 0 && scaledDividend % 10 === 0) continue; // täljaren har exakt valda decimaler
+      const qDec = dd + extraDecimals;
+      const scaled = scaledDividend * 10 ** extraDecimals;
+      if (scaled % divisor !== 0) continue;
+      const quotient = scaled / divisor;
+      if (qDec > 0 && quotient % 10 === 0) continue; // kvoten slutar aldrig på 0
+      return { dividend: scaledDividend, divisor, quotient, remainder: 0, dividendDecimals: dd, quotientDecimals: qDec };
     }
-    throw new Error("Hittade inga passande divisioner. Prova andra nämnare.");
+    throw new Error("Hittade inga passande divisioner. Prova andra inställningar.");
   });
 }
 
