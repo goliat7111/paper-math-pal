@@ -8,9 +8,8 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
   ownSetup: boolean;
 }) {
   const withRemainder = tasks.some(task => task.remainder > 0);
-  const dd = tasks[0]?.dividendDecimals ?? 0;
-  const extra = Math.max(0, (tasks[0]?.quotientDecimals ?? 0) - dd);
-  const decimal = dd > 0 || extra > 0;
+  const extra = Math.max(0, ...tasks.map(t => (t.quotientDecimals ?? 0) - (t.dividendDecimals ?? 0)));
+  const decimal = tasks.some(t => (t.dividendDecimals ?? 0) > 0) || extra > 0;
   const subtitle = withRemainder ? "Med rest"
     : !decimal ? "Utan rest"
     : `Decimaltal · ${extra ? `${extra} extra decimal${extra > 1 ? "er" : ""} i svaret` : "går jämnt ut"}`;
@@ -28,7 +27,7 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
             {(answers || !ownSetup) && <div className="short-division" aria-label={`${dividendText} delat med ${t.divisor}${answers ? ` är ${quotientText}${withRemainder ? ` rest ${t.remainder}` : ""}` : ""}`}>
               <div className="division-fraction">
                 <div className="division-numerator">{divisionSteps(t).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
-                  {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || dd > 0) && <span className="division-comma">,</span>}
+                  {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (t.dividendDecimals ?? 0) > 0) && <span className="division-comma">,</span>}
                 </span>)}</div>
                 <div className="division-denominator">{t.divisor}</div>
               </div>
