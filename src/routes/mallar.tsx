@@ -1,3 +1,4 @@
+import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer, ZoomIn, ZoomOut } from "lucide-react";
@@ -44,7 +45,7 @@ function MallarPage() {
   const tkPages = tkCountEff > 1 ? tkCountEff : 1;
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
-  const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; images: string[] } | null>(null);
   const [fileName, setFileName] = useState("100-rutan-4-per-a4");
   const previewUrl = useRef<string | null>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -73,7 +74,7 @@ function MallarPage() {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
-      setPreview({ url, blob: result.blob });
+      setPreview({ url, blob: result.blob, images: result.images });
       setFileName(template === "hafte" ? (bkPart === "hafte" ? `talkamratshafte-a6-2-20${showProducts ? "" : "-tom"}` : "talkamratshafte-vikinstruktion") : template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") : `upp-till-${tkRange}`}${tkColorsEff ? "-farg" : ""}${showProducts ? "" : "-tom"}${tkCountEff > 1 ? `-${tkCountEff}-per-a4` : ""}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
@@ -205,7 +206,7 @@ function MallarPage() {
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
         <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Förhandsgranskning av PDF</h2><Button type="button" variant="ghost" onClick={closePreview}>Stäng</Button></div>
-        <iframe title="PDF-förhandsgranskning" src={`${preview.url}#view=Fit`} className="min-h-0 flex-1 rounded-md border border-input" />
+        <PdfPagesPreview images={preview.images} />
         <div className="flex flex-wrap items-end gap-2"><label className="flex-1 text-sm font-medium">Filnamn<input className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5" value={fileName} onChange={e => setFileName(e.target.value)} /></label><span className="pb-2 text-sm text-muted-foreground">.pdf</span>
           <Button type="button" variant="outline" onClick={closePreview}>Avbryt</Button><Button type="button" onClick={savePdf}><FileDown /> Ladda ner</Button></div>
       </div>
