@@ -58,7 +58,7 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
   expect(tasks.some((t) => t.decs[0] !== t.decs[1])).toBe(true);
 });
 
-test("slumpa: termerna behåller sitt sifferantal och kommatecknen ligger under varandra", () => {
+it("slumpa: termerna behåller sitt sifferantal och kommatecknen ligger under varandra", () => {
   const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 3, regroup: true, count: 50 });
   for (const t of tasks) {
     const L = addSubLayout(t);
