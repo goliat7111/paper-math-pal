@@ -40,7 +40,7 @@ function MultiplikationPage() {
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
-  const [content, setContent] = useState<PrintContent>("both");
+  const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);

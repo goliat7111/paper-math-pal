@@ -1,9 +1,9 @@
 export type PrintContent = "both" | "sheet" | "key";
 
 const OPTIONS: { value: PrintContent; label: string }[] = [
-  { value: "both", label: "Elevblad + facit" },
   { value: "sheet", label: "Bara elevblad" },
   { value: "key", label: "Bara facit" },
+  { value: "both", label: "Elevblad + facit" },
 ];
 
 export const showSheet = (c: PrintContent) => c !== "key";
