@@ -203,10 +203,10 @@ body { font-family: var(--font-sans); }
 .hundred-grid-box .hundred-grid { width: 100%; height: 100%; }
 .hundred-grid th, .hundred-grid td { font-size: calc(30cqh / var(--rows, 11)); }
 /* 1 ruta: kvadratiska celler — höjd = sidans inre bredd (210-28 = 182 mm), centrerad. */
-.hundred-grid-layout--1 .hundred-grid { height: 182mm; align-self: center; }
+.hundred-grid-layout--1 .hundred-grid-box { height: 182mm; align-self: center; }
 /* 4 rutor: rutan får höjd = kolumnbredd ((210-28-6)/2 = 88 mm) så cellerna
    blir kvadratiska i stället för utdragna; raderna centreras på sidan. */
-.hundred-grid-layout--4 .hundred-grid { height: 88mm; align-self: center; }
+.hundred-grid-layout--4 .hundred-grid-box { height: 88mm; align-self: center; }
 /* Radhöjden sätts inline per ruta (100 / antal rader) så att alla rader blir
    lika höga oavsett om rutan har 6 eller 11 rader. */
 .hundred-grid th, .hundred-grid td {
