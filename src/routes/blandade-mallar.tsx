@@ -4,9 +4,9 @@ import { ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/blandade-mallar")({
   head: () => ({
     meta: [
-      { title: "Blandade mallar – Räknebladet" },
+      { title: "Blandade övningar – Räknebladet" },
       { name: "description", content: "Bygg blandade övningar med flera räknesätt på samma A4-blad, med eller utan facit." },
-      { property: "og:title", content: "Blandade mallar – Räknebladet" },
+      { property: "og:title", content: "Blandade övningar – Räknebladet" },
       { property: "og:description", content: "Bygg blandade övningar med flera räknesätt på samma A4-blad." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -20,7 +20,7 @@ function BlandadeMallarPage() {
     <div className="min-h-screen bg-background">
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-6 py-4">
-          <h1 className="font-display text-2xl font-semibold text-foreground">Blandade mallar</h1>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Blandade övningar</h1>
           <p className="text-sm text-muted-foreground">Arbetsblad & diagnoser i matematik · A4</p>
         </div>
       </header>

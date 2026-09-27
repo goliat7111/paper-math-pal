@@ -82,7 +82,7 @@ function StartPage() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Grid2X2 className="h-5 w-5" />
                 </span>
-                <h3 className="font-display text-xl font-semibold text-foreground">100-rutan</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">Mallar</h3>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
@@ -91,7 +91,7 @@ function StartPage() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Shuffle className="h-5 w-5" />
                 </span>
-                <h3 className="font-display text-xl font-semibold text-foreground">Blandade mallar</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">Blandade övningar</h3>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
