@@ -28,8 +28,8 @@ function SumGrid({ range, showSums }: { range: SumRange; count: GridCount; showS
 export function SheetSumGrid({ range, count, showSums }: { range: SumRange; count: GridCount; showSums: boolean }) {
   const n = sizeFor(range);
   return (
-    <div className="a4-page hundred-grid-page flex flex-col">
-      <SheetHeader title={`Additionsrutan 2–${range}`} subtitle="Addition" score={`av ${count * n * n}`} />
+    <div className={`a4-page hundred-grid-page flex flex-col ${count === 8 ? "hundred-grid-page--8" : ""}`}>
+      <SheetHeader title={`Additionsrutan 2–${range}`} subtitle="Addition" score={`av ${count * n * n}`} compact={count === 8} />
       <div className={`hundred-grid-layout hundred-grid-layout--${count}`}>
         {Array.from({ length: count }, (_, i) => <SumGrid key={i} range={range} count={count} showSums={showSums} />)}
       </div>
