@@ -24,7 +24,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [fileName, setFileName] = useState("");
   const previewUrl = useRef<string | null>(null);
 
-  const minDigits = dec === "slumpa" ? 1 : dec + 1;
+  const minDigits = Math.max(2, dec === "slumpa" ? 2 : dec + 1);
   useEffect(() => {
     const l = Math.max(lo, minDigits), h = Math.max(hi, l);
     if (l !== lo) setLo(l);
@@ -77,8 +77,8 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.</p>}
         </fieldset>
         <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec !== 0 ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
-          <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[1, 2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
-          <label className="text-sm">Till<select aria-label="Siffror till" className={sel} value={hi} onChange={e => { const v = Number(e.target.value); setHi(v); if (v < lo) setLo(v); }}>{[1, 2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
+          <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
+          <label className="text-sm">Till<select aria-label="Siffror till" className={sel} value={hi} onChange={e => { const v = Number(e.target.value); setHi(v); if (v < lo) setLo(v); }}>{[2, 3, 4, 5].filter(n => n >= minDigits).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
         </div></fieldset>
         {op === "add" && <fieldset><legend className="mb-2 text-sm font-medium">Antal termer</legend><div className="flex gap-2">
           {[2, 3].map(n => <button key={n} type="button" className={btn(terms === n)} onClick={() => setTerms(n)}>{n} tal</button>)}
