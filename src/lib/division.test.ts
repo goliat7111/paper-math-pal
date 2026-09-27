@@ -83,7 +83,7 @@ describe("Division med decimaltal", () => {
   });
   it("Slumpa ger 0–3 decimaler per uppgift och alla går jämnt ut", () => {
     for (const extra of [0, 1, 2]) {
-      const tasks = genDivision(2, 9, 1, 60, false, -1, extra);
+      const tasks = genDivision(2, 9, 1, 40, false, -1, extra);
       const decs = new Set(tasks.map(t => t.dividendDecimals ?? 0));
       expect(decs.size).toBeGreaterThan(1);
       for (const t of tasks) {
