@@ -68,8 +68,11 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
           <tr key={r} style={{ height: rowH }}>{cols.map(c => {
             const p = c.pairs[r];
             if (!p) return <td key={c.sum} className="is-empty" />;
+            const label = `${p[0]}+${p[1]}`;
+            // Bredaste additionen ("10+10") får en aning mindre storlek så den inte nuddar kanten.
+            const wide = range === "20" && label.length > 4;
             const st = colors ? strategyFor(p[0], p[1]) : null;
-            return <td key={c.sum} className={st ? `tk-${st}` : undefined}>{showPairs ? `${p[0]}+${p[1]}` : null}</td>;
+            return <td key={c.sum} className={st ? `tk-${st}` : undefined} style={wide ? ({ "--fs": 0.76 } as CSSProperties) : undefined}>{label}</td>;
           })}</tr>
         ))}</tbody>
       </table>
