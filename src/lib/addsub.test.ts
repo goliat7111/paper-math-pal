@@ -25,7 +25,9 @@ describe("subtraktion: alltid positiv differens", () => {
             op: "sub", digits: [...digits], dec, terms: 2, regroup, count: 40,
           });
           for (const t of tasks) {
-            expect(t.terms[0]!).toBeGreaterThan(t.terms[1]!);
+            // jämför på verkligt värde (skalat till gemensam decimalantal)
+            const s = scaledTerms(t);
+            expect(s[0]!).toBeGreaterThan(s[1]!);
             expect(addSubResult(t)).toBeGreaterThan(0);
           }
         }
