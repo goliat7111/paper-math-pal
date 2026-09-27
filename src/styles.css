@@ -192,7 +192,11 @@ body { font-family: var(--font-sans); }
   font-variant-numeric: tabular-nums;
   break-inside: avoid;
   page-break-inside: avoid;
+  /* Siffrorna skalas mot cellhöjden: container-type gör att cqh-enheter nedan
+     utgår från rutans höjd, och --rows (sätts inline per ruta) ger radantalet. */
+  container-type: size;
 }
+.hundred-grid th, .hundred-grid td { font-size: calc(38cqh / var(--rows, 11)); }
 /* 1 ruta: kvadratiska celler — höjd = sidans inre bredd (210-28 = 182 mm), centrerad. */
 .hundred-grid-layout--1 .hundred-grid { font-size: 20px; height: 182mm; align-self: center; }
 .hundred-grid-layout--2 .hundred-grid { font-size: 20px; }
