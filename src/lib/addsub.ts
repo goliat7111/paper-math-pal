@@ -100,7 +100,7 @@ export type AddSubLayout = {
 export function addSubLayout(t: AddSubTask): AddSubLayout {
   const res = addSubResult(t);
   const w = Math.max(...t.terms.map((v) => String(v).length), String(res).length, t.dec + 1);
-  const nCols = w + (t.op === "add" ? 1 : 0);
+  const nCols = w;
   const align = (v: number) => {
     const s = String(v).padStart(t.dec + 1, "0");
     return Array(nCols - s.length).fill("").concat(s.split(""));
