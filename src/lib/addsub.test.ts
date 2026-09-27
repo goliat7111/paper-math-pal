@@ -44,8 +44,8 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
     t.decs.forEach((d, i) => {
       expect(d).toBeGreaterThanOrEqual(0);
       expect(d).toBeLessThanOrEqual(3);
-      // termens sifferantal (oskalt) håller sig inom intervallet och rymmer decimalerna
-      const len = String(t.terms[i]!).length - (Math.max(...t.decs) - d);
+      // termens sifferantal (oskalt, inkl. ev. inledande nolla som 0,54) rymmer decimalerna
+      const len = Math.max(String(t.terms[i]!).length - (Math.max(...t.decs) - d), d + 1);
       expect(len).toBeGreaterThanOrEqual(2);
       expect(len).toBeLessThanOrEqual(4);
       expect(len).toBeGreaterThan(d);
