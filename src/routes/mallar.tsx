@@ -98,7 +98,8 @@ function MallarPage() {
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Mall</legend>
           <div className="flex flex-wrap gap-2">
-            {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
+            {TEMPLATES.filter(t => t.id !== "hafte").map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
+            {template === "talkamrater" || template === "hafte" ? <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === "hafte" ? "default" : "outline"} aria-pressed={template === "hafte"} onClick={() => setTemplate("hafte")}>Talkamratshäfte A6</Button> : null}
           </div>
         </fieldset>
         {template === "hafte" ? <fieldset>
