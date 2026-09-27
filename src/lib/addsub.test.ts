@@ -16,6 +16,22 @@ describe("genAddSub", () => {
         });
 });
 
+describe("subtraktion: alltid positiv differens", () => {
+  it("ingen genererad subtraktion ger negativ eller noll differens", () => {
+    for (const regroup of [true, false])
+      for (const dec of [0, 1, 2, "slumpa" as const])
+        for (const digits of [[2, 2], [2, 5], [4, 4]] as const) {
+          const tasks = genAddSub({
+            op: "sub", digits: [...digits], dec, terms: 2, regroup, count: 40,
+          });
+          for (const t of tasks) {
+            expect(t.terms[0]!).toBeGreaterThan(t.terms[1]!);
+            expect(addSubResult(t)).toBeGreaterThan(0);
+          }
+        }
+  });
+});
+
 describe("växling i subtraktion", () => {
   it("400 − 7 visar bara snedstreck och små 10:or", () => {
     const L = addSubLayout({ op: "sub", terms: [400, 7], decs: [0, 0] });
