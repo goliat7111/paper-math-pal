@@ -7,7 +7,7 @@ const SIGN = { add: "+", sub: "−" } as const;
 export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean }) {
   const L = addSubLayout(t);
   const totalCols = L.nCols + 3;
-  const totalRows = L.rows.length + 3;
+  const totalRows = L.rows.length + 4;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
     <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
       {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="division-comma">,</span>}
