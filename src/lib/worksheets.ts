@@ -220,7 +220,9 @@ export function evenRowGap(
 
 /** Snabba tal: `sheets` olika övningar (4 per A4), var och en med `perSheet`
  *  slumpade multiplikationer. Båda faktorerna dras ur samma talområde,
- *  precis som i Excel-mallen ("Slumptal mellan"). */
+ *  precis som i Excel-mallen ("Slumptal mellan"). Inom en övning förekommer
+ *  samma multiplikation (oavsett faktorordning) bara en gång, så länge det
+ *  finns tillräckligt många unika kombinationer i talområdet. */
 export function genSnabba(
   range: [number, number],
   perSheet = 10,
@@ -228,7 +230,19 @@ export function genSnabba(
 ): MulTask[][] {
   const lo = Math.min(...range);
   const hi = Math.max(...range);
-  return Array.from({ length: sheets }, () =>
-    Array.from({ length: perSheet }, () => ({ a: rand(lo, hi), b: rand(lo, hi) })),
-  );
+  // Alla unika kombinationer; a·b och b·a räknas som samma multiplikation
+  const unique: MulTask[] = [];
+  for (let a = lo; a <= hi; a++)
+    for (let b = a; b <= hi; b++) unique.push({ a, b });
+  return Array.from({ length: sheets }, () => {
+    // Blanda och ta unika först; fyll ut med slumpade dubbletter vid behov
+    const pool = [...unique];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    }
+    const tasks = pool.slice(0, perSheet);
+    while (tasks.length < perSheet) tasks.push({ a: rand(lo, hi), b: rand(lo, hi) });
+    return tasks;
+  });
 }

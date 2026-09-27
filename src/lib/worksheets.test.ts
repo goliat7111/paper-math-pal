@@ -483,3 +483,35 @@ describe("genSnabba", () => {
     expect(new Set(keys).size).toBeGreaterThan(1);
   });
 });
+
+describe("genSnabba – unika multiplikationer", () => {
+  const key = (t: { a: number; b: number }) => [Math.min(t.a, t.b), Math.max(t.a, t.b)].join("x");
+
+  it("inga dubbletter inom en övning när området räcker (2–9, 3–6, 1–12)", () => {
+    for (const range of [[2, 9], [3, 6], [1, 12]] as [number, number][]) {
+      for (const s of genSnabba(range)) {
+        const keys = s.map(key);
+        expect(new Set(keys).size).toBe(keys.length);
+      }
+    }
+  });
+
+  it("dubbletter tillåts bara när unika inte räcker (t.ex. 3–3)", () => {
+    for (const s of genSnabba([3, 3])) {
+      expect(s).toHaveLength(10);
+      for (const t of s) {
+        expect(t.a).toBe(3);
+        expect(t.b).toBe(3);
+      }
+    }
+  });
+
+  it("litet område: första talen är unika, resten fylls ut", () => {
+    // 4–5 ger 3 unika (4·4, 4·5, 5·5) – övningen får ändå 10 tal
+    for (const s of genSnabba([4, 5])) {
+      expect(s).toHaveLength(10);
+      const keys = s.map(key);
+      expect(new Set(keys).size).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
