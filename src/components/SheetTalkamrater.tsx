@@ -82,9 +82,18 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
       <div className={wide ? "talkamrat-layout talkamrat-layout--landscape" : "talkamrat-layout"}>
-        {parts.map(p => (
+        {range === "custom" ? (
+          <div className="talkamrat-grid-4">
+            {[0, 1, 2, 3].map(i => (
+              <section key={i} className="talkamrat-section">
+                <h3 className="talkamrat-title">{`${sorted.join(", ")}-kamrater — alla kombinationer`}</h3>
+                <Table range="custom" colors={false} showPairs={showPairs} sums={sorted} />
+              </section>
+            ))}
+          </div>
+        ) : parts.map(p => (
           <section key={p} className="talkamrat-section">
-            <h3 className="talkamrat-title">{p === "custom" ? `${sorted.join(", ")}-kamrater — alla kombinationer` : `Talkamrater – upp till ${p}`}</h3>
+            <h3 className="talkamrat-title">{`Talkamrater – upp till ${p}`}</h3>
             <Table range={p} colors={useColors} showPairs={showPairs} sums={sorted} />
           </section>
         ))}
