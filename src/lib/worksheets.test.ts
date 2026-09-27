@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { digitValue, evenRowGap, fitGridCount, gen102, genSetup, setupLayout, setupValue } from "./worksheets";
+import { digitValue, evenRowGap, fitGridCount, gen102, genSetup, genSnabba, setupLayout, setupValue } from "./worksheets";
 
 const count = <T,>(items: T[]) => {
   const m = new Map<T, number>();
@@ -445,5 +445,41 @@ describe("sidfyllnad (fitGridCount / evenRowGap)", () => {
     expect(evenRowGap(227, 1, 29, 12)).toBe(12);
     // Knapp ryms: aldrig mindre än grundmellanrummet
     expect(evenRowGap(150, 5, 29, 12)).toBe(12);
+  });
+});
+
+describe("genSnabba", () => {
+  it("ger 4 övningar à 10 tal som standard", () => {
+    const sheets = genSnabba([3, 6]);
+    expect(sheets).toHaveLength(4);
+    for (const s of sheets) expect(s).toHaveLength(10);
+  });
+
+  it("alla faktorer ligger inom talområdet", () => {
+    for (const [lo, hi] of [[3, 6], [1, 9], [2, 12], [10, 99]] as const) {
+      const sheets = genSnabba([lo, hi]);
+      for (const s of sheets)
+        for (const t of s) {
+          expect(t.a).toBeGreaterThanOrEqual(lo);
+          expect(t.a).toBeLessThanOrEqual(hi);
+          expect(t.b).toBeGreaterThanOrEqual(lo);
+          expect(t.b).toBeLessThanOrEqual(hi);
+        }
+    }
+  });
+
+  it("tolererar omkastat intervall", () => {
+    const sheets = genSnabba([9, 2]);
+    for (const s of sheets)
+      for (const t of s) {
+        expect(t.a).toBeGreaterThanOrEqual(2);
+        expect(t.a).toBeLessThanOrEqual(9);
+      }
+  });
+
+  it("övningarna skiljer sig åt (olika slumpade varianter)", () => {
+    const sheets = genSnabba([2, 9]);
+    const keys = sheets.map((s) => s.map((t) => `${t.a}x${t.b}`).join(","));
+    expect(new Set(keys).size).toBeGreaterThan(1);
   });
 });
