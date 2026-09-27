@@ -32,6 +32,7 @@ function MallarPage() {
   const [showProducts, setShowProducts] = useState(true);
   const [tkRange, setTkRange] = useState<TalkamratRange>("10");
   const [tkColors, setTkColors] = useState(true);
+  const [tkLayout, setTkLayout] = useState<"staplade" | "liggande">("staplade");
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
@@ -45,16 +46,17 @@ function MallarPage() {
     setPreview(null);
   };
   const createPdf = async () => {
+    const landscape = template === "talkamrater" && tkRange === "both" && tkLayout === "liggande";
     setError(""); setExporting(true);
     try {
       const { buildSheetsPdf } = await import("@/lib/exportPdf");
-      const result = await buildSheetsPdf("portrait");
+      const result = await buildSheetsPdf(landscape ? "landscape" : "portrait");
       if (!result) throw new Error("Inget blad hittades.");
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
+      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -67,6 +69,7 @@ function MallarPage() {
   };
 
   return <div className="min-h-screen bg-background">
+    {template === "talkamrater" && tkRange === "both" && tkLayout === "liggande" && <style media="print">{"@page { size: A4 landscape; margin: 0; }"}</style>}
     <header className="no-print border-b border-border bg-card">
       <div className="mx-auto max-w-6xl px-6 py-4">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Till startsidan</Link>
@@ -97,6 +100,15 @@ function MallarPage() {
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!tkColors ? "default" : "outline"} aria-pressed={!tkColors} onClick={() => setTkColors(false)}>Utan färg</Button>
           </div>
         </fieldset>
+        {tkRange === "both" && (
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Layout</legend>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkLayout === "staplade" ? "default" : "outline"} aria-pressed={tkLayout === "staplade"} onClick={() => setTkLayout("staplade")}>Staplade</Button>
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkLayout === "liggande" ? "default" : "outline"} aria-pressed={tkLayout === "liggande"} onClick={() => setTkLayout("liggande")}>Liggande (2 per sida)</Button>
+          </div>
+        </fieldset>
+        )}
         </> : <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="flex flex-wrap gap-2">
@@ -111,7 +123,7 @@ function MallarPage() {
           </div>
         </fieldset>
         <p className="text-sm text-muted-foreground">{template === "talkamrater"
-          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · A4 stående · 1 sida`
+          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
           : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
@@ -122,7 +134,7 @@ function MallarPage() {
         </div>
       </aside>
 <main className="print-area flex flex-1 flex-col items-center gap-8">{template === "talkamrater"
-        ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} />
+        ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} landscape={tkRange === "both" && tkLayout === "liggande"} />
         : template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
         : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} count={count} showSums={showProducts} />}</main>
