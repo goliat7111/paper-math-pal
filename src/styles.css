@@ -247,7 +247,9 @@ body { font-family: var(--font-sans); }
 .talkamrat-grid td.is-empty { border: 0; background: transparent; }
 .talkamrat-grid-4 { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5mm; }
 .talkamrat-box--custom .hundred-grid { max-width: 60mm; margin-inline: auto; }
-.talkamrat-grid th { border-color: var(--sheet-line-strong); }
+/* Summan (kolumnrubriken) är större än celltalen och skalar inte med --fs
+   (som krymper "Upp till 20"-cellerna) — rubriken innehåller bara 1–2 siffror. */
+.talkamrat-grid th { border-color: var(--sheet-line-strong); font-size: calc(58cqh / var(--rows, 11) * var(--fsh, 1)); }
 .tk-ett { background-color: var(--tk-ett); }
 .tk-tva { background-color: var(--tk-tva); }
 .tk-tre { background-color: var(--tk-tre); }
