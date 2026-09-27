@@ -37,9 +37,10 @@ const operations = [
   },
   {
     title: "Division",
-    description: "Diagnoser och uppställningar i division.",
+    description: "Kort division med uppställning eller tomma rutor för egen lösning.",
+    to: "/division",
     icon: Divide,
-    ready: false,
+    ready: true,
   },
 ] as const;
 
@@ -97,10 +98,10 @@ function StartPage() {
                 <p className="mt-3 text-sm text-muted-foreground">{op.description}</p>
                 <ul className="mt-4 space-y-1.5 text-sm text-foreground">
                   <li className="flex items-center gap-2">
-                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> 102 tal (6 min) – multiplikationsdiagnos
+                    <ListOrdered className="h-4 w-4 text-muted-foreground" /> {op.to === "/division" ? "8 uppgifter per A4-sida" : "102 tal (6 min) – multiplikationsdiagnos"}
                   </li>
                   <li className="flex items-center gap-2">
-                    <Grid3X3 className="h-4 w-4 text-muted-foreground" /> Uppställning med minnessiffror
+                    <Grid3X3 className="h-4 w-4 text-muted-foreground" /> {op.to === "/division" ? "Egen uppställning och separat facit" : "Uppställning med minnessiffror"}
                   </li>
                 </ul>
               </Link>

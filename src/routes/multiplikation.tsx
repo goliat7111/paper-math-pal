@@ -4,6 +4,7 @@ import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
 import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
+import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
@@ -23,6 +24,7 @@ type Tab = "102" | "setup";
 
 function MultiplikationPage() {
   const [tab, setTab] = useState<Tab>("102");
+  const [ownSetup, setOwnSetup] = useState(false);
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
@@ -64,7 +66,7 @@ function MultiplikationPage() {
     if (tab === "102") return `multiplikation-102-tal-${f1[0]}-${f1[1]}x${f2[0]}-${f2[1]}-${d}`;
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
-    return `multiplikation-uppstallning-${top}x${bot}-siffror-${d}`;
+    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror-${d}`;
   };
 
   const downloadPdf = async () => {
@@ -136,6 +138,18 @@ function MultiplikationPage() {
               <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
               <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={Math.max(...sd)} />
               <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet, och gränserna korrigeras automatiskt.</p>
+              <fieldset className="space-y-2">
+                <legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="radio" name="setup-style" checked={!ownSetup} onChange={() => { setOwnSetup(false); setFitInfo(null); }} />
+                  Med uppställning
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="radio" name="setup-style" checked={ownSetup} onChange={() => { setOwnSetup(true); setFitInfo(null); }} />
+                  Egen uppställning i tom ruta
+                </label>
+                {ownSetup && <p className="text-sm text-muted-foreground">Åtta uppgifter per blad med gott om skrivutrymme. Facit visar uppställningarna.</p>}
+              </fieldset>
             </>
           )}
           <label className="flex items-center gap-2 text-sm text-foreground">
@@ -171,12 +185,18 @@ function MultiplikationPage() {
               {withKey && <Sheet102 tasks={t102} answers />}
             </>
           )}
-          {tab === "setup" && tSetup && (
+          {tab === "setup" && tSetup && !ownSetup && (
             <>
               <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
               {withKey && (
                 <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
               )}
+            </>
+          )}
+          {tab === "setup" && tSetup && ownSetup && (
+            <>
+              <SheetOwnSetup tasks={tSetup} answers={false} onFit={applyFit} />
+              {withKey && <SheetOwnSetup tasks={tSetup} answers />}
             </>
           )}
         </main>

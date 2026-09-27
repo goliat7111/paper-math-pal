@@ -122,7 +122,7 @@ export function SheetSetup({
   );
 }
 
-function Problem({
+export function Problem({
   n,
   t,
   answers,
