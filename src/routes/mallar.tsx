@@ -109,7 +109,7 @@ function MallarPage() {
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Välj tal</legend>
           <select
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+            className="h-9 w-auto rounded-md border border-input bg-background px-2 text-sm text-foreground"
             value={tkSums[0]}
             aria-label="Välj tal för talkamrater"
             onChange={e => selectSum(Number(e.target.value))}
