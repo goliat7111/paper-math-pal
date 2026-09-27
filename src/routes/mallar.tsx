@@ -72,15 +72,21 @@ function MallarPage() {
     </header>
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
       <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
-        <h2 className="font-display text-lg font-semibold text-foreground">100-rutan</h2>
-       <fieldset>
+        <h2 className="font-display text-lg font-semibold text-foreground">{TEMPLATES.find(t => t.id === template)?.label}</h2>
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Mall</legend>
+          <div className="flex flex-wrap gap-2">
+            {TEMPLATES.map(t => <Button key={t.id} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={template === t.id ? "default" : "outline"} aria-pressed={template === t.id} onClick={() => setTemplate(t.id)}>{t.label}</Button>)}
+          </div>
+        </fieldset>
+       {template === "hundred" && <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Antal rutor per A4</legend>
           <div className="flex flex-wrap gap-2">
             {([2, 4, 6, 8] as const).map(n => <Button key={n} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={count === n ? "default" : "outline"} aria-pressed={count === n} aria-label={`${n} rutor per A4`} onClick={() => setCount(n)}>{n} st</Button>)}
           </div>
-        </fieldset>
+        </fieldset>}
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-foreground">Produkter i rutorna</legend>
+          <legend className="mb-2 text-sm font-medium text-foreground">{template === "hundred" ? "Produkter i rutorna" : "Summor i rutan"}</legend>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={showProducts ? "default" : "outline"} aria-pressed={showProducts} onClick={() => setShowProducts(true)}>Visa</Button>
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
