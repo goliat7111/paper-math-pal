@@ -17,9 +17,9 @@ describe("genAddSub", () => {
 });
 
 describe("växling i subtraktion", () => {
-  it("400 − 7 markerar 3, 9 och 10", () => {
+  it("400 − 7 visar bara snedstreck och små 10:or", () => {
     const L = addSubLayout({ op: "sub", terms: [400, 7], decs: [0, 0] });
-    expect(L.marks).toEqual(["3", "9", "10"]);
+    expect(L.marks).toEqual(["", "10", "10"]);
     expect(L.struck).toEqual([true, true, false]);
     expect(L.result).toEqual(["3", "9", "3"]);
   });
