@@ -20,8 +20,8 @@ function HundredGrid({ showProducts }: { showProducts: boolean }) {
 
 export function SheetHundredGrid({ count, showProducts }: { count: GridCount; showProducts: boolean }) {
   return (
-    <div className="a4-page hundred-grid-page flex flex-col">
-      <SheetHeader title="100-rutan" subtitle="Multiplikation" score={`av ${count * 100}`} />
+    <div className={`a4-page hundred-grid-page flex flex-col ${count === 8 ? "hundred-grid-page--8" : ""}`}>
+      <SheetHeader title="100-rutan" subtitle="Multiplikation" score={`av ${count * 100}`} compact={count === 8} />
       <div className={`hundred-grid-layout hundred-grid-layout--${count}`}>
         {Array.from({ length: count }, (_, i) => <HundredGrid key={i} showProducts={showProducts} />)}
       </div>
