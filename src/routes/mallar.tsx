@@ -92,14 +92,18 @@ function MallarPage() {
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={!showProducts ? "default" : "outline"} aria-pressed={!showProducts} onClick={() => setShowProducts(false)}>Dölj</Button>
           </div>
         </fieldset>
-        <p className="text-sm text-muted-foreground">{count} {showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida</p>
+        <p className="text-sm text-muted-foreground">{template === "hundred"
+          ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
+          : `En ${showProducts ? "ifylld" : "tom"} ruta med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           <Button type="button" variant="outline" className="w-full" onClick={createPdf} disabled={exporting}><FileDown />{exporting ? "Skapar PDF…" : "Förhandsgranska & ladda ner PDF"}</Button>
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-       <main className="print-area flex flex-1 flex-col items-center gap-8"><SheetHundredGrid count={count} showProducts={showProducts} /></main>
+<main className="print-area flex flex-1 flex-col items-center gap-8">{template === "hundred"
+        ? <SheetHundredGrid count={count} showProducts={showProducts} />
+        : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} showSums={showProducts} />}</main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
