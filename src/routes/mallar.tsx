@@ -11,7 +11,7 @@ import { SheetTalkamrater, type TalkamratRange } from "@/components/SheetTalkamr
 
 type Template = "hundred" | "sum10" | "sum20" | "talkamrater" | "hafte";
 const TEMPLATES: { id: Template; label: string }[] = [
-  { id: "hundred", label: "100-rutan" },
+  { id: "hundred", label: "100-rutan (mult.)" },
   { id: "sum10", label: "Lilla plus" },
   { id: "sum20", label: "Stora plus" },
   { id: "talkamrater", label: "Talkamrater" },
@@ -86,7 +86,7 @@ function MallarPage() {
       <div className="mx-auto max-w-6xl px-6 py-4">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Till startsidan</Link>
         <h1 className="font-display text-2xl font-semibold text-foreground">Utskrivbara mallar</h1>
-        <p className="text-sm text-muted-foreground">100-rutan · Additionsrutor · Talkamrater</p>
+        <p className="text-sm text-muted-foreground">100-rutan (mult.) · Additionsrutor · Talkamrater</p>
       </div>
     </header>
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
