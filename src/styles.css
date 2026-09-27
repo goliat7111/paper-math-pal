@@ -193,7 +193,9 @@ body { font-family: var(--font-sans); }
   page-break-inside: avoid;
 }
 .hundred-grid-layout--2 .hundred-grid { font-size: 20px; }
-.hundred-grid-layout--4 .hundred-grid { font-size: 12px; }
+/* 4 rutor: rutan får höjd = kolumnbredd ((210-28-6)/2 = 88 mm) så cellerna
+   blir kvadratiska i stället för utdragna; raderna centreras på sidan. */
+.hundred-grid-layout--4 .hundred-grid { font-size: 12px; height: 88mm; align-self: center; }
 .hundred-grid-layout--6 .hundred-grid { font-size: 11px; }
 .hundred-grid tr, .hundred-grid thead { height: 9.09%; }
 .hundred-grid th, .hundred-grid td {
