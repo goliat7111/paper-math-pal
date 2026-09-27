@@ -14,7 +14,7 @@ const Input = z.object({
 export const generateTextTasks = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<{ tasks: TextTask[] } | { error: string }> => {
-    const key = process.env.LOVABLE_API_KEY;
+    const key = process.env["LOVABLE_API_KEY"];
     if (!key) return { error: "AI-tjänsten är inte konfigurerad." };
     const lo = Math.min(data.tableMin, data.tableMax), hi = Math.max(data.tableMin, data.tableMax);
     const prompt = `Skriv ${data.count} textuppgifter (problemlösning) i matematik på svenska för elever i årskurs ${data.grade}.
