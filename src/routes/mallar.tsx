@@ -15,9 +15,9 @@ const TEMPLATES: { id: Template; label: string }[] = [
 export const Route = createFileRoute("/mallar")({
   head: () => ({ meta: [
     { title: "Utskrivbara mallar – Räknebladet" },
-    { name: "description", content: "Skriv ut ifyllda eller tomma multiplikationsrutor med 2, 4, 6 eller 8 rutor per A4-sida." },
+    { name: "description", content: "Skriv ut ifyllda eller tomma multiplikationsrutor och additionsrutor med summor 2–10 eller 2–20 på A4." },
     { property: "og:title", content: "Utskrivbara mallar – Räknebladet" },
-    { property: "og:description", content: "Skriv ut ifyllda eller tomma 100-rutor i multiplikation på A4." },
+    { property: "og:description", content: "Skriv ut ifyllda eller tomma 100-rutor i multiplikation och additionsrutor på A4." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
