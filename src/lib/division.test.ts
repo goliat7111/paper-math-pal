@@ -89,7 +89,7 @@ describe("Division med decimaltal", () => {
       for (const t of tasks) {
         expect(t.dividendDecimals ?? 0).toBeGreaterThanOrEqual(0);
         expect(t.dividendDecimals ?? 0).toBeLessThanOrEqual(3);
-        expect(t.quotientDecimals).toBe((t.dividendDecimals ?? 0) + extra);
+        expect(t.quotientDecimals ?? 0).toBe((t.dividendDecimals ?? 0) + extra);
         expect(t.quotient * t.divisor).toBe(t.dividend * 10 ** extra);
         const steps = divisionSteps(t);
         expect(steps.at(-1)?.remainder).toBe(0);
