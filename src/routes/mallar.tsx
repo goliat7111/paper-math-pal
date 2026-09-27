@@ -32,12 +32,21 @@ function MallarPage() {
   const [showProducts, setShowProducts] = useState(true);
   const [tkRange, setTkRange] = useState<TalkamratRange>("10");
   const [tkColors, setTkColors] = useState(true);
+  const [tkSums, setTkSums] = useState<number[]>([8, 13]);
+  const toggleSum = (n: number) => setTkSums(v => v.includes(n) ? (v.length > 1 ? v.filter(x => x !== n) : v) : [...v, n]);
   const [tkLayout, setTkLayout] = useState<"staplade" | "liggande">("staplade");
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
   const [fileName, setFileName] = useState("100-rutan-4-per-a4");
   const previewUrl = useRef<string | null>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const [fit, setFit] = useState(1);
+  useEffect(() => {
+    const el = mainRef.current; if (!el) return;
+    const ro = new ResizeObserver(() => setFit(Math.min(1, el.clientWidth / (297 * 96 / 25.4))));
+    ro.observe(el); return () => ro.disconnect();
+  }, []);
 
   useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }, []);
   const closePreview = () => {
@@ -56,7 +65,7 @@ function MallarPage() {
       const url = URL.createObjectURL(result.blob);
       previewUrl.current = url;
       setPreview({ url, blob: result.blob });
-      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
+      setFileName(template === "talkamrater" ? `talkamrater-${tkRange === "both" ? "10-och-20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join("-") + "-kamrater" : `upp-till-${tkRange}`}${tkColors ? "-farg" : ""}${showProducts ? "" : "-tom"}${landscape ? "-liggande" : ""}` : template === "hundred" ? `100-rutan-${count}-per-a4` : `additionsrutan-2-${template === "sum10" ? "10" : "20"}-${count}-per-a4`);
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller välj Skriv ut.");
     } finally { setExporting(false); }
@@ -90,9 +99,17 @@ function MallarPage() {
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Talområde</legend>
           <div className="flex flex-wrap gap-2">
-            {([["10", "Upp till 10"], ["20", "Upp till 20"], ["both", "Båda"]] as const).map(([v, l]) => <Button key={v} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkRange === v ? "default" : "outline"} aria-pressed={tkRange === v} onClick={() => setTkRange(v)}>{l}</Button>)}
+            {([["10", "Upp till 10"], ["20", "Upp till 20"], ["both", "Båda"], ["custom", "Välj tal"]] as const).map(([v, l]) => <Button key={v} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkRange === v ? "default" : "outline"} aria-pressed={tkRange === v} onClick={() => setTkRange(v)}>{l}</Button>)}
           </div>
         </fieldset>
+        {tkRange === "custom" && (
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-foreground">Vilka kamrater? (välj ett eller flera)</legend>
+          <div className="flex flex-wrap gap-1.5">
+            {Array.from({ length: 17 }, (_, i) => i + 2).map(n => <Button key={n} type="button" size="sm" className="h-7 w-9 px-0 text-xs font-semibold" variant={tkSums.includes(n) ? "default" : "outline"} aria-pressed={tkSums.includes(n)} aria-label={`${n}-kamrater`} onClick={() => toggleSum(n)}>{n}</Button>)}
+          </div>
+        </fieldset>
+        )}
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Färgmarkera strategier</legend>
           <div className="flex flex-wrap gap-2">
@@ -123,7 +140,7 @@ function MallarPage() {
           </div>
         </fieldset>
         <p className="text-sm text-muted-foreground">{template === "talkamrater"
-          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
+          ? `Talkamrater ${tkRange === "both" ? "upp till 10 och 20" : tkRange === "custom" ? [...tkSums].sort((a, b) => a - b).join(", ") : `upp till ${tkRange}`}${showProducts ? "" : " med tomma rutor"}${tkColors ? " · färg per strategi" : ""} · ${tkRange === "both" && tkLayout === "liggande" ? "liggande A4, en tabell per halvsida" : "stående A4"} · 1 sida`
           : template === "hundred"
           ? `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med faktorerna 1–10 · A4 stående · 1 sida`
           : `${count} ${showProducts ? "ifyllda" : "tomma"} rutor med alla summor mellan 2 och ${template === "sum10" ? "10" : "20"} · A4 stående · 1 sida`}</p>
@@ -133,8 +150,8 @@ function MallarPage() {
           <Button type="button" className="w-full" onClick={() => window.print()}><Printer />Skriv ut</Button>
         </div>
       </aside>
-<main className="print-area flex flex-1 flex-col items-center gap-8">{template === "talkamrater"
-        ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} landscape={tkRange === "both" && tkLayout === "liggande"} />
+<main ref={mainRef} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8" style={{ ["--fit" as string]: fit }}>{template === "talkamrater"
+        ? <SheetTalkamrater range={tkRange} colors={tkColors} showPairs={showProducts} landscape={tkRange === "both" && tkLayout === "liggande"} sums={tkSums} />
         : template === "hundred"
         ? <SheetHundredGrid count={count} showProducts={showProducts} />
         : <SheetSumGrid range={(template === "sum10" ? 10 : 20) as SumRange} count={count} showSums={showProducts} />}</main>
@@ -142,7 +159,7 @@ function MallarPage() {
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-lg bg-background p-4 shadow-xl">
         <div className="flex items-center justify-between"><h2 className="text-lg font-semibold">Förhandsgranskning av PDF · 1 sida</h2><Button type="button" variant="ghost" onClick={closePreview}>Stäng</Button></div>
-        <iframe title="PDF-förhandsgranskning" src={preview.url} className="min-h-0 flex-1 rounded-md border border-input" />
+        <iframe title="PDF-förhandsgranskning" src={`${preview.url}#view=Fit`} className="min-h-0 flex-1 rounded-md border border-input" />
         <div className="flex flex-wrap items-end gap-2"><label className="flex-1 text-sm font-medium">Filnamn<input className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5" value={fileName} onChange={e => setFileName(e.target.value)} /></label><span className="pb-2 text-sm text-muted-foreground">.pdf</span>
           <Button type="button" variant="outline" onClick={closePreview}>Avbryt</Button><Button type="button" onClick={savePdf}><FileDown /> Ladda ner</Button></div>
       </div>

@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { SheetHeader } from "./SheetHeader";
 
-export type TalkamratRange = "10" | "20" | "both";
+export type TalkamratRange = "10" | "20" | "both" | "custom";
 export type Strategy = "dubbel" | "tio" | "ett" | "nastan" | "tva" | "tre";
 
 export const STRATEGIES: { id: Strategy; label: string }[] = [
@@ -41,13 +41,22 @@ export function talkamratColumns(range: "10" | "20"): { sum: number; pairs: Pair
   });
 }
 
-function Table({ range, colors, showPairs }: { range: "10" | "20"; colors: boolean; showPairs: boolean }) {
-  const cols = talkamratColumns(range);
+/** Talkamrater för valda summor (2–18), termer 1–9. */
+export function customColumns(sums: number[]): { sum: number; pairs: Pair[] }[] {
+  return [...sums].sort((a, b) => a - b).map(s => {
+    const pairs: Pair[] = [];
+    for (let a = Math.min(9, s - 1); a >= Math.max(1, s - 9); a--) pairs.push([a, s - a]);
+    return { sum: s, pairs };
+  });
+}
+
+function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "custom"; colors: boolean; showPairs: boolean; sums?: number[] }) {
+  const cols = range === "custom" ? customColumns(sums) : talkamratColumns(range);
   const rows = Math.max(...cols.map(c => c.pairs.length));
   const rowH = `${100 / (rows + 1)}%`;
   return (
     <div className="hundred-grid-box" style={{ "--rows": rows + 1 } as CSSProperties}>
-      <table className="hundred-grid talkamrat-grid" aria-label={`Talkamrater upp till ${range}`}>
+      <table className="hundred-grid talkamrat-grid" aria-label={range === "custom" ? "Valda talkamrater" : `Talkamrater upp till ${range}`}>
         <thead><tr style={{ height: rowH }}>{cols.map(c => <th key={c.sum} scope="col">{c.sum}</th>)}</tr></thead>
         <tbody>{Array.from({ length: rows }, (_, r) => (
           <tr key={r} style={{ height: rowH }}>{cols.map(c => {
@@ -62,9 +71,10 @@ function Table({ range, colors, showPairs }: { range: "10" | "20"; colors: boole
   );
 }
 
-export function SheetTalkamrater({ range, colors, showPairs, landscape = false }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean }) {
-  const parts: ("10" | "20")[] = range === "both" ? ["10", "20"] : [range];
-  const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : "Addition upp till 10 och 20";
+export function SheetTalkamrater({ range, colors, showPairs, landscape = false, sums = [] }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean; sums?: number[] }) {
+  const parts: ("10" | "20" | "custom")[] = range === "both" ? ["10", "20"] : [range];
+  const sorted = [...sums].sort((a, b) => a - b);
+  const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : range === "custom" ? `${sorted.join("-, ")}-kamrater` : "Addition upp till 10 och 20";
   const wide = range === "both" && landscape;
   return (
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
@@ -72,8 +82,8 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false }
       <div className={wide ? "talkamrat-layout talkamrat-layout--landscape" : "talkamrat-layout"}>
         {parts.map(p => (
           <section key={p} className="talkamrat-section">
-            <h3 className="talkamrat-title">Talkamrater – upp till {p}</h3>
-            <Table range={p} colors={colors} showPairs={showPairs} />
+            <h3 className="talkamrat-title">{p === "custom" ? `Talkamrater – ${sorted.join(", ")}` : `Talkamrater – upp till ${p}`}</h3>
+            <Table range={p} colors={colors} showPairs={showPairs} sums={sorted} />
           </section>
         ))}
       </div>
