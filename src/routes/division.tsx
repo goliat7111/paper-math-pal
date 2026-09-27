@@ -21,7 +21,7 @@ function DivisionPage() {
   const [dec, setDec] = useState(0);
   const [extra, setExtra] = useState(1);
   const [ownSetup, setOwnSetup] = useState(true);
-  const [content, setContent] = useState<PrintContent>("both");
+  const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<DivisionTask[]>([]);
   const [dirty, setDirty] = useState(false);

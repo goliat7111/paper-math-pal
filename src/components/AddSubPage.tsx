@@ -19,7 +19,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [terms, setTerms] = useState(2);
   const [regroup, setRegroup] = useState(true);
   const [ownSetup, setOwnSetup] = useState(false);
-  const [content, setContent] = useState<PrintContent>("both");
+  const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<AddSubTask[]>([]);
   const [exporting, setExporting] = useState(false);
