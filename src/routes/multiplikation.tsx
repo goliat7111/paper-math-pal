@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
-import { gen102, genSetup, type MulTask, type SetupTask } from "@/lib/worksheets";
+import { gen102, genSetup, genSnabba, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
+import { SheetSnabba } from "@/components/SheetSnabba";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/multiplikation")({
   component: MultiplikationPage,
 });
 
-type Tab = "102" | "setup";
+type Tab = "102" | "setup" | "snabba";
 
 function MultiplikationPage() {
   const [tab, setTab] = useState<Tab>("102");
@@ -31,6 +32,8 @@ function MultiplikationPage() {
   const [sb, setSb] = useState<[number, number]>([1, 1]);
   const [t102, setT102] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
+  const [sr, setSr] = useState<[number, number]>([3, 6]);
+  const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
   const [withKey, setWithKey] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
@@ -54,9 +57,13 @@ function MultiplikationPage() {
   const SETUP_POOL = 40;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
   useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL)), [sd, sb]);
+  useEffect(() => setTSnabba(genSnabba(sr)), [sr]);
 
-  const regenerate = () =>
-    tab === "102" ? setT102(gen102(f1, f2)) : setTSetup(genSetup(sd, sb, SETUP_POOL));
+  const regenerate = () => {
+    if (tab === "102") setT102(gen102(f1, f2));
+    else if (tab === "setup") setTSetup(genSetup(sd, sb, SETUP_POOL));
+    else setTSnabba(genSnabba(sr));
+  };
 
   const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number } | null>(null);
   const [fileName, setFileName] = useState("");
@@ -64,6 +71,7 @@ function MultiplikationPage() {
   const suggestName = () => {
     const d = new Date().toISOString().slice(0, 10);
     if (tab === "102") return `multiplikation-102-tal-${f1[0]}-${f1[1]}x${f2[0]}-${f2[1]}-${d}`;
+    if (tab === "snabba") return `snabba-tal-multiplikation-${sr[0]}-${sr[1]}-${d}`;
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
     return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror-${d}`;
@@ -110,6 +118,7 @@ function MultiplikationPage() {
             {([
               ["102", "102 tal (6 min)"],
               ["setup", "Mult. uppställning"],
+              ["snabba", "Snabba tal"],
             ] as const).map(([k, label]) => (
               <button
                 key={k}
@@ -132,6 +141,11 @@ function MultiplikationPage() {
             <>
               <RangeInput label="Faktor 1 mellan" value={f1} onChange={setF1} />
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
+            </>
+          ) : tab === "snabba" ? (
+            <>
+              <RangeInput label="Faktorer mellan" value={sr} onChange={setSr} min={1} />
+              <p className="-mt-3 text-xs text-muted-foreground">Båda faktorerna slumpas ur samma talområde. 4 olika övningar per A4-sida, 10 tal i varje.</p>
             </>
           ) : (
             <>
@@ -162,7 +176,7 @@ function MultiplikationPage() {
                 ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
                 : "Förhandsgranskning: beräknar… ")}
             PDF: {withKey ? "2 sidor (blad + facit)" : "1 sida (bladet)"} ·{" "}
-            {tab === "102" ? 102 : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
+            {tab === "102" ? 102 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
           </p>
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
@@ -183,6 +197,12 @@ function MultiplikationPage() {
             <>
               <Sheet102 tasks={t102} answers={false} />
               {withKey && <Sheet102 tasks={t102} answers />}
+            </>
+          )}
+          {tab === "snabba" && tSnabba && (
+            <>
+              <SheetSnabba exercises={tSnabba} answers={false} />
+              {withKey && <SheetSnabba exercises={tSnabba} answers />}
             </>
           )}
           {tab === "setup" && tSetup && !ownSetup && (
