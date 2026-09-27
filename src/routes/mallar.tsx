@@ -123,7 +123,7 @@ function MallarPage() {
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-foreground">Layout</legend>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkLayout === "staplade" ? "default" : "outline"} aria-pressed={tkLayout === "staplade"} onClick={() => setTkLayout("staplade")}>Staplade</Button>
+            <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkLayout === "staplade" ? "default" : "outline"} aria-pressed={tkLayout === "staplade"} onClick={() => setTkLayout("staplade")}>Stående</Button>
             <Button type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tkLayout === "liggande" ? "default" : "outline"} aria-pressed={tkLayout === "liggande"} onClick={() => setTkLayout("liggande")}>Liggande (2 per sida)</Button>
           </div>
         </fieldset>
