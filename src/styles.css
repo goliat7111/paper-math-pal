@@ -266,11 +266,11 @@ body { font-family: var(--font-sans); }
 .own-setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
 .own-setup-task { min-width: 0; break-inside: avoid; page-break-inside: avoid; }
 .own-setup-expression { display: flex; align-items: baseline; gap: 3mm; height: 9mm; font-size: 20px; font-family: var(--font-mono); }
-.own-setup-number { font-size: 12px; color: var(--sheet-muted); }
+.own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .own-setup-box { height: 44mm; border: 1px solid var(--sheet-line); }
 .own-setup-key { display: flex; align-items: center; justify-content: center; }
 .own-setup-key > div > div:first-child { display: none; }
-.division-box { padding: 5mm; }
+.division-box { padding: 5mm; display: flex; align-items: center; justify-content: center; }
 .short-division { display: flex; align-items: center; justify-content: center; gap: 3mm; font-family: var(--font-mono); font-size: 20px; }
 .division-fraction { text-align: center; }
 .division-numerator { display: flex; justify-content: center; border-bottom: 2px solid var(--sheet-ink); padding: 4mm 1mm 1mm; }
@@ -296,7 +296,6 @@ body { font-family: var(--font-sans); }
 }
 .addsub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .addsub-expression { font-size: 15px; white-space: nowrap; height: 6mm; align-items: flex-end; }
-.addsub-expression .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; border: none; }
 .addsub-box--own { border: 1px solid var(--sheet-ink-strong); }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
