@@ -175,6 +175,7 @@ body { font-family: var(--font-sans); }
   row-gap: 4mm;
   padding-top: 4mm;
 }
+.hundred-grid-layout--1 { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .hundred-grid-layout--2 { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
 .hundred-grid-layout--4 { grid-template-rows: repeat(2, 1fr); }
 .hundred-grid-layout--6 { grid-template-rows: repeat(3, 1fr); }
@@ -192,6 +193,8 @@ body { font-family: var(--font-sans); }
   break-inside: avoid;
   page-break-inside: avoid;
 }
+/* 1 ruta: kvadratiska celler — höjd = sidans inre bredd (210-28 = 182 mm), centrerad. */
+.hundred-grid-layout--1 .hundred-grid { font-size: 20px; height: 182mm; align-self: center; }
 .hundred-grid-layout--2 .hundred-grid { font-size: 20px; }
 /* 4 rutor: rutan får höjd = kolumnbredd ((210-28-6)/2 = 88 mm) så cellerna
    blir kvadratiska i stället för utdragna; raderna centreras på sidan. */
