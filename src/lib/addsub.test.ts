@@ -34,3 +34,21 @@ it("addition: minnessiffror och komma", () => {
   expect(L.carries).toEqual(["1", "1", ""]);
   expect(L.comma).toBe(1);
 });
+
+test("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => {
+  const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 2, regroup: true, count: 60 });
+  expect(tasks).toHaveLength(60);
+  for (const t of tasks) {
+    expect(t.dec).toBeGreaterThanOrEqual(0);
+    expect(t.dec).toBeLessThanOrEqual(3);
+    for (const v of t.terms) {
+      const len = String(v).length;
+      expect(len).toBeGreaterThanOrEqual(2);
+      expect(len).toBeLessThanOrEqual(4);
+      expect(len).toBeGreaterThan(t.dec);
+    }
+  }
+  // med blandade sifferantal bör både heltal och decimaltal förekomma
+  expect(tasks.some((t) => t.dec === 0)).toBe(true);
+  expect(tasks.some((t) => t.dec > 0)).toBe(true);
+});
