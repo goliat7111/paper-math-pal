@@ -9,6 +9,7 @@ import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
@@ -112,37 +113,30 @@ function MultiplikationPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="no-print border-b border-border bg-card">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-4">
-          <div>
-            <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" /> Alla räknesätt
-            </Link>
-            <h1 className="font-display text-2xl font-semibold text-foreground">Multiplikation</h1>
-            <p className="text-sm text-muted-foreground">Arbetsblad & diagnoser · A4</p>
-          </div>
-          <nav className="ml-auto flex rounded-lg bg-muted p-1">
-            {([
-              ["102", "102 tal (6 min)"],
-              ["setup", "Mult. uppställning"],
-              ["snabba", "Snabba tal"],
-            ] as const).map(([k, label]) => (
-              <button
-                key={k}
-                onClick={() => setTab(k)}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  tab === k ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
+        <div className="mx-auto max-w-6xl px-6 py-4">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Alla räknesätt
+          </Link>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Multiplikation</h1>
+          <p className="text-sm text-muted-foreground">102 tal · Mult. uppställning · Snabba tal</p>
         </div>
       </header>
 
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
         <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
-          <h2 className="font-display text-lg font-semibold text-foreground">Inställningar</h2>
+          <h2 className="font-display text-lg font-semibold text-foreground">Multiplikation</h2>
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium text-foreground">Övning</legend>
+            <div className="flex flex-wrap gap-2">
+              {([
+                ["102", "102 tal (6 min)"],
+                ["setup", "Mult. uppställning"],
+                ["snabba", "Snabba tal"],
+              ] as const).map(([k, label]) => (
+                <Button key={k} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tab === k ? "default" : "outline"} aria-pressed={tab === k} onClick={() => setTab(k)}>{label}</Button>
+              ))}
+            </div>
+          </fieldset>
           {tab === "102" ? (
             <>
               <RangeInput label="Faktor 1 mellan" value={f1} onChange={setF1} />
