@@ -61,7 +61,7 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
   const rows = Math.max(...cols.map(c => c.pairs.length));
   const rowH = `${100 / (rows + 1)}%`;
   return (
-    <div className={"hundred-grid-box" + (range === "custom" ? " talkamrat-box--custom" : "")} style={{ "--rows": rows + 1, "--fs": range === "20" ? 0.62 : 1 } as CSSProperties}>
+    <div className={"hundred-grid-box" + (range === "custom" ? " talkamrat-box--custom" : "")} style={{ "--rows": rows + 1, "--fs": range === "20" ? 0.55 : 1 } as CSSProperties}>
       <table className="hundred-grid talkamrat-grid" aria-label={range === "custom" ? "Valda talkamrater" : `Talkamrater upp till ${range}`}>
         <thead><tr style={{ height: rowH }}>{cols.map(c => <th key={c.sum} scope="col">{c.sum}</th>)}</tr></thead>
         <tbody>{Array.from({ length: rows }, (_, r) => (
