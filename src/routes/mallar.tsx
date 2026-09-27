@@ -12,8 +12,8 @@ import { SheetTalkamrater, type TalkamratRange } from "@/components/SheetTalkamr
 type Template = "hundred" | "sum10" | "sum20" | "talkamrater" | "hafte";
 const TEMPLATES: { id: Template; label: string }[] = [
   { id: "hundred", label: "100-rutan" },
-  { id: "sum10", label: "Addition 2–10" },
-  { id: "sum20", label: "Addition 2–20" },
+  { id: "sum10", label: "Lilla plus" },
+  { id: "sum20", label: "Stora plus" },
   { id: "talkamrater", label: "Talkamrater" },
   { id: "hafte", label: "Talkamratshäfte A6" },
 ];
