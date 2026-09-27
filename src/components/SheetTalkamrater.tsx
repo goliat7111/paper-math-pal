@@ -77,12 +77,35 @@ function Table({ range, colors, showPairs, sums = [] }: { range: "10" | "20" | "
   );
 }
 
-export function SheetTalkamrater({ range, colors, showPairs, landscape = false, sums = [] }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean; sums?: number[] }) {
+export function SheetTalkamrater({ range, colors, showPairs, landscape = false, sums = [], count = 1 }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean; sums?: number[]; count?: 1 | 2 | 4 }) {
   const parts: ("10" | "20" | "custom")[] = range === "both" ? ["10", "20"] : [range];
   const sorted = [...sums].sort((a, b) => a - b);
   const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : range === "custom" ? `${sorted.join(", ")}-kamrater` : "Addition upp till 10 och 20";
   const wide = range === "both" && landscape;
   const useColors = range === "custom" ? false : colors;
+  const legend = useColors && (
+    <ul className="talkamrat-legend" aria-label="Förklaring av färger">
+      {STRATEGIES.map(s => <li key={s.id}><span className={`tk-swatch tk-${s.id}`} />{s.label}</li>)}
+    </ul>
+  );
+  // Flera sidor: en tabell per A4-sida (endast för enskilda talområden).
+  const pageCount = count > 1 && (range === "10" || range === "20") ? count : 1;
+  if (pageCount > 1) return (
+    <>
+      {Array.from({ length: pageCount }, (_, i) => (
+        <div key={i} className="a4-page hundred-grid-page flex flex-col">
+          <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
+          <div className="talkamrat-layout">
+            <section className="talkamrat-section">
+              <h3 className="talkamrat-title">{`Talkamrater – upp till ${range}`}</h3>
+              <Table range={range} colors={useColors} showPairs={showPairs} sums={sorted} />
+            </section>
+          </div>
+          {legend}
+        </div>
+      ))}
+    </>
+  );
   return (
     <div className={`a4-page hundred-grid-page flex flex-col${wide ? " landscape talkamrat-page--landscape" : ""}`}>
       <SheetHeader title="Talkamrater" subtitle={subtitle} score="" />
@@ -103,11 +126,7 @@ export function SheetTalkamrater({ range, colors, showPairs, landscape = false, 
           </section>
         ))}
       </div>
-      {useColors && (
-        <ul className="talkamrat-legend" aria-label="Förklaring av färger">
-          {STRATEGIES.map(s => <li key={s.id}><span className={`tk-swatch tk-${s.id}`} />{s.label}</li>)}
-        </ul>
-      )}
+      {legend}
     </div>
   );
 }
