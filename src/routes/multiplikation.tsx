@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
+import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { gen102, genSetup, genSnabba, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
@@ -36,7 +37,7 @@ function MultiplikationPage() {
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
-  const [withKey, setWithKey] = useState(true);
+  const [content, setContent] = useState<PrintContent>("both");
   const [exporting, setExporting] = useState(false);
   const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
   const applyFit = (f: SetupFit) =>
@@ -85,7 +86,7 @@ function MultiplikationPage() {
       const { buildSheetsPdf } = await import("@/lib/exportPdf");
       const r = await buildSheetsPdf("portrait");
       if (r) {
-        setFileName(suggestName());
+        setFileName(suggestName() + keySuffix(content));
         setPreview({ url: URL.createObjectURL(r.blob), blob: r.blob, pages: r.pages });
       }
     } finally {
@@ -184,16 +185,13 @@ function MultiplikationPage() {
               </fieldset>
             </>
           )}
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={withKey} onChange={(e) => setWithKey(e.target.checked)} className="h-4 w-4 accent-primary" />
-            Skriv ut med facit (extra sida)
-          </label>
+          <PrintContentChoice value={content} onChange={setContent} />
           <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
             {tab === "setup" &&
               (fitInfo
                 ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
                 : "Förhandsgranskning: beräknar… ")}
-            PDF: {withKey ? "2 sidor (blad + facit)" : "1 sida (bladet)"} ·{" "}
+            PDF: {pagesLabel(content)} ·{" "}
             {tab === "102" ? 102 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
           </p>
           <div className="space-y-2 pt-2">
@@ -213,28 +211,28 @@ function MultiplikationPage() {
         <main className="print-area flex flex-1 flex-col items-center gap-8">
           {tab === "102" && t102 && (
             <>
-              <Sheet102 tasks={t102} answers={false} />
-              {withKey && <Sheet102 tasks={t102} answers />}
+              {showSheet(content) && <Sheet102 tasks={t102} answers={false} />}
+              {showKey(content) && <Sheet102 tasks={t102} answers />}
             </>
           )}
           {tab === "snabba" && tSnabba && (
             <>
-              <SheetSnabba exercises={tSnabba} answers={false} />
-              {withKey && <SheetSnabba exercises={tSnabba} answers />}
+              {showSheet(content) && <SheetSnabba exercises={tSnabba} answers={false} />}
+              {showKey(content) && <SheetSnabba exercises={tSnabba} answers />}
             </>
           )}
           {tab === "setup" && tSetup && !ownSetup && (
             <>
-              <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />
-              {withKey && (
+              {showSheet(content) && <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />}
+              {showKey(content) && (
                 <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
               )}
             </>
           )}
           {tab === "setup" && tSetup && ownSetup && (
             <>
-              <SheetOwnSetup tasks={tSetup} answers={false} onFit={applyFit} />
-              {withKey && <SheetOwnSetup tasks={tSetup} answers />}
+              {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} onFit={applyFit} />}
+              {showKey(content) && <SheetOwnSetup tasks={tSetup} answers {...(content === "key" ? { onFit: applyFit } : {})} />}
             </>
           )}
         </main>
