@@ -75,8 +75,8 @@ export function genDivision(
       const divisor = pool[rand(0, pool.length - 1)]!;
       const scaledDividend = rand(dividendMin * 10 ** dd, dividendMax * 10 ** dd);
       if (dd > 0 && scaledDividend % 10 === 0) continue; // täljaren har exakt valda decimaler
-      const qDec = dd + extraDecimals;
-      const scaled = scaledDividend * 10 ** extraDecimals;
+      const qDec = dd + extraN;
+      const scaled = scaledDividend * 10 ** extraN;
       if (scaled % divisor !== 0) continue;
       const quotient = scaled / divisor;
       if (qDec > 0 && quotient % 10 === 0) continue; // kvoten slutar aldrig på 0
