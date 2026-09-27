@@ -57,7 +57,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     const { saveBlob } = await import("@/lib/exportPdf");
     saveBlob(preview.blob, fileName); closePreview();
   };
-  const sel = "mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm";
+  const sel = "mt-1 block w-auto rounded-md border border-input bg-background px-2 py-1.5 text-sm";
 
   return <div className="min-h-screen bg-background">
     <header className="no-print border-b border-border bg-card"><div className="mx-auto max-w-6xl px-6 py-4">
