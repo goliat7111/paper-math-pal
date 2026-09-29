@@ -48,7 +48,7 @@ export function Sheet102({
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi} className={bi === 0 ? "" : "mt-[7mm]"}>
                 {block.map((t, ti) => (
-                  <div key={ti} className={`flex h-[${rowHeight(count)}] items-end font-mono text-[15px] leading-none tabular-nums`}>
+                  <div key={ti} className="flex items-end font-mono text-[15px] leading-none tabular-nums" style={{ height: rowHeight(count) }}>
                     <span className="w-6 text-right">{t.a}</span>
                     <span className="w-5 text-center">·</span>
                     <span className="w-6 text-left">{t.b}</span>
