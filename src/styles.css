@@ -300,7 +300,7 @@ body { font-family: var(--font-sans); }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; border: none; }
 .addsub-box--own { border: 1px solid var(--sheet-ink-strong); }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
-.addsub-cell { position: relative; height: 6.5mm; display: flex; align-items: center; justify-content: center; border: 1px solid var(--sheet-grid); }
+.addsub-cell { position: relative; height: var(--addsub-cell, 6.5mm); display: flex; align-items: center; justify-content: center; border: 1px solid var(--sheet-grid); }
 .addsub-cell.addsub-small { border: 0; }
 .addsub-cell.addsub-small { height: 4.5mm; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
 .addsub-cell.is-struck { background-image: linear-gradient(to top right, transparent calc(50% - 0.55px), var(--sheet-answer) calc(50% - 0.55px), var(--sheet-answer) calc(50% + 0.55px), transparent calc(50% + 0.55px)); }
