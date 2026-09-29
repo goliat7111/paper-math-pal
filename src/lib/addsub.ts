@@ -12,8 +12,8 @@ export type AddSubOptions = {
   op: AddSubOp;
   /** Antal siffror per term (inklusive decimaler), 1–5. */
   digits: [number, number];
-  /** Antal decimaler, 0–3, eller "slumpa" (slumpas per term utifrån termens sifferantal). */
-  dec: number | "slumpa";
+  /** Antal decimaler, 0–3, "slumpa" (0–3 per term utifrån sifferantalet) eller "slumpa-decimaler" (1–3 per term). */
+  dec: number | "slumpa" | "slumpa-decimaler";
   /** Antal termer (addition 2–3, subtraktion alltid 2). */
   terms: number;
   regroup: boolean;
@@ -123,7 +123,9 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
       const lens = Array.from({ length: nTerms }, () => rand(lo, hi));
       // Varje term får sitt eget decimalantal, aldrig fler än sifferantalet tillåter.
       const decs = lens.map((k) =>
-        o.dec === "slumpa" ? rand(0, Math.min(3, k - 1)) : Math.min(o.dec, k - 1),
+        o.dec === "slumpa" ? rand(0, Math.min(3, k - 1))
+          : o.dec === "slumpa-decimaler" ? rand(1, Math.min(3, k - 1))
+          : Math.min(o.dec, k - 1),
       );
       const m = Math.max(...decs);
       // Termerna lagras alltid med sitt eget sifferantal (aldrig uppskalade).
