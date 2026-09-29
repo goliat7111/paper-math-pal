@@ -266,6 +266,7 @@ body { font-family: var(--font-sans); }
 .own-setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6mm; }
 .own-setup-task { min-width: 0; break-inside: avoid; page-break-inside: avoid; }
 .own-setup-expression { display: flex; align-items: baseline; gap: 3mm; height: 9mm; font-size: 20px; font-family: var(--font-mono); }
+.division-note { font-size: 12px; font-family: var(--font-sans); color: #555; }
 .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .own-setup-box { height: 44mm; border: 1px solid var(--sheet-line); }
 .own-setup-key { display: flex; align-items: center; justify-content: center; }

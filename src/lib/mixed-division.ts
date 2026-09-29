@@ -137,3 +137,19 @@ export function genMixedDivision(level: MixedLevel): MixedDivision {
   const challenge = pool[rand(0, pool.length - 1)]!;
   return { ...build(challenge), challenge, note: DIVISION_CHALLENGES[challenge]! };
 }
+
+/** Flera unika utmaningsuppgifter på en nivå (för divisionssidan). */
+export function genChallengeDivision(level: MixedLevel, count = 8): MixedDivision[] {
+  const pool = LEVEL_CHALLENGES[level];
+  const seen = new Set<string>();
+  const tasks: MixedDivision[] = [];
+  for (let i = 0; i < 5000 && tasks.length < count; i++) {
+    const challenge = pool[rand(0, pool.length - 1)]!;
+    const t = build(challenge);
+    const key = `${t.dividend}/${t.divisor}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tasks.push({ ...t, challenge, note: DIVISION_CHALLENGES[challenge]! });
+  }
+  return tasks;
+}
