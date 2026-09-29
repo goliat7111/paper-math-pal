@@ -24,6 +24,8 @@ export async function buildSheetsPdf(
     // bladet fångas alltid i exakt A4-storlek (96 px per tum).
     const pxW = Math.round((w * 96) / 25.4);
     const pxH = Math.round((h * 96) / 25.4);
+    const prevZoom = page.style.zoom;
+    page.style.zoom = "1";
     const png = await toPng(page, {
       pixelRatio: 2,
       backgroundColor: "#ffffff",
@@ -39,6 +41,8 @@ export async function buildSheetsPdf(
         minHeight: `${h}mm`,
         overflow: "hidden",
       },
+    }).finally(() => {
+      page.style.zoom = prevZoom;
     });
     images.push(png);
     if (i > 0) pdf.addPage("a4", orientation);
