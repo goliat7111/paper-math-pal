@@ -59,7 +59,7 @@ export function SheetAddSub({ tasks, answers, ownSetup }: { tasks: AddSubTask[];
               {ownSetup ? t.terms.map((v, j) => formatDecimal(v, t.decs[j]!)).join(` ${SIGN[t.op]} `) : ""}
             </div>
             <div className={`own-setup-box addsub-box${ownSetup && !answers ? " addsub-box--own" : ""}`} style={boxHeight ? { height: boxHeight } : undefined}>
-              {(answers || !ownSetup) && <AddSubSetup t={t} answers={answers} cellMm={cellMm} />}
+              {(answers || !ownSetup) && <AddSubSetup t={t} answers={answers} {...(cellMm !== undefined ? { cellMm } : {})} />}
             </div>
           </section>
         ))}
