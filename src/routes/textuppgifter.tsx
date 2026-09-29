@@ -48,7 +48,7 @@ function TextuppgifterPage() {
   const gen = useServerFn(generateTextTasks);
   const [grade, setGrade] = useState(3);
   const [tMin, setTMin] = useState("2");
-  const [tMax, setTMax] = useState("5");
+  const [tMax, setTMax] = useState("9");
   const [theme, setTheme] = useState("");
   const [count, setCount] = useState(6);
   const [op, setOp] = useState<Op>("mul");
