@@ -12,8 +12,9 @@ const blockSizes = (rows: number) => {
   return sizes;
 };
 
-// 102 tal: 3 kolumner × 34 rader. 100 tal: 4 kolumner × 25 rader (lite högre rader).
-const rowHeight = (count: number) => (count === 100 ? "7.6mm" : "6.4mm");
+// 102 tal: 3 kolumner × 34 rader med fast radhöjd. 100 tal: 4 kolumner × 25 rader
+// som fördelas jämnt över hela sidhöjden (justify-between) så pappret fylls ut.
+const rowHeight = (count: number) => (count === 100 ? undefined : "6.4mm");
 
 export function Sheet102({
   tasks,
@@ -33,22 +34,22 @@ export function Sheet102({
     tasks.slice(c * perCol, (c + 1) * perCol),
   );
   return (
-    <div className={`a4-page${landscape ? " landscape" : ""}`}>
+    <div className={`a4-page${landscape ? " landscape" : ""}${count === 100 ? " flex flex-col" : ""}`}>
       <SheetHeader
         title={answers ? `${count} tal – Facit` : `${count} tal`}
         subtitle="Multiplikation · 6 minuter"
         score={`av ${count}`}
       />
       <div
-        className="mt-5 grid"
+        className={`mt-5 grid${count === 100 ? " flex-1" : ""}`}
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
       >
         {columns.map((col, ci) => (
-          <div key={ci}>
+          <div key={ci} className={count === 100 ? "flex flex-col justify-between" : ""}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi} className={bi === 0 ? "" : "mt-[7mm]"}>
                 {block.map((t, ti) => (
-                  <div key={ti} className="flex items-end font-mono text-[15px] leading-none tabular-nums" style={{ height: rowHeight(count) }}>
+                  <div key={ti} className="flex items-end font-mono text-[15px] leading-none tabular-nums" style={rowHeight(count) ? { height: rowHeight(count) } : undefined}>
                     <span className="w-6 text-right">{t.a}</span>
                     <span className="w-5 text-center">·</span>
                     <span className="w-6 text-left">{t.b}</span>
