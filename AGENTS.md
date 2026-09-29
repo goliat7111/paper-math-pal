@@ -20,3 +20,4 @@
 - Klipplinjer: streckade linjer ritas som SVG-data-URI-bakgrunder (--cut-v/--cut-h i :root) på rutnätscontainrarna — de ligger exakt i grid-gapet (50 %/33 %/25 % vid lika rader) och korsar aldrig tabellerna. Gäller .hundred-grid-layout--2/4/6/8, .talkamrat-grid-2/-4, .talkamrat-halves (liggande) och .snabba-grid.
 - Zoom på alla bladsidor använder useSheetZoom() + ZoomControls med ResizeObserver och 0,5–3 i steg om 0,25; main får {...mainProps} och min-w-0. Påverkar aldrig utskrift/PDF.
 - Blandade övningar återanvänder räknemotorer och uppställningar för de fyra räknesätten; nivåprofiler hålls separat så facit överensstämmer med befintliga blad.
+- Slumpade decimaler i divisionsutmaningar och blandade övningar flyttar kommat lika mycket i täljare och kvot (`randomizeDecimals` i `src/lib/mixed-division.ts`); uppgifter med rest, decimal divisor eller oändlig kvot lämnas orörda så att facit och utmaningen förblir korrekta.
