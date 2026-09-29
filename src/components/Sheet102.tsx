@@ -13,7 +13,7 @@ const blockSizes = (rows: number) => {
 };
 
 // 102 tal: 3 kolumner × 34 rader med fast radhöjd. 100 tal: 4 kolumner × 25 rader
-// som fördelas jämnt över hela sidhöjden (justify-between) så pappret fylls ut.
+// som delar sidhöjden lika (flex-1) med ett litet mellanrum mellan gruppen om 5.
 const rowHeight = (count: number) => (count === 100 ? undefined : "6.4mm");
 
 export function Sheet102({
