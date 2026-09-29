@@ -34,7 +34,11 @@ export function Sheet102({
     tasks.slice(c * perCol, (c + 1) * perCol),
   );
   return (
-    <div className={`a4-page${landscape ? " landscape" : ""}${count === 100 ? " flex flex-col" : ""}`}>
+    <div
+      className={`a4-page${landscape ? " landscape" : ""}${count === 100 ? " flex flex-col" : ""}`}
+      style={count === 100 ? { height: "297mm" } : undefined}
+    >
+
       <SheetHeader
         title={answers ? `${count} tal – Facit` : `${count} tal`}
         subtitle="Multiplikation · 6 minuter"
