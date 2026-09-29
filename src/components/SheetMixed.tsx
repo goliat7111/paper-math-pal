@@ -13,7 +13,13 @@ export function SheetMixed({ tasks, level, answers }: { tasks: MixedTasks; level
   const subText = sub.terms.map((v, i) => formatDecimal(v, sub.decs[i])).join(" − ");
   const mulText = `${formatDecimal(digitValue(mul.digits), mul.dt)} × ${formatDecimal(digitValue(mul.m), mul.db)}`;
   const dividendText = formatDecimal(div.dividend, div.dividendDecimals);
-  const quotientText = formatDecimal(div.quotient, div.quotientDecimals);
+  const shownDividend = div.shown ? formatDecimal(div.shown.dividend, div.shown.dividendDecimals) : dividendText;
+  const shownDivisor = div.shown ? formatDecimal(div.shown.divisor, div.shown.divisorDecimals) : String(div.divisor);
+  const quotientText = div.remainder > 0 ? `${div.quotient} rest ${div.remainder}`
+    : div.repeating ? `${formatDecimal(div.quotient, div.quotientDecimals)}…`
+    : div.rounded !== undefined ? formatDecimal(div.rounded, 2)
+    : formatDecimal(div.quotient, div.quotientDecimals);
+  const rel = div.rounded !== undefined ? "≈" : "=";
   return <div className="a4-page mixed-page">
     <SheetHeader title={answers ? "Blandade övningar – Facit" : "Blandade övningar"} subtitle={`Nivå ${level}`} score="av 4" />
     <div className="mixed-grid">
@@ -30,12 +36,14 @@ export function SheetMixed({ tasks, level, answers }: { tasks: MixedTasks; level
         <div className={workClass}>{answers && <Problem n={3} t={mul} answers digitMm={6.5} showNumber={false} />}</div>
       </section>
       <section className="mixed-quadrant" aria-label="Uppgift 4 Division">
-        <div className="mixed-expression"><strong>4. Division</strong><span>{dividendText} / {div.divisor} = {answers ? quotientText : ""}</span></div>
+        <div className="mixed-expression"><strong>4. Division</strong><span>{shownDividend} / {shownDivisor} {rel} {answers ? quotientText : ""}</span></div>
+        {div.rounded !== undefined && <div className="mixed-hint">Avrunda till två decimaler.</div>}
+        {answers && <div className="mixed-hint">Utmaning: {div.note}{div.shown ? ` · skriv om: ${dividendText} / ${div.divisor}` : ""}{div.rounded !== undefined ? ` · ${formatDecimal(div.quotient, 3)}… ≈ ${quotientText}` : ""}</div>}
         <div className={workClass}>{answers && <div className="short-division" aria-label="Kort division">
           <div className="division-fraction"><div className="division-numerator">{divisionSteps(div).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
             {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (div.dividendDecimals ?? 0) > 0) && <span className="division-comma">,</span>}
           </span>)}</div><div className="division-denominator">{div.divisor}</div></div>
-          <span>=</span><div className="division-result"><span className={`division-answer${answers ? " is-answer" : ""}`}>{answers ? quotientText : ""}</span></div>
+          <span>=</span><div className="division-result"><span className={`division-answer${answers ? " is-answer" : ""}`}>{answers ? (div.rounded !== undefined ? `${formatDecimal(div.quotient, 3)}…` : quotientText) : ""}</span></div>
         </div>}</div>
       </section>
     </div>

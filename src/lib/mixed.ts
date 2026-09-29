@@ -1,8 +1,8 @@
 import { genAddSub, maxDec, type AddSubTask } from "./addsub";
-import { genDivision, type DivisionTask } from "./division";
+import { genMixedDivision, type MixedDivision } from "./mixed-division";
 import { digitValue, rand, rowCarries, type SetupTask } from "./worksheets";
 
-export type MixedTasks = { add: AddSubTask; sub: AddSubTask; mul: SetupTask; div: DivisionTask };
+export type MixedTasks = { add: AddSubTask; sub: AddSubTask; mul: SetupTask; div: MixedDivision };
 export type MixedLevel = 1 | 2 | 3 | 4 | 5;
 
 function multiply(level: MixedLevel): SetupTask {
@@ -34,15 +34,6 @@ export function genMixed(level: MixedLevel): MixedTasks {
   const add = make("add");
   const sub = make("sub");
   const mul = multiply(level);
-  const div = level === 1 ? (() => {
-      const divisor = rand(2, 4);
-      const tens = divisor * rand(1, Math.floor(9 / divisor));
-      const ones = divisor * rand(1, Math.floor(9 / divisor));
-      return { dividend: tens * 10 + ones, divisor, quotient: (tens * 10 + ones) / divisor, remainder: 0 };
-    })()
-    : level === 2 ? genDivision(30, 199, 2, 9, 1)[0]!
-    : level === 3 ? genDivision(100, 999, 2, 9, 1)[0]!
-    : level === 4 ? genDivision(10, 99, 2, 9, 1, false, 1, 0)[0]!
-    : genDivision(10, 99, 2, 8, 1, false, 1, 1)[0]!;
+  const div = genMixedDivision(level);
   return { add, sub, mul, div };
 }
