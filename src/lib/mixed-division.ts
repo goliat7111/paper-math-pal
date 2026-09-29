@@ -15,7 +15,7 @@ export type MixedDivision = DivisionTask & {
 export const DIVISION_CHALLENGES: Record<number, string> = {
   1: "Ensiffrig divisor", 2: "Fler siffror i dividenden", 3: "Första siffran är mindre än divisorn",
   4: "Växling krävs", 5: "Växling i flera steg", 6: "Nolla i dividenden", 7: "Nolla i kvoten",
-  8: "Rest", 9: "Rest efter flera steg", 10: "Tvåsiffrig divisor", 11: "Svår tvåsiffrig divisor",
+  8: "Rest", 9: "Rest efter flera steg",
   12: "Kvoten innehåller flera nollor", 13: "Decimal i dividenden", 14: "Kvoten blir ett decimaltal",
   15: "Flera decimaler i kvoten", 16: "Decimal divisor", 17: "Decimaler i båda talen",
   18: "Oändlig decimalutveckling", 19: "Avrundning av kvoten",
@@ -27,8 +27,8 @@ export const LEVEL_CHALLENGES: Record<MixedLevel, number[]> = {
   1: [1],
   2: [2, 3, 4],
   3: [5, 6, 7, 8],
-  4: [9, 10, 12, 13, 14],
-  5: [9, 11, 12, 15, 16, 17, 18, 19],
+  4: [9, 12, 13, 14],
+  5: [9, 12, 15, 16, 17, 18, 19],
 };
 
 const digitsOf = (n: number) => String(n).split("").map(Number);
@@ -98,18 +98,21 @@ function build(c: number): Omit<MixedDivision, "challenge" | "note"> {
     case 14: return decimalQuotient([2, 4, 5], 2);
     case 15: return decimalQuotient([8], 3);
     case 16: {
+      // Ensiffrig decimalnämnare (t.ex. 0,7 eller 0,06): eleven förlänger så nämnaren blir heltal.
       for (;;) {
-        const d = rand(2, 9), dividend = rand(10, 99);
-        if ((dividend * 10) % d) continue;
-        const converted = dividend * 10;
+        const d = rand(2, 9), dec = rand(1, 2), dividend = rand(10, 99);
+        const factor = 10 ** dec;
+        if ((dividend * factor) % d) continue;
+        const converted = dividend * factor;
         return { dividend: converted, divisor: d, quotient: converted / d, remainder: 0,
-          shown: { dividend, dividendDecimals: 0, divisor: d, divisorDecimals: 1 } };
+          shown: { dividend, dividendDecimals: 0, divisor: d, divisorDecimals: dec } };
       }
     }
     case 17: {
+      // Decimaler i båda talen, ensiffrig nämnare (t.ex. 7,26 / 0,6 -> 72,6 / 6).
       for (;;) {
-        const D = rand(11, 25), q = rand(11, 99);
-        if (D % 10 === 0 || q % 10 === 0) continue;
+        const D = rand(2, 9), q = rand(11, 99);
+        if (q % 10 === 0) continue;
         const scaled = D * q; // omskriven täljare med 1 decimal
         if (scaled % 10 === 0) continue;
         return { dividend: scaled, divisor: D, quotient: q, remainder: 0, dividendDecimals: 1, quotientDecimals: 1,
