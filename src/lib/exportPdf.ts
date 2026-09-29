@@ -33,10 +33,6 @@ export async function buildSheetsPdf(
       height: pxH,
       style: {
         boxShadow: "none",
-        zoom: "1",
-        boxSizing: "border-box",
-        margin: "0",
-        width: `${w}mm`,
         height: `${h}mm`,
         minHeight: `${h}mm`,
         overflow: "hidden",
