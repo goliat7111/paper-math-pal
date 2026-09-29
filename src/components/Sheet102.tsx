@@ -56,7 +56,7 @@ export function Sheet102({
                 {block.map((t, ti) => (
                   <div
                     key={ti}
-                    className={`flex items-end font-mono leading-none tabular-nums ${count === 100 ? "text-[19px]" : "text-[17px]"}`}
+                    className={`flex items-end font-mono leading-none tabular-nums ${count === 100 ? "text-[18px]" : "text-[17px]"}`}
                     style={count === 100 ? { flex: "1 1 0" } : { height: rowHeight(count) }}
                   >
 
