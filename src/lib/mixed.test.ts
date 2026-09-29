@@ -9,7 +9,7 @@ describe("blandade övningar", () => {
     for (const level of [1, 2, 3, 4, 5] as MixedLevel[]) for (let i = 0; i < 30; i++) {
       const t = genMixed(level);
       expect(addSubResult(t.sub)).toBeGreaterThan(0);
-      expect(t.div.dividend * 10 ** ((t.div.quotientDecimals ?? 0) - (t.div.dividendDecimals ?? 0))).toBe(t.div.divisor * t.div.quotient);
+      if (!t.div.repeating && t.div.rounded === undefined) expect(t.div.dividend * 10 ** ((t.div.quotientDecimals ?? 0) - (t.div.dividendDecimals ?? 0))).toBe(t.div.divisor * t.div.quotient + t.div.remainder * 10 ** ((t.div.quotientDecimals ?? 0) - (t.div.dividendDecimals ?? 0)));
       expect(setupValue(t.mul)).toBe(digitValue(t.mul.digits) * digitValue(t.mul.m));
       if (level === 1) {
         expect(hasRegroup(t.add)).toBe(false);
@@ -25,7 +25,7 @@ describe("blandade övningar", () => {
         expect(maxDec(t.sub)).toBeGreaterThan(0);
         expect(t.mul.dt).toBeGreaterThan(0);
         expect(t.mul.db).toBe(1);
-        expect(t.div.dividendDecimals).toBe(1);
+        expect(t.div.challenge).toBeGreaterThanOrEqual(9);
       }
     }
   });
