@@ -12,24 +12,33 @@ const blockSizes = (rows: number) => {
   return sizes;
 };
 
+// 102 tal: 3 kolumner × 34 rader. 100 tal: 4 kolumner × 25 rader (lite högre rader).
+const rowHeight = (count: number) => (count === 100 ? "7.6mm" : "6.4mm");
+
 export function Sheet102({
   tasks,
   answers,
   orientation = "portrait",
+  count = 102,
 }: {
   tasks: MulTask[];
   answers: boolean;
   orientation?: "portrait" | "landscape";
+  count?: number;
 }) {
   const landscape = orientation === "landscape";
-  const cols = landscape ? 6 : 3;
-  const perCol = Math.ceil(tasks.length / cols); // 17 (liggande) / 34 (stående)
+  const cols = landscape ? 6 : count === 100 ? 4 : 3;
+  const perCol = Math.ceil(count / cols); // 17 (liggande) / 25 (100 tal) / 34 (102 tal)
   const columns = Array.from({ length: cols }, (_, c) =>
     tasks.slice(c * perCol, (c + 1) * perCol),
   );
   return (
     <div className={`a4-page${landscape ? " landscape" : ""}`}>
-      <SheetHeader title={answers ? "102 tal – Facit" : "102 tal"} subtitle="Multiplikation · 6 minuter" score="av 102" />
+      <SheetHeader
+        title={answers ? `${count} tal – Facit` : `${count} tal`}
+        subtitle="Multiplikation · 6 minuter"
+        score={`av ${count}`}
+      />
       <div
         className="mt-5 grid"
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
@@ -39,7 +48,7 @@ export function Sheet102({
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi} className={bi === 0 ? "" : "mt-[7mm]"}>
                 {block.map((t, ti) => (
-                  <div key={ti} className="flex h-[6.4mm] items-end font-mono text-[15px] leading-none tabular-nums">
+                  <div key={ti} className={`flex h-[${rowHeight(count)}] items-end font-mono text-[15px] leading-none tabular-nums`}>
                     <span className="w-6 text-right">{t.a}</span>
                     <span className="w-5 text-center">·</span>
                     <span className="w-6 text-left">{t.b}</span>
