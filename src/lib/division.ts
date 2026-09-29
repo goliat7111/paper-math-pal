@@ -10,7 +10,7 @@ export type DivisionTask = {
   dividendDecimals?: number;
   quotientDecimals?: number;
   /** Visningsdecimaler när uttrycket skrivs annorlunda än uträkningen (förlänga/förkorta). */
-  shownDecimals?: { dividend: number; divisor: number };
+  shownDecimals?: { dividend: number; divisor: number; raw?: number };
   /** Namn på utmaningen uppgiften tränar (visas i facit). */
   note?: string;
 };
@@ -107,8 +107,9 @@ export function genExtendDivision(count = 8): DivisionTask[] {
     const key = `${dividend}.${dividendDec}/${divisor}.${divisorDec}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    tasks.push({ dividend, divisor, quotient, remainder: 0,
-      shownDecimals: { dividend: dividendDec, divisor: divisorDec } });
+    const scale = 10 ** (divisorDec - dividendDec);
+    tasks.push({ dividend: dividend * scale, divisor, quotient: quotient * scale, remainder: 0,
+      shownDecimals: { dividend: dividendDec, divisor: divisorDec, raw: dividend } });
   }
   if (tasks.length < count) throw new Error("Hittade inga passande divisioner.");
   return tasks;

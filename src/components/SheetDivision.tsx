@@ -27,7 +27,7 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
     <p className="own-setup-instruction">{answers ? challenges ? "Facit med kort division. Texten vid varje uppgift visar vilken utmaning den tränar." : extend ? "Facit. Uppställningen visar talet efter att du förlängt eller förkortat." : `Facit med kort division. Små siffror visar överförda rester.${extra ? " Tillagda nollor i rött." : ""}` : extend ? "Förläng eller förkorta så att nämnaren blir ett heltal, och räkna sedan i huvudet. Visa gärna hur du tänker." : ownSetup ? `Skriv din egen uppställning i rutan.${task || " Räkna ut svaret."}` : `Räkna med kort division.${task || " Visa dina uträkningar."}`}</p>
     <div className="own-setup-grid">
       {tasks.map((t, i) => {
-        const dividendText = formatDecimal(t.dividend, t.shownDecimals?.dividend ?? t.dividendDecimals);
+        const dividendText = formatDecimal(t.shownDecimals?.raw ?? t.dividend, t.shownDecimals?.dividend ?? t.dividendDecimals);
         const divisorText = formatDecimal(t.divisor, t.shownDecimals?.divisor ?? 0);
         const quotientText = formatDecimal(t.quotient, t.quotientDecimals);
         return <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
@@ -35,10 +35,10 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
           <div className="own-setup-box division-box">
             {(answers || !ownSetup) && <div className="short-division" aria-label={`${dividendText} delat med ${divisorText}${answers ? ` är ${quotientText}${withRemainder ? ` rest ${t.remainder}` : ""}` : ""}`}>
               <div className="division-fraction">
-                <div className="division-numerator">{divisionSteps(t).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
+                <div className="division-numerator">{extend && !answers ? <span className="division-digit">{dividendText}</span> : divisionSteps(t).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
                   {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (t.dividendDecimals ?? 0) > 0) && <span className="division-comma">,</span>}
                 </span>)}</div>
-                <div className="division-denominator">{t.divisor}</div>
+                <div className="division-denominator">{extend && !answers ? divisorText : t.divisor}</div>
               </div>
               <span>=</span><div className="division-result"><span className={`division-answer${answers ? " is-answer" : ""}`}>{answers ? quotientText : ""}</span>
                 {t.remainder > 0 && <span className="division-remainder">rest {answers ? t.remainder : "____"}</span>}
