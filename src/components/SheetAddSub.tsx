@@ -4,10 +4,12 @@ import { SheetHeader } from "./SheetHeader";
 
 const SIGN = { add: "+", sub: "−" } as const;
 
-export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean }) {
+export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: boolean; cellMm?: number }) {
   const L = addSubLayout(t);
   const totalCols = L.nCols + 3;
   const totalRows = L.rows.length + 4;
+  const cell = cellMm ?? 6.5;
+  const cellStyle = { "--addsub-cell": `${cell}mm` } as React.CSSProperties;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
     <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
       {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="division-comma">,</span>}
@@ -17,7 +19,8 @@ export function AddSubSetup({ t, answers }: { t: AddSubTask; answers: boolean })
   const bg = [];
   for (let r = 1; r <= totalRows; r++) for (let c = 1; c <= totalCols; c++) bg.push(<div key={`bg${r}-${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: r }} />);
   return (
-    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, 6.5mm)` }}>
+    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cell}mm)`, ...cellStyle }}>
+
       {bg}
       {L.rows[0]!.map((_, c) => cell(answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "", c, 1, "addsub-small", `m${c}`))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
