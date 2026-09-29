@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer, RefreshCw } from "lucide-react";
 import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { genDivision, genExtendDivision, type DivisionTask } from "@/lib/division";
+import { genChallengeDivision } from "@/lib/mixed-division";
+import type { MixedLevel } from "@/lib/mixed";
 import { SheetDivision } from "@/components/SheetDivision";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 
