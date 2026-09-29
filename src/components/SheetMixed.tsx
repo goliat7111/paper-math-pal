@@ -14,7 +14,7 @@ export function SheetMixed({ tasks, level, answers }: { tasks: MixedTasks; level
   const dividendText = formatDecimal(div.dividend, div.dividendDecimals);
   const quotientText = formatDecimal(div.quotient, div.quotientDecimals);
   return <div className="a4-page mixed-page">
-    <SheetHeader title={answers ? "Blandade övningar – Facit" : "Blandade övningar"} subtitle={`Nivå ${level} · Fyra räknesätt`} score="av 4" />
+    <SheetHeader title={answers ? "Blandade övningar – Facit" : "Blandade övningar"} subtitle={`Nivå ${level}`} score="av 4" />
     <div className="mixed-grid">
       <section className="mixed-quadrant" aria-label="Uppgift 1 Addition">
         <div className="mixed-expression"><strong>1. Addition</strong><span>{addText} = {answers ? formatDecimal(addSubResult(add), maxDec(add)) : ""}</span></div>

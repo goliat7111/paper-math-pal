@@ -1,4 +1,4 @@
-import { genAddSub, type AddSubTask } from "./addsub";
+import { genAddSub, maxDec, type AddSubTask } from "./addsub";
 import { genDivision, type DivisionTask } from "./division";
 import { digitValue, rand, rowCarries, type SetupTask } from "./worksheets";
 
@@ -24,7 +24,13 @@ function multiply(level: MixedLevel): SetupTask {
 export function genMixed(level: MixedLevel): MixedTasks {
   const digits: [number, number] = level === 1 ? [2, 2] : level === 2 ? [2, 3] : level === 3 ? [3, 4] : [3, 5];
   const dec = level <= 3 ? 0 : level === 4 ? 1 : "slumpa";
-  const make = (op: "add" | "sub") => genAddSub({ op, digits, dec, terms: level === 5 && op === "add" ? 3 : 2, regroup: level > 1, count: 1 })[0]!;
+  const make = (op: "add" | "sub") => {
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const task = genAddSub({ op, digits, dec, terms: level === 5 && op === "add" ? 3 : 2, regroup: level > 1, count: 1 })[0]!;
+      if (level !== 5 || maxDec(task) > 0) return task;
+    }
+    throw new Error("Kunde inte skapa en uppgift med decimaler.");
+  };
   const add = make("add");
   const sub = make("sub");
   const mul = multiply(level);

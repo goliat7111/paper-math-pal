@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { genMixed, type MixedLevel } from "./mixed";
-import { addSubResult, hasRegroup } from "./addsub";
+import { addSubResult, hasRegroup, maxDec } from "./addsub";
 import { digitValue, rowCarries, setupValue } from "./worksheets";
 import { divisionSteps } from "./division";
 
@@ -21,6 +21,8 @@ describe("blandade övningar", () => {
       }
       if (level === 5) {
         expect(t.add.terms).toHaveLength(3);
+        expect(maxDec(t.add)).toBeGreaterThan(0);
+        expect(maxDec(t.sub)).toBeGreaterThan(0);
         expect(t.mul.dt).toBeGreaterThan(0);
         expect(t.mul.db).toBe(1);
         expect(t.div.dividendDecimals).toBe(1);
