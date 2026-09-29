@@ -12,9 +12,9 @@ export const Route = createFileRoute("/textuppgifter")({
   head: () => ({
     meta: [
       { title: "Textuppgifter – Räknebladet" },
-      { name: "description", content: "Skapa nivåanpassade textuppgifter i multiplikation med valfritt tema och facit, utskriftsklara på A4." },
+      { name: "description", content: "Skapa nivåanpassade textuppgifter i alla fyra räknesätten med valfritt tema och facit, utskriftsklara på A4." },
       { property: "og:title", content: "Textuppgifter – Räknebladet" },
-      { property: "og:description", content: "AI-skapade textuppgifter i multiplikation, anpassade efter årskurs och tema." },
+      { property: "og:description", content: "AI-skapade textuppgifter i alla fyra räknesätten, anpassade efter årskurs och tema." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -88,6 +88,7 @@ function TextuppgifterPage() {
   };
   const input = "mt-1 block rounded-md border border-input bg-background px-2 py-1.5";
 
+  const opLabel = OPS.find(o => o.v === meta.op)!.label;
   const run = async () => {
     setLoading(true); setError("");
     try {
@@ -130,7 +131,7 @@ function TextuppgifterPage() {
       </aside>
       <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
         {!tasks.length && <p className="no-print mt-10 text-muted-foreground">{loading ? "Skapar uppgifter – det tar några sekunder…" : "Välj inställningar och klicka på Skapa uppgifter."}</p>}
-        {tasks.length > 0 && <>{showSheet(content) && <Sheet tasks={tasks} answers={false} {...meta} />}{showKey(content) && <Sheet tasks={tasks} answers {...meta} />}</>}
+        {tasks.length > 0 && <>{showSheet(content) && <Sheet tasks={tasks} answers={false} {...meta} opLabel={opLabel} />}{showKey(content) && <Sheet tasks={tasks} answers {...meta} opLabel={opLabel} />}</>}
       </main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
