@@ -29,7 +29,7 @@ export function SheetDivision({ tasks, answers, ownSetup }: {
         const divisorText = formatDecimal(t.divisor, t.shownDecimals?.divisor ?? 0);
         const quotientText = formatDecimal(t.quotient, t.quotientDecimals);
         return <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
-          <div className="own-setup-expression"><span className="own-setup-number">{i + 1})</span>{dividendText} / {divisorText}</div>
+          <div className="own-setup-expression"><span className="own-setup-number">{i + 1})</span>{dividendText} / {divisorText}{answers && t.note && <span className="division-note"> · {t.note}</span>}</div>
           <div className="own-setup-box division-box">
             {(answers || !ownSetup) && <div className="short-division" aria-label={`${dividendText} delat med ${divisorText}${answers ? ` är ${quotientText}${withRemainder ? ` rest ${t.remainder}` : ""}` : ""}`}>
               <div className="division-fraction">

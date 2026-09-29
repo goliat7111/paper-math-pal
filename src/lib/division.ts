@@ -11,6 +11,8 @@ export type DivisionTask = {
   quotientDecimals?: number;
   /** Visningsdecimaler när uttrycket skrivs annorlunda än uträkningen (förlänga/förkorta). */
   shownDecimals?: { dividend: number; divisor: number };
+  /** Namn på utmaningen uppgiften tränar (visas i facit). */
+  note?: string;
 };
 
 /** Hur många extra decimaler nämnaren kan ge (största exponenten av 2 och 5). */
