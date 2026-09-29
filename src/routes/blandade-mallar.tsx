@@ -6,7 +6,7 @@ import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { PrintContentChoice, keySuffix, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { SheetMixed } from "@/components/SheetMixed";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
-import { genMixed, type MixedLevel } from "@/lib/mixed";
+import { genMixed, type MixedLevel, type MixedTasks } from "@/lib/mixed";
 
 export const Route = createFileRoute("/blandade-mallar")({
   head: () => ({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/blandade-mallar")({
 
 function BlandadeMallarPage() {
   const [level, setLevel] = useState<MixedLevel>(1);
-  const [tasks, setTasks] = useState(() => genMixed(1));
+  const [tasks, setTasks] = useState<MixedTasks | null>(null);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [exporting, setExporting] = useState(false);
@@ -32,6 +32,7 @@ function BlandadeMallarPage() {
   const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
   const [fileName, setFileName] = useState("");
   const previewUrl = useRef<string | null>(null);
+  useEffect(() => { setTasks(genMixed(1)); }, []);
   useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }, []);
   const closePreview = () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); previewUrl.current = null; setPreview(null); };
   const downloadPdf = async () => {
@@ -74,13 +75,13 @@ function BlandadeMallarPage() {
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <div className="space-y-2">
             <Button variant="outline" className="w-full" onClick={() => setTasks(genMixed(level))}><RefreshCw className="h-4 w-4" />Ny slumpad variant</Button>
-            <Button variant="outline" className="w-full" disabled={exporting} onClick={downloadPdf}><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</Button>
-            <Button className="w-full" onClick={() => window.print()}><Printer className="h-4 w-4" />Skriv ut</Button>
+            <Button variant="outline" className="w-full" disabled={exporting || !tasks} onClick={downloadPdf}><FileDown className="h-4 w-4" />{exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}</Button>
+            <Button className="w-full" disabled={!tasks} onClick={() => window.print()}><Printer className="h-4 w-4" />Skriv ut</Button>
           </div>
         </aside>
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
-          {showSheet(content) && <SheetMixed tasks={tasks} level={level} answers={false} />}
-          {showKey(content) && <SheetMixed tasks={tasks} level={level} answers />}
+          {tasks && showSheet(content) && <SheetMixed tasks={tasks} level={level} answers={false} />}
+          {tasks && showKey(content) && <SheetMixed tasks={tasks} level={level} answers />}
         </main>
       </div>
       {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
