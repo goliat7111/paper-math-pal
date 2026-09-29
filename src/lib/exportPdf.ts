@@ -20,12 +20,25 @@ export async function buildSheetsPdf(
   const h = orientation === "portrait" ? 297 : 210;
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i]!;
+    // Skärmzoomen (CSS zoom på .a4-page) får aldrig följa med i PDF:en –
+    // bladet fångas alltid i exakt A4-storlek (96 px per tum).
+    const pxW = Math.round((w * 96) / 25.4);
+    const pxH = Math.round((h * 96) / 25.4);
+    const prevZoom = page.style.zoom;
+    page.style.zoom = "1";
     const png = await toPng(page, {
       pixelRatio: 2,
       backgroundColor: "#ffffff",
-      width: page.offsetWidth,
-      height: page.offsetHeight,
-      style: { boxShadow: "none" },
+      width: pxW,
+      height: pxH,
+      style: {
+        boxShadow: "none",
+        height: `${h}mm`,
+        minHeight: `${h}mm`,
+        overflow: "hidden",
+      },
+    }).finally(() => {
+      page.style.zoom = prevZoom;
     });
     images.push(png);
     if (i > 0) pdf.addPage("a4", orientation);
