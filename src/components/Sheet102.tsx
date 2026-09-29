@@ -14,7 +14,7 @@ const blockSizes = (rows: number) => {
 
 // 102 tal: 3 kolumner × 34 rader med fast radhöjd. 100 tal: 4 kolumner × 25 rader
 // som delar sidhöjden lika (flex-1) med ett litet mellanrum mellan gruppen om 5.
-const rowHeight = (count: number) => (count === 100 ? undefined : "6.4mm");
+
 
 export function Sheet102({
   tasks,
@@ -28,6 +28,7 @@ export function Sheet102({
   count?: number;
 }) {
   const landscape = orientation === "landscape";
+  const fill = !landscape; // stående: raderna delar hela sidhöjden så inget klipps i PDF/utskrift
   const cols = landscape ? 6 : count === 100 ? 4 : 3;
   const perCol = Math.ceil(count / cols); // 17 (liggande) / 25 (100 tal) / 34 (102 tal)
   const columns = Array.from({ length: cols }, (_, c) =>
@@ -35,8 +36,8 @@ export function Sheet102({
   );
   return (
     <div
-      className={`a4-page${landscape ? " landscape" : ""}${count === 100 ? " flex flex-col" : ""}`}
-      style={count === 100 ? { height: "297mm" } : undefined}
+      className={`a4-page${landscape ? " landscape" : ""}${fill ? " flex flex-col" : ""}`}
+      style={fill ? { height: "297mm" } : undefined}
     >
 
       <SheetHeader
@@ -45,19 +46,19 @@ export function Sheet102({
         score={`av ${count}`}
       />
       <div
-        className={`mt-5 grid${count === 100 ? " flex-1" : ""}`}
+        className={`mt-5 grid${fill ? " flex-1" : ""}`}
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
       >
         {columns.map((col, ci) => (
-          <div key={ci} className={count === 100 ? "flex flex-col" : ""}>
+          <div key={ci} className={fill ? "flex flex-col" : ""}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
-              <div key={bi} className={count === 100 ? "flex flex-col flex-1" : ""}>
-                {bi > 0 && <div aria-hidden style={{ height: count === 100 ? "4mm" : "7mm" }} />}
+              <div key={bi} className={fill ? "flex flex-col flex-1" : ""}>
+                {bi > 0 && <div aria-hidden style={{ height: fill ? "4mm" : "7mm" }} />}
                 {block.map((t, ti) => (
                   <div
                     key={ti}
                     className={`flex items-end font-mono leading-none tabular-nums ${count === 100 ? "text-[18px]" : "text-[17px]"}`}
-                    style={count === 100 ? { flex: "1 1 0" } : { height: rowHeight(count) }}
+                    style={fill ? { flex: "1 1 0" } : { height: "6.4mm" }}
                   >
 
                     <span className="w-6 text-right">{t.a}</span>
