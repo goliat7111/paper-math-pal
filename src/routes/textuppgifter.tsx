@@ -49,7 +49,7 @@ function TextuppgifterPage() {
   const [grade, setGrade] = useState(3);
   const [tMin, setTMin] = useState("2");
   const [tMax, setTMax] = useState("5");
-  const [theme, setTheme] = useState("Djur på bondgården");
+  const [theme, setTheme] = useState("");
   const [count, setCount] = useState(6);
   const [op, setOp] = useState<Op>("mul");
   const [maxNumber, setMaxNumber] = useState(100);
@@ -116,7 +116,7 @@ function TextuppgifterPage() {
             <label className="text-sm">Från<input aria-label="Tabell från" className={`${input} w-16 text-center`} type="number" min={0} max={12} required value={tMin} onChange={e => setTMin(e.target.value)} /></label><span className="pb-2">till</span>
             <label className="text-sm">Till<input aria-label="Tabell till" className={`${input} w-16 text-center`} type="number" min={0} max={12} required value={tMax} onChange={e => setTMax(e.target.value)} /></label>
           </div></fieldset>}
-          <label className="block text-sm font-medium">Tema<input className={`${input} w-full`} maxLength={80} required value={theme} onChange={e => setTheme(e.target.value)} placeholder="t.ex. Fotboll, Rymden" /></label>
+          <label className="block text-sm font-medium">Tema<input className={`${input} w-full`} maxLength={80} required value={theme} onChange={e => setTheme(e.target.value)} placeholder="Ämne/innehåll" /></label>
           <label className="block text-sm font-medium">Antal uppgifter<select className={`${input} w-auto`} value={count} onChange={e => setCount(Number(e.target.value))}>{[4,5,6,7,8,10].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
           <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><Wand2 className="h-4 w-4" />{loading ? "Skapar uppgifter…" : tasks.length ? "Skapa nya uppgifter" : "Skapa uppgifter"}</button>
         </form>
