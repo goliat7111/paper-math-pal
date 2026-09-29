@@ -132,9 +132,9 @@ function HomeButton() {
     <Link
       to="/"
       aria-label="Gå till startsidan"
-      className="no-print fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-md transition-colors hover:bg-accent"
+      className="no-print fixed bottom-6 right-6 z-50 inline-flex items-center gap-3 rounded-full border border-border bg-card px-6 py-3 text-xl font-medium text-foreground shadow-md transition-colors hover:bg-accent"
     >
-      <Home className="h-4 w-4" />
+      <Home className="h-6 w-6" />
       Gå till startsidan
     </Link>
   );
