@@ -19,7 +19,8 @@ function DivisionPage() {
   const [divMax, setDivMax] = useState("99");
   const [min, setMin] = useState("2");
   const [max, setMax] = useState("9");
-  const [mode, setMode] = useState<"even" | "rest" | "extra" | "extend">("even");
+  const [mode, setMode] = useState<"even" | "rest" | "extra" | "extend" | "challenges">("even");
+  const [level, setLevel] = useState<MixedLevel>(3);
   const withRemainder = mode === "rest";
   const [dec, setDec] = useState(0);
   const [extra, setExtra] = useState(1);
@@ -37,6 +38,12 @@ function DivisionPage() {
   const generate = () => {
     try {
       const result = mode === "extend" ? genExtendDivision(8)
+        : mode === "challenges" ? genChallengeDivision(level, 8).map(t => {
+            const { shown, ...rest } = t;
+            if (!shown) return rest;
+            const scale = Math.round(Math.log10(rest.dividend / shown.dividend));
+            return { ...rest, shownDecimals: { dividend: shown.dividendDecimals + scale, divisor: shown.divisorDecimals } };
+          })
         : genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 8, withRemainder, dec, mode === "extra" ? extra : 0);
       setTasks(result); setDirty(false); setError("");
     } catch (e) { setError(e instanceof Error ? e.message : "Kontrollera inställningarna."); }
