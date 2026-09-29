@@ -153,3 +153,25 @@ export function genChallengeDivision(level: MixedLevel, count = 8): MixedDivisio
   }
   return tasks;
 }
+
+/** Slumpade decimaler: flyttar kommat i täljare och kvot lika mycket (0–2 steg) så att
+ *  uppgifterna på samma blad får olika antal decimaler. Uppgifter med rest, omskriven
+ *  divisor eller oändlig/avrundad kvot lämnas orörda. Nolla som sista decimal undviks. */
+export function randomizeDecimals<T extends MixedDivision>(t: T): T {
+  if (t.remainder > 0 || t.shown || t.repeating || t.rounded !== undefined) return t;
+  if (t.dividend % 10 === 0) return t;
+  const dd = t.dividendDecimals ?? 0;
+  const shift = rand(0, Math.min(2, 3 - dd));
+  if (!shift) return t;
+  return { ...t, dividendDecimals: dd + shift, quotientDecimals: (t.quotientDecimals ?? 0) + shift };
+}
+
+/** Säkerställer att minst två uppgifter får olika antal decimaler i täljaren (om möjligt). */
+export function randomizeSheetDecimals<T extends MixedDivision>(tasks: T[]): T[] {
+  let out = tasks;
+  for (let i = 0; i < 50; i++) {
+    out = tasks.map(randomizeDecimals);
+    if (new Set(out.map(t => t.dividendDecimals ?? 0)).size > 1) break;
+  }
+  return out;
+}
