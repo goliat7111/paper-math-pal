@@ -9,7 +9,17 @@ const Input = z.object({
   tableMax: z.number().int().min(0).max(12),
   theme: z.string().trim().min(1).max(80),
   count: z.number().int().min(4).max(10),
+  op: z.enum(["add", "sub", "mul", "div", "all"]).default("mul"),
+  maxNumber: z.number().int().min(10).max(100000).default(100),
 });
+
+const OP_TEXT = {
+  add: (lo: number, hi: number, max: number) => `Varje uppgift ska lösas med addition, med tal upp till ${max}. Använd additionens språk varierat: "tillsammans", "sammanlagt", "fler", "ökar med", "hur många blir det", "summan".`,
+  sub: (lo: number, hi: number, max: number) => `Varje uppgift ska lösas med subtraktion, med tal upp till ${max}. Använd subtraktionens språk varierat: "hur många är kvar", "skillnaden", "hur många fler/färre", "minskar med", "tar bort", "ger bort". Svaret ska alltid vara positivt.`,
+  mul: (lo: number, hi: number) => `Varje uppgift ska lösas med multiplikation (ibland kombinerat med addition/subtraktion för äldre elever) där minst en faktor ligger i tabellerna ${lo}–${hi}. Använd multiplikationens språk: "lika många i varje", "gånger så många", "dubbelt", "rader med", "varje ... har".`,
+  div: (lo: number, hi: number) => `Varje uppgift ska lösas med division där divisorn eller kvoten ligger i tabellerna ${lo}–${hi}. Blanda delningsdivision ("dela lika mellan", "hur många får var och en") och innehållsdivision ("hur många grupper/påsar räcker det till", "hur många gånger ryms"). Om det blir rest, låt frågan hantera den naturligt.`,
+  all: (lo: number, hi: number, max: number) => `Blanda räknesätten så att bladet innehåller ungefär lika många uppgifter i addition, subtraktion, multiplikation och division, i blandad ordning. Addition och subtraktion med tal upp till ${max}; multiplikation och division med tabellerna ${lo}–${hi}. Använd respektive räknesätts typiska språk (t.ex. "sammanlagt", "hur många är kvar", "lika många i varje", "dela lika").`,
+};
 
 export const generateTextTasks = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
@@ -19,9 +29,9 @@ export const generateTextTasks = createServerFn({ method: "POST" })
     const lo = Math.min(data.tableMin, data.tableMax), hi = Math.max(data.tableMin, data.tableMax);
     const prompt = `Skriv ${data.count} textuppgifter (problemlösning) i matematik på svenska för elever i årskurs ${data.grade}.
 Tema: ${data.theme}.
-Varje uppgift ska lösas med multiplikation (ibland kombinerat med addition/subtraktion eller division för äldre elever) där minst en faktor ligger i tabellerna ${lo}–${hi}.
+${OP_TEXT[data.op](lo, hi, data.maxNumber)}
 Anpassa språk, meningslängd och svårighet till årskursen. Öka svårigheten något genom bladet. Max 3 meningar per uppgift. Svaren ska vara korrekta och kontrollerade.
-Svara ENDAST med JSON: {"tasks":[{"question":"...","answer":"kort svar med enhet, t.ex. '24 äpplen' och uträkning i parentes, t.ex. '(6 · 4 = 24)'"}]}`;
+Svara ENDAST med JSON: {"tasks":[{"question":"...","answer":"kort svar med enhet, t.ex. '24 äpplen' och uträkning i parentes, t.ex. '(6 · 4 = 24)', med rätt räknetecken (+, −, ·, /)"}]}`;
     const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
