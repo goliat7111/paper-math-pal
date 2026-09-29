@@ -81,7 +81,8 @@ function MultiplikationPage() {
     if (tab === "snabba") return `snabba-tal-multiplikation-${sr[0]}-${sr[1]}-${d}`;
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
-    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror${dt || db ? `-decimaler-${dt}x${db}` : ""}-${d}`;
+    const decLabel = (v: number) => (v === -1 ? "slump" : `${v}`);
+    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror${dt || db ? `-decimaler-${decLabel(dt)}x${decLabel(db)}` : ""}-${d}`;
   };
 
   const downloadPdf = async () => {
@@ -162,6 +163,7 @@ function MultiplikationPage() {
                         <option value={0}>Heltal</option>
                         <option value={1}>1 decimal</option>
                         <option value={2}>2 decimaler</option>
+                        <option value={-1}>Slumpa (0–2)</option>
                       </select>
                     </label>
                   ))}
