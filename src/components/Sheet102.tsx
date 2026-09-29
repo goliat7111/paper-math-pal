@@ -45,7 +45,7 @@ export function Sheet102({
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
       >
         {columns.map((col, ci) => (
-          <div key={ci} className={count === 100 ? "flex flex-col justify-between" : ""}>
+          <div key={ci} className={count === 100 ? "flex flex-col" : ""}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi}>
                 {bi > 0 && <div aria-hidden style={{ height: count === 100 ? "4mm" : "7mm" }} />}
