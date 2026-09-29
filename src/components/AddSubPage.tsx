@@ -15,7 +15,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const title = op === "add" ? "Addition" : "Subtraktion";
   const [lo, setLo] = useState(3);
   const [hi, setHi] = useState(3);
-  const [dec, setDec] = useState<number | "slumpa">(0);
+  const [dec, setDec] = useState<number | "slumpa" | "slumpa-decimaler">(0);
   const [terms, setTerms] = useState(2);
   const [regroup, setRegroup] = useState(true);
   const [ownSetup, setOwnSetup] = useState(false);
@@ -48,7 +48,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -73,10 +73,11 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
         </div></fieldset>
         <fieldset><legend className="mb-2 text-sm font-medium">Tal</legend><div className="flex gap-2">
           <button type="button" className={btn(dec === 0)} onClick={() => setDec(0)}>Heltal</button>
-          <button type="button" className={btn(typeof dec === "number" && dec > 0)} onClick={() => setDec(typeof dec === "number" && dec > 0 ? dec : 1)}>Decimaltal</button>
+          <button type="button" className={btn((typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler")} onClick={() => setDec(typeof dec === "number" && dec > 0 ? dec : dec === "slumpa-decimaler" ? dec : 1)}>Decimaltal</button>
           <button type="button" className={btn(dec === "slumpa")} onClick={() => setDec("slumpa")}>Slumpa</button>
         </div>
-          {typeof dec === "number" && dec > 0 && <label className="mt-2 block text-sm">Antal decimaler<select className={sel} value={dec} onChange={e => setDec(Number(e.target.value))}>{[1, 2, 3].map(n => <option key={n} value={n}>{n} decimal{n > 1 ? "er" : ""}</option>)}</select></label>}
+          {(typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler" ? <label className="mt-2 block text-sm">Antal decimaler<select className={sel} value={dec === "slumpa-decimaler" ? "slumpa-decimaler" : dec} onChange={e => setDec(e.target.value === "slumpa-decimaler" ? "slumpa-decimaler" : Number(e.target.value))}>{[1, 2, 3].map(n => <option key={n} value={n}>{n} decimal{n > 1 ? "er" : ""}</option>)}<option value="slumpa-decimaler">Slumpa decimaler</option></select></label> : null}
+          {dec === "slumpa-decimaler" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler (1–3).</p>}
           {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.</p>}
         </fieldset>
         <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec !== 0 ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
