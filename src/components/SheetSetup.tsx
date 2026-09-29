@@ -127,11 +127,13 @@ export function Problem({
   t,
   answers,
   digitMm,
+  showNumber = true,
 }: {
   n: number;
   t: SetupTask;
   answers: boolean;
   digitMm: number;
+  showNumber?: boolean;
 }) {
   const L = setupLayout(t);
   const gridCols = `repeat(${L.nCols}, ${digitMm}mm) 14mm`;
@@ -159,7 +161,7 @@ export function Problem({
 
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-      <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>
+      {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `repeat(3, ${cellH})` }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
