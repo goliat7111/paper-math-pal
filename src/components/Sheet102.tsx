@@ -51,7 +51,7 @@ export function Sheet102({
         {columns.map((col, ci) => (
           <div key={ci} className={count === 100 ? "flex flex-col" : ""}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
-              <div key={bi}>
+              <div key={bi} className={count === 100 ? "flex flex-col flex-1" : ""}>
                 {bi > 0 && <div aria-hidden style={{ height: count === 100 ? "4mm" : "7mm" }} />}
                 {block.map((t, ti) => (
                   <div
