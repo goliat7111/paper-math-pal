@@ -6,10 +6,11 @@ export const rand = (min: number, max: number) => {
 
 export type MulTask = { a: number; b: number };
 
-/** 102 tal: 3 kolumner × 34 rader, grupperade i block om 5.
+/** 102 tal (3 kolumner × 34 rader) och 100 tal (4 kolumner × 25 rader),
+ *  grupperade i block om 5.
  *  Försöker täcka alla unika faktorkombinationer inom intervallen;
  *  återstående platser fylls med slumpade dubbletter. */
-export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
+export function gen102(f1: [number, number], f2: [number, number], count = 102): MulTask[] {
   const lo1 = Math.min(...f1), hi1 = Math.max(...f1);
   const lo2 = Math.min(...f2), hi2 = Math.max(...f2);
   const all: MulTask[] = [];
@@ -20,7 +21,7 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
     const j = Math.floor(Math.random() * (i + 1));
     [all[i], all[j]] = [all[j]!, all[i]!];
   }
-  const tasks = all.slice(0, 102);
+  const tasks = all.slice(0, count);
   // Fyll upp till 102 med dubbletter så att varje faktor förekommer så jämnt som möjligt
   const countA = new Map<number, number>();
   const countB = new Map<number, number>();
@@ -28,7 +29,7 @@ export function gen102(f1: [number, number], f2: [number, number]): MulTask[] {
     countA.set(t.a, (countA.get(t.a) ?? 0) + 1);
     countB.set(t.b, (countB.get(t.b) ?? 0) + 1);
   }
-  while (tasks.length < 102) {
+  while (tasks.length < count) {
     // Välj bland de kombinationer vars faktorer hittills förekommit minst
     let best: MulTask[] = [];
     let bestScore = Infinity;

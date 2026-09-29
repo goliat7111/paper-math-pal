@@ -25,7 +25,7 @@ export const Route = createFileRoute("/multiplikation")({
   component: MultiplikationPage,
 });
 
-type Tab = "102" | "setup" | "snabba";
+type Tab = "102" | "100" | "setup" | "snabba";
 
 function MultiplikationPage() {
   const [tab, setTab] = useState<Tab>("102");
@@ -37,6 +37,7 @@ function MultiplikationPage() {
   const [dt, setDt] = useState(0);
   const [db, setDb] = useState(0);
   const [t102, setT102] = useState<MulTask[] | null>(null);
+  const [t100, setT100] = useState<MulTask[] | null>(null);
   const [tSetup, setTSetup] = useState<SetupTask[] | null>(null);
   const [sr, setSr] = useState<[number, number]>([2, 9]);
   const [tSnabba, setTSnabba] = useState<MulTask[][] | null>(null);
@@ -63,11 +64,13 @@ function MultiplikationPage() {
   // Stor pool: bladet visar själv så många uppgifter som ryms på A4-sidan
   const SETUP_POOL = 40;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
+  useEffect(() => setT100(gen102(f1, f2, 100)), [f1, f2]);
   useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL, dt, db)), [sd, sb, dt, db]);
   useEffect(() => setTSnabba(genSnabba(sr)), [sr]);
 
   const regenerate = () => {
     if (tab === "102") setT102(gen102(f1, f2));
+    else if (tab === "100") setT100(gen102(f1, f2, 100));
     else if (tab === "setup") setTSetup(genSetup(sd, sb, SETUP_POOL, dt, db));
     else setTSnabba(genSnabba(sr));
   };
@@ -78,6 +81,7 @@ function MultiplikationPage() {
   const suggestName = () => {
     const d = new Date().toISOString().slice(0, 10);
     if (tab === "102") return `multiplikation-102-tal-${f1[0]}-${f1[1]}x${f2[0]}-${f2[1]}-${d}`;
+    if (tab === "100") return `multiplikation-100-tal-${f1[0]}-${f1[1]}x${f2[0]}-${f2[1]}-${d}`;
     if (tab === "snabba") return `snabba-tal-multiplikation-${sr[0]}-${sr[1]}-${d}`;
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
@@ -119,7 +123,7 @@ function MultiplikationPage() {
             <ArrowLeft className="h-4 w-4" /> Alla räknesätt
           </Link>
           <h1 className="font-display text-2xl font-semibold text-foreground">Multiplikation</h1>
-          <p className="text-sm text-muted-foreground">102 tal · Mult. uppställning · Snabba tal</p>
+          <p className="text-sm text-muted-foreground">102 tal · 100 tal · Mult. uppställning · Snabba tal</p>
         </div>
       </header>
 
@@ -131,6 +135,7 @@ function MultiplikationPage() {
             <div className="flex flex-wrap gap-2">
               {([
                 ["102", "102 tal (6 min)"],
+                ["100", "100 tal (6 min)"],
                 ["setup", "Mult. uppställning"],
                 ["snabba", "Snabba tal"],
               ] as const).map(([k, label]) => (
@@ -138,10 +143,11 @@ function MultiplikationPage() {
               ))}
             </div>
           </fieldset>
-          {tab === "102" ? (
+          {tab === "102" || tab === "100" ? (
             <>
               <RangeInput label="Faktor 1 mellan" value={f1} onChange={setF1} />
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
+              <p className="-mt-3 text-xs text-muted-foreground">{tab === "100" ? "4 kolumner med 25 tal i varje – 100 uppgifter på 6 minuter." : "3 kolumner med 34 tal i varje – 102 uppgifter på 6 minuter."}</p>
             </>
           ) : tab === "snabba" ? (
             <>
@@ -191,7 +197,7 @@ function MultiplikationPage() {
                 ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
                 : "Förhandsgranskning: beräknar… ")}
             PDF: {pagesLabel(content)} ·{" "}
-            {tab === "102" ? 102 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
+            {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
           </p>
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           <div className="space-y-2 pt-2">
@@ -213,6 +219,12 @@ function MultiplikationPage() {
             <>
               {showSheet(content) && <Sheet102 tasks={t102} answers={false} />}
               {showKey(content) && <Sheet102 tasks={t102} answers />}
+            </>
+          )}
+          {tab === "100" && t100 && (
+            <>
+              {showSheet(content) && <Sheet102 tasks={t100} answers={false} count={100} />}
+              {showKey(content) && <Sheet102 tasks={t100} answers count={100} />}
             </>
           )}
           {tab === "snabba" && tSnabba && (
