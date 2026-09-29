@@ -284,16 +284,48 @@ body { font-family: var(--font-sans); }
 .division-answer.is-answer { border-bottom: 0; font-weight: bold; color: var(--sheet-answer); }
 .division-result { display: flex; flex-direction: column; gap: 2mm; }
 .division-remainder { font-size: 14px; white-space: nowrap; }
-@page { size: A4 portrait; margin: 0; }
+@page portrait-sheet { size: A4 portrait; margin: 0; }
+@page landscape-sheet { size: A4 landscape; margin: 0; }
 @media print {
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--sheet-paper) !important;
+  }
+  body * { visibility: hidden !important; }
+  .print-area, .print-area * { visibility: visible !important; }
   .no-print { display: none !important; }
-  body { background: var(--sheet-paper) !important; }
-  .print-area { gap: 0 !important; display: block !important; }
-  .a4-page { box-shadow: none; height: 297mm; overflow: hidden; break-after: page; page-break-after: always; }
-  .a4-page.landscape { height: 210mm; }
+  .print-area {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    display: block !important;
+    background: var(--sheet-paper) !important;
+  }
+  .a4-page {
+    page: portrait-sheet;
+    width: 210mm !important;
+    min-height: 0 !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    overflow: hidden;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+  .a4-page.landscape {
+    page: landscape-sheet;
+    width: 297mm !important;
+    height: 210mm !important;
+  }
   .a4-page:last-child { break-after: auto; page-break-after: auto; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body > * .min-h-screen, main { padding: 0 !important; margin: 0 !important; }
 }
 .addsub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .addsub-expression { font-size: 15px; white-space: nowrap; height: 6mm; align-items: flex-end; }

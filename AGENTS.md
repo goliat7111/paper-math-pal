@@ -11,13 +11,14 @@
 
 # Tekniska beslut
 
-- Kolumnplacering i uppställningsbladet (minnessiffror, ×-tecken, produkt) räknas ut i `setupLayout()` i `src/lib/worksheets.ts` och renderas med explicit `gridColumn`/`gridRow` — aldrig grid auto-placering, som placerade minnessiffrorna fel (span-cellen hamnade först). Layoutlogiken är därmed enhetstestad.
-- Additionens minnessiffror beräknas kolumnvis i `setupLayout()` och visas i en 4 mm hög rad direkt under övre strecket endast vid flersiffrig undre faktor, så arbetsblad och facit behåller samma radplacering.
+- Uppställningsbladets kolumner räknas i `setupLayout()` och placeras explicit med `gridColumn`/`gridRow`; grid-auto placerar minnessiffror fel.
+- Additionens minnessiffror räknas kolumnvis och visas i en 4 mm rad under övre strecket vid flersiffrig undre faktor.
 - Alla nuvarande och framtida hela arbetsblad och facit använder `SheetHeader` med titel, undertitel och skrivrader för namn, datum och poäng; `Snabba tal` är undantaget eftersom dess fyra övningar ska klippas isär.
-- Utskrivbara mallar bor på en egen sida (`/mallar`); 100-rutan ritas som en 11×11 HTML-tabell vars produkter kan visas eller döljas, och rutorna fyller tillgänglig A4-yta via antalstyrd grid så direktutskrift och PDF får samma rutindelning.
+- Mallar bor på `/mallar`; 100-rutan är en 11×11-tabell och antalstyrd grid ger samma A4-indelning i utskrift och PDF.
 - Addition och subtraktion delar `AddSubPage`/`SheetAddSub` och logiken i `src/lib/addsub.ts`; uppgifter utan växling konstrueras kolumnvis (slumpa-och-förkasta hittar dem inte vid 3 termer och decimaler).
-- Rutmallarnas teckenstorlek följer cellhöjden via `.hundred-grid-box` med `container-type: size` och `calc(40cqh / var(--rows))`; tabeller kan inte själva vara size-containrar.
+- Rutmallarnas teckenstorlek följer cellhöjden via `.hundred-grid-box` som size-container; tabeller kan inte vara size-containrar.
 - Klipplinjer: streckade linjer ritas som SVG-data-URI-bakgrunder (--cut-v/--cut-h i :root) på rutnätscontainrarna — de ligger exakt i grid-gapet (50 %/33 %/25 % vid lika rader) och korsar aldrig tabellerna. Gäller .hundred-grid-layout--2/4/6/8, .talkamrat-grid-2/-4, .talkamrat-halves (liggande) och .snabba-grid.
-- Zoom på alla bladsidor använder useSheetZoom() + ZoomControls med ResizeObserver och 0,5–3 i steg om 0,25; main får {...mainProps} och min-w-0. Påverkar aldrig utskrift/PDF.
+- Bladsidor använder `useSheetZoom()`/`ZoomControls`; zoom 0,5–3 påverkar aldrig utskrift/PDF.
+- Direktutskrift isolerar `.print-area`; varje `.a4-page` använder namngiven stående/liggande `@page`, så skärmlayouten inte skapar extrasidor.
 - Blandade övningar återanvänder räknemotorer och uppställningar för de fyra räknesätten; nivåprofiler hålls separat så facit överensstämmer med befintliga blad.
 - Slumpade decimaler i divisionsutmaningar och blandade övningar flyttar kommat lika mycket i täljare och kvot (`randomizeDecimals` i `src/lib/mixed-division.ts`); uppgifter med rest, decimal divisor eller oändlig kvot lämnas orörda så att facit och utmaningen förblir korrekta.
