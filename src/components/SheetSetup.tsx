@@ -175,7 +175,7 @@ export function Problem({
           <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} comma={i === L.commas.bottom} />
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
-        <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)" }} />
+        <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
         {/* Lägre rad för additionens minnessiffror, direkt under övre strecket */}
         {multi && L.additionCarries.map((c, i) => (
           <div
@@ -212,6 +212,8 @@ export function Problem({
               gridColumn: `${L.sumLeft} / ${L.nCols + 1}`,
               gridRow: productRowIdx,
               borderTop: "2px solid var(--sheet-ink)",
+              position: "relative",
+              zIndex: 1,
             }}
           />
         )}
