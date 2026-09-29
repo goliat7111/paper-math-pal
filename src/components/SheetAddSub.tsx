@@ -8,9 +8,10 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
   const L = addSubLayout(t);
   const totalCols = L.nCols + 3;
   const totalRows = L.rows.length + 4;
-  const cell = cellMm ?? 6.5;
-  const cellStyle = { "--addsub-cell": `${cell}mm` } as React.CSSProperties;
+  const cellSize = cellMm ?? 6.5;
+  const cellStyle = { "--addsub-cell": `${cellSize}mm` } as React.CSSProperties;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
+
     <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
       {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="division-comma">,</span>}
     </div>
