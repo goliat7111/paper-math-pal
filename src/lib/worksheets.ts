@@ -81,9 +81,11 @@ export function genSetup(
   topDigits: [number, number] = [3, 3],
   bottomDigits: [number, number] = [1, 1],
   count = 12,
-  topDecimals = 0,
-  bottomDecimals = 0,
+  topDecimals: number = 0,
+  bottomDecimals: number = 0,
 ): SetupTask[] {
+  // -1 = "Slumpa": varje uppgift får 0–2 decimaler i faktorn.
+  const pickDec = (d: number) => (d === -1 ? rand(0, 2) : d);
   const genNumber = (range: [number, number], dec: number) => {
     const k = Math.max(1, rand(...range));
     // Ensiffriga faktorer är aldrig 1 (trivial multiplikation) – minst 2.
@@ -95,12 +97,16 @@ export function genSetup(
     while (ds.length < dec + 1) ds.unshift(0);
     return ds;
   };
-  return Array.from({ length: count }, () => ({
-    digits: genNumber(topDigits, topDecimals),
-    m: genNumber(bottomDigits, bottomDecimals),
-    ...(topDecimals > 0 ? { dt: topDecimals } : {}),
-    ...(bottomDecimals > 0 ? { db: bottomDecimals } : {}),
-  }));
+  return Array.from({ length: count }, () => {
+    const dt = pickDec(topDecimals);
+    const db = pickDec(bottomDecimals);
+    return {
+      digits: genNumber(topDigits, dt),
+      m: genNumber(bottomDigits, db),
+      ...(dt > 0 ? { dt } : {}),
+      ...(db > 0 ? { db } : {}),
+    };
+  });
 }
 
 export type SetupPartial = { cells: string[]; carries: number[] };
