@@ -9,6 +9,8 @@ export type DivisionTask = {
   remainder: number;
   dividendDecimals?: number;
   quotientDecimals?: number;
+  /** Visningsdecimaler när uttrycket skrivs annorlunda än uträkningen (förlänga/förkorta). */
+  shownDecimals?: { dividend: number; divisor: number };
 };
 
 /** Hur många extra decimaler nämnaren kan ge (största exponenten av 2 och 5). */
@@ -84,6 +86,30 @@ export function genDivision(
     }
     throw new Error("Hittade inga passande divisioner. Prova andra inställningar.");
   });
+}
+
+/** Uppgifter där eleven förlänger eller förkortar för att kunna räkna i huvudet,
+ *  t.ex. 3,6 / 0,6 = 36 / 6 = 6 eller 4,8 / 0,06 = 480 / 6 = 80.
+ *  Nämnaren är alltid ensiffrig (2–9) med 1–2 decimaler; uträkningen lagras förlängd. */
+export function genExtendDivision(count = 8): DivisionTask[] {
+  const tasks: DivisionTask[] = [];
+  const seen = new Set<string>();
+  for (let tries = 0; tasks.length < count && tries < 200000; tries++) {
+    const divisor = rand(2, 9);
+    const divisorDec = rand(1, 2);
+    const quotient = rand(2, 12);
+    const dividend = divisor * quotient;
+    // Täljaren visar 0–divisorDec decimaler; visar den färre får eleven förlänga extra mycket.
+    const dividendDec = rand(0, divisorDec);
+    if (dividendDec > 0 && dividend % 10 === 0) continue; // aldrig nolla som sista decimalsiffra
+    const key = `${dividend}.${dividendDec}/${divisor}.${divisorDec}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tasks.push({ dividend, divisor, quotient, remainder: 0,
+      shownDecimals: { dividend: dividendDec, divisor: divisorDec } });
+  }
+  if (tasks.length < count) throw new Error("Hittade inga passande divisioner.");
+  return tasks;
 }
 
 /** Resten från föregående siffra skrivs framför nästa siffra i kort division.
