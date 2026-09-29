@@ -92,21 +92,24 @@ export function genDivision(
  *  t.ex. 3,6 / 0,6 = 36 / 6 = 6 eller 4,8 / 0,06 = 480 / 6 = 80.
  *  Nämnaren är alltid ensiffrig (2–9) med 1–2 decimaler; uträkningen lagras förlängd. */
 export function genExtendDivision(count = 8): DivisionTask[] {
-  return Array.from({ length: count }, () => {
-    for (let tries = 0; tries < 20000; tries++) {
-      const divisor = rand(2, 9);
-      const divisorDec = rand(1, 2);
-      const quotient = rand(2, 12);
-      const dividend = divisor * quotient;
-      // Täljaren visar 0–divisorDec decimaler; visar den färre får eleven förlänga extra mycket.
-      const dividendDec = rand(0, divisorDec);
-      if (dividendDec === 0 && divisorDec === 1 && dividend % 10 === 0) continue;
-      if (dividendDec === divisorDec && dividend % 10 === 0) continue; // sista decimalsiffran aldrig 0
-      return { dividend, divisor, quotient, remainder: 0,
-        shownDecimals: { dividend: dividendDec, divisor: divisorDec } };
-    }
-    throw new Error("Hittade inga passande divisioner.");
-  });
+  const tasks: DivisionTask[] = [];
+  const seen = new Set<string>();
+  for (let tries = 0; tasks.length < count && tries < 200000; tries++) {
+    const divisor = rand(2, 9);
+    const divisorDec = rand(1, 2);
+    const quotient = rand(2, 12);
+    const dividend = divisor * quotient;
+    // Täljaren visar 0–divisorDec decimaler; visar den färre får eleven förlänga extra mycket.
+    const dividendDec = rand(0, divisorDec);
+    if (dividendDec > 0 && dividend % 10 === 0) continue; // aldrig nolla som sista decimalsiffra
+    const key = `${dividend}.${dividendDec}/${divisor}.${divisorDec}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tasks.push({ dividend, divisor, quotient, remainder: 0,
+      shownDecimals: { dividend: dividendDec, divisor: divisorDec } });
+  }
+  if (tasks.length < count) throw new Error("Hittade inga passande divisioner.");
+  return tasks;
 }
 
 /** Resten från föregående siffra skrivs framför nästa siffra i kort division.
