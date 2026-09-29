@@ -83,8 +83,6 @@ function build(c: number): Omit<MixedDivision, "challenge" | "note"> {
     case 7: return exact(200, 999, 2, 9, t => String(t.quotient).length === 3 && digitsOf(t.quotient)[1] === 0);
     case 8: return withRest(20, 99, t => t.quotient >= 10);
     case 9: return withRest(200, 999, t => carries(t) >= 1 && t.quotient >= 100);
-    case 10: return exact(200, 999, 11, 15, t => t.dividend % 10 !== 0);
-    case 11: return exact(1000, 2999, 16, 29, t => t.divisor % 10 !== 0 && t.quotient % 10 !== 0);
     case 12: return exact(1000, 9999, 2, 9, t => digitsOf(t.quotient).filter(d => d === 0).length >= 2 && t.quotient % 10 !== 0);
     case 13: {
       for (;;) {
