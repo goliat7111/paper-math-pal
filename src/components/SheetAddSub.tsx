@@ -20,7 +20,8 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
   const bg = [];
   for (let r = 1; r <= totalRows; r++) for (let c = 1; c <= totalCols; c++) bg.push(<div key={`bg${r}-${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: r }} />);
   return (
-    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle }}>
+    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle, ...(cellMm && cellMm > 6.5 ? { fontSize: "20px" } : {}) }}>
+
       {bg}
 
       {L.rows[0]!.map((_, c) => cell(answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "", c, 1, "addsub-small", `m${c}`))}
