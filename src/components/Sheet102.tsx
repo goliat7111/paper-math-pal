@@ -41,15 +41,15 @@ export function Sheet102({
         score={`av ${count}`}
       />
       <div
-        className="mt-5 grid"
+        className={`mt-5 grid${count === 100 ? " flex-1" : ""}`}
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
       >
         {columns.map((col, ci) => (
-          <div key={ci}>
+          <div key={ci} className={count === 100 ? "flex flex-col justify-between" : ""}>
             {chunk(col, blockSizes(col.length)).map((block, bi) => (
               <div key={bi} className={bi === 0 ? "" : "mt-[7mm]"}>
                 {block.map((t, ti) => (
-                  <div key={ti} className="flex items-end font-mono text-[15px] leading-none tabular-nums" style={{ height: rowHeight(count) }}>
+                  <div key={ti} className="flex items-end font-mono text-[15px] leading-none tabular-nums" style={rowHeight(count) ? { height: rowHeight(count) } : undefined}>
                     <span className="w-6 text-right">{t.a}</span>
                     <span className="w-5 text-center">·</span>
                     <span className="w-6 text-left">{t.b}</span>
