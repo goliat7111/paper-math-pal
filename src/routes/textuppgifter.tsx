@@ -47,7 +47,7 @@ function Sheet({ tasks, answers, grade, theme, opLabel }: { tasks: TextTask[]; a
 
 function TextuppgifterPage() {
   const gen = useServerFn(generateTextTasks);
-  const [grade, setGrade] = useState(3);
+  const [grade, setGrade] = useState(5);
   const [tMin, setTMin] = useState("2");
   const [tMax, setTMax] = useState("9");
   const [theme, setTheme] = useState("");
@@ -58,7 +58,7 @@ function TextuppgifterPage() {
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<TextTask[]>([]);
-  const [meta, setMeta] = useState({ grade: 3, theme: "", op: "mul" as Op, focus: "arithmetic" as FocusArea });
+  const [meta, setMeta] = useState({ grade: 5, theme: "", op: "mul" as Op, focus: "arithmetic" as FocusArea });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
