@@ -1,4 +1,4 @@
-import { FOCUS_AREAS, type FocusArea } from "@/lib/textuppgifter-focus";
+import { FOCUS_AREAS, GEOMETRY_AREAS, type GeometryArea, type FocusArea } from "@/lib/textuppgifter-focus";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -52,13 +52,14 @@ function TextuppgifterPage() {
   const [tMax, setTMax] = useState("9");
   const [theme, setTheme] = useState("");
   const [count, setCount] = useState(6);
+  const [geometry, setGeometry] = useState<GeometryArea>("plane");
   const [focus, setFocus] = useState<FocusArea>("arithmetic");
   const [op, setOp] = useState<Op>("mul");
   const [maxNumber, setMaxNumber] = useState(100);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<TextTask[]>([]);
-  const [meta, setMeta] = useState({ grade: 5, theme: "", op: "mul" as Op, focus: "arithmetic" as FocusArea });
+  const [meta, setMeta] = useState({ grade: 5, theme: "", op: "mul" as Op, focus: "arithmetic" as FocusArea, geometry: "plane" as GeometryArea });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -90,12 +91,12 @@ function TextuppgifterPage() {
   };
   const input = "mt-1 block rounded-md border border-input bg-background px-2 py-1.5";
 
-  const opLabel = meta.focus === "arithmetic" ? OPS.find(o => o.v === meta.op)!.label : FOCUS_AREAS[meta.focus];
+  const opLabel = meta.focus === "arithmetic" ? OPS.find(o => o.v === meta.op)!.label : meta.focus === "geometry" ? GEOMETRY_AREAS[meta.geometry] : FOCUS_AREAS[meta.focus];
   const run = async () => {
     setLoading(true); setError("");
     try {
-      const r = await gen({ data: { grade, tableMin: Number(tMin), tableMax: Number(tMax), theme, count, op, maxNumber, focus } });
-      if ("error" in r) setError(r.error); else { setTasks(r.tasks); setMeta({ grade, theme, op, focus }); }
+      const r = await gen({ data: { grade, tableMin: Number(tMin), tableMax: Number(tMax), theme, count, op, maxNumber, focus, geometry } });
+      if ("error" in r) setError(r.error); else { setTasks(r.tasks); setMeta({ grade, theme, op, focus, geometry }); }
     } catch { setError("Något gick fel. Kontrollera inställningarna och försök igen."); }
     finally { setLoading(false); }
   };
@@ -113,6 +114,12 @@ function TextuppgifterPage() {
           <label className="block text-sm font-medium">Fokusområde<select className={`${input} w-full`} value={focus} onChange={e => setFocus(e.target.value as FocusArea)}>
             {Object.entries(FOCUS_AREAS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select></label>
+          {focus === "geometry" && <div className="space-y-2">
+            <label className="block text-sm font-medium">Geometriområde<select className={`${input} w-full`} value={geometry} onChange={e => setGeometry(e.target.value as GeometryArea)}>
+              {Object.entries(GEOMETRY_AREAS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select></label>
+            <p className="text-xs text-muted-foreground">{geometry === "plane" ? "Plana figurer, omkrets, area och vinklar." : geometry === "solids" ? "Kroppars egenskaper, sidoytor, kanter och hörn." : geometry === "space" ? "Volym, begränsningsarea och volymenheter." : "Kartor, ritningar, förstoring och förminskning."}</p>
+          </div>}
           {focus === "arithmetic" && <><fieldset><legend className="mb-2 text-sm font-medium">Räknesätt</legend><div className="flex flex-wrap gap-1.5">
             {OPS.map(o => <button key={o.v} type="button" aria-pressed={op === o.v} onClick={() => setOp(o.v)} className={`rounded-md border px-2.5 py-1.5 text-sm ${op === o.v ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent"}`}>{o.label}</button>)}
           </div></fieldset>
