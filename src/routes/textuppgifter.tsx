@@ -1,3 +1,4 @@
+import { FOCUS_AREAS, type FocusArea } from "@/lib/textuppgifter-focus";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -51,12 +52,13 @@ function TextuppgifterPage() {
   const [tMax, setTMax] = useState("9");
   const [theme, setTheme] = useState("");
   const [count, setCount] = useState(6);
+  const [focus, setFocus] = useState<FocusArea>("arithmetic");
   const [op, setOp] = useState<Op>("mul");
   const [maxNumber, setMaxNumber] = useState(100);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<TextTask[]>([]);
-  const [meta, setMeta] = useState({ grade: 3, theme: "", op: "mul" as Op });
+  const [meta, setMeta] = useState({ grade: 3, theme: "", op: "mul" as Op, focus: "arithmetic" as FocusArea });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -88,12 +90,12 @@ function TextuppgifterPage() {
   };
   const input = "mt-1 block rounded-md border border-input bg-background px-2 py-1.5";
 
-  const opLabel = OPS.find(o => o.v === meta.op)!.label;
+  const opLabel = meta.focus === "arithmetic" ? OPS.find(o => o.v === meta.op)!.label : FOCUS_AREAS[meta.focus];
   const run = async () => {
     setLoading(true); setError("");
     try {
-      const r = await gen({ data: { grade, tableMin: Number(tMin), tableMax: Number(tMax), theme, count, op, maxNumber } });
-      if ("error" in r) setError(r.error); else { setTasks(r.tasks); setMeta({ grade, theme, op }); }
+      const r = await gen({ data: { grade, tableMin: Number(tMin), tableMax: Number(tMax), theme, count, op, maxNumber, focus } });
+      if ("error" in r) setError(r.error); else { setTasks(r.tasks); setMeta({ grade, theme, op, focus }); }
     } catch { setError("Något gick fel. Kontrollera inställningarna och försök igen."); }
     finally { setLoading(false); }
   };
@@ -101,14 +103,17 @@ function TextuppgifterPage() {
   return <div className="min-h-screen bg-background">
     <header className="no-print border-b border-border bg-card"><div className="mx-auto max-w-6xl px-6 py-4">
       <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Alla räknesätt</Link>
-      <h1 className="font-display text-2xl font-semibold">Textuppgifter</h1><p className="text-sm text-muted-foreground">Problemlösning i alla räknesätt · A4</p>
+      <h1 className="font-display text-2xl font-semibold">Textuppgifter</h1><p className="text-sm text-muted-foreground">Problemlösning inom olika matematikområden · A4</p>
     </div></header>
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
       <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
         <h2 className="font-display text-lg font-semibold">Inställningar</h2>
         <form onSubmit={e => { e.preventDefault(); run(); }} className="space-y-5">
           <label className="block text-sm font-medium">Årskurs<select className={`${input} w-auto`} value={grade} onChange={e => setGrade(Number(e.target.value))}>{[1,2,3,4,5,6,7,8,9].map(g => <option key={g} value={g}>Åk {g}</option>)}</select></label>
-          <fieldset><legend className="mb-2 text-sm font-medium">Räknesätt</legend><div className="flex flex-wrap gap-1.5">
+          <label className="block text-sm font-medium">Fokusområde<select className={`${input} w-full`} value={focus} onChange={e => setFocus(e.target.value as FocusArea)}>
+            {Object.entries(FOCUS_AREAS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select></label>
+          {focus === "arithmetic" && <><fieldset><legend className="mb-2 text-sm font-medium">Räknesätt</legend><div className="flex flex-wrap gap-1.5">
             {OPS.map(o => <button key={o.v} type="button" aria-pressed={op === o.v} onClick={() => setOp(o.v)} className={`rounded-md border px-2.5 py-1.5 text-sm ${op === o.v ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent"}`}>{o.label}</button>)}
           </div></fieldset>
           {(op === "add" || op === "sub" || op === "all") && <label className="block text-sm font-medium">Tal upp till (+ och −)<select className={`${input} w-auto`} value={maxNumber} onChange={e => setMaxNumber(Number(e.target.value))}>{[10,20,100,1000,10000].map(n => <option key={n} value={n}>{n}</option>)}</select></label>}
@@ -116,6 +121,7 @@ function TextuppgifterPage() {
             <label className="text-sm">Från<input aria-label="Tabell från" className={`${input} w-16 text-center`} type="number" min={0} max={12} required value={tMin} onChange={e => setTMin(e.target.value)} /></label><span className="pb-2">till</span>
             <label className="text-sm">Till<input aria-label="Tabell till" className={`${input} w-16 text-center`} type="number" min={0} max={12} required value={tMax} onChange={e => setTMax(e.target.value)} /></label>
           </div></fieldset>}
+          </>}
           <label className="block text-sm font-medium">Tema<input className={`${input} w-full`} maxLength={80} required value={theme} onChange={e => setTheme(e.target.value)} placeholder="Ämne/innehåll" /></label>
           <label className="block text-sm font-medium">Antal uppgifter<select className={`${input} w-auto`} value={count} onChange={e => setCount(Number(e.target.value))}>{[4,5,6,7,8,10].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
           <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-accent disabled:opacity-60"><Wand2 className="h-4 w-4" />{loading ? "Skapar uppgifter…" : tasks.length ? "Skapa nya uppgifter" : "Skapa uppgifter"}</button>
