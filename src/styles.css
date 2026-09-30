@@ -446,3 +446,126 @@ body { font-family: var(--font-sans); }
   background-position: 50% 0;
 }
 .mixed-hint { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
+
+/* Sänka skepp */
+.bship-page { padding: 9mm 10mm 10mm; height: 297mm; overflow: hidden; }
+.bship-page-title { margin: 0 0 4mm; text-align: center; font-family: var(--font-display); font-size: 7mm; line-height: 1; font-weight: 700; }
+.bship-cards { display: grid; gap: 5mm; }
+.bship-count-1 { height: 210mm; }
+.bship-count-1 .bship-cards { grid-template-columns: 1fr; }
+.bship-count-2 .bship-cards { grid-template-rows: repeat(2, 1fr); }
+.bship-count-4 .bship-cards { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 3mm; }
+.bship-card { border: .35mm solid var(--sheet-ink); padding: 4mm; display: flex; flex-direction: column; gap: 3mm; min-height: 0; }
+.bship-card-head { display: flex; align-items: center; justify-content: space-between; gap: 4mm; font-size: 4mm; }
+.bship-card-head > strong { font-family: var(--font-display); font-size: 8mm; }
+.bship-card-head span { display: flex; flex: 1; justify-content: flex-end; white-space: nowrap; }
+.bship-card-head i { width: 48mm; margin-left: 2mm; border-bottom: .3mm solid var(--sheet-ink); }
+.bship-boards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6mm; justify-items: center; }
+.bship-board-wrap { width: 100%; min-width: 0; }
+.bship-board-title { margin-bottom: 1.5mm; text-align: center; font-size: 3.7mm; font-weight: 700; }
+.bship-coord-grid { display: grid; grid-template-columns: 5mm repeat(10, 1fr); grid-template-rows: 5mm repeat(10, 1fr); width: 100%; aspect-ratio: 1 / 1; }
+.bship-col,.bship-row { display:flex; align-items:center; justify-content:center; font-size: 2.8mm; }
+.bship-cell { border-right: .25mm solid var(--sheet-ink); border-bottom: .25mm solid var(--sheet-ink); }
+.bship-coord-grid > .bship-cell:nth-child(n+13):nth-child(-n+22) { border-top: .25mm solid var(--sheet-ink); }
+.bship-cell:nth-child(11n + 2) { border-left: .25mm solid var(--sheet-ink); }
+.bship-coord-grid > .bship-cell:nth-last-child(-n+10) { border-bottom: .25mm solid var(--sheet-ink); }
+.bship-cell.is-ship { background: #555; box-shadow: inset 0 0 0 .5mm #fff; }
+.bship-fleet { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap: 1.5mm 4mm; font-size: 2.8mm; }
+.bship-fleet-item { display:flex; align-items:center; gap: .8mm; white-space:nowrap; }
+.bship-ship { display: inline-flex; flex-shrink: 0; }
+.bship-ship .bship-check + .bship-check { border-left: 0; }
+.bship-check { width: 3mm; height: 3mm; border: .3mm solid var(--sheet-ink); display:inline-block; }
+.bship-rules { margin-top: 4mm; border-top: .3mm solid var(--sheet-line); padding-top: 2.5mm; font-size: 2.8mm; line-height: 1.35; }
+.bship-count-1 .bship-card { padding: 6mm; gap: 5mm; }
+.bship-count-1 .bship-card-head > strong { font-size: 9mm; }
+.bship-count-1 .bship-board-title { font-size: 4.5mm; }
+.bship-count-1 .bship-fleet { font-size: 3.4mm; gap: 3mm 7mm; }
+.bship-count-1 .bship-check { width: 3.5mm; height: 3.5mm; }
+.bship-count-4 { padding: 7mm; height: 210mm; }
+.bship-count-4 .bship-page-title { font-size: 6mm; margin-bottom: 2mm; }
+.bship-count-4 .bship-card { padding: 2.2mm; gap: 1.5mm; }
+.bship-count-4 .bship-card-head { font-size: 2.6mm; gap: 1mm; }
+.bship-count-4 .bship-card-head > strong { font-size: 4.5mm; }
+.bship-count-4 .bship-card-head i { width: 23mm; }
+.bship-count-4 .bship-boards { gap: 2mm; }
+.bship-count-4 .bship-board-title { font-size: 2.5mm; margin-bottom: .5mm; }
+.bship-count-4 .bship-coord-grid { grid-template-columns: 3mm repeat(10,1fr); grid-template-rows: 3mm repeat(10,1fr); }
+.bship-count-4 .bship-col,.bship-count-4 .bship-row { font-size: 1.9mm; }
+.bship-count-4 .bship-fleet { gap: .7mm 2mm; font-size: 1.9mm; }
+.bship-count-4 .bship-check { width: 2mm; height: 2mm; border-width: .2mm; }
+.bship-count-4 .bship-rules { font-size: 2.2mm; margin-top: 2mm; padding-top: 1.5mm; }
+
+/* Fem i rad: each sheet fills the printable A4 area. */
+.five-page { height: 297mm; padding: 8mm; }
+.five-page.landscape { height: 210mm; }
+.five-cards { display: grid; height: 100%; gap: 5mm; }
+.five-card { display: flex; flex-direction: column; min-height: 0; min-width: 0; gap: 2mm; }
+.five-head { display: flex; align-items: baseline; justify-content: space-between; gap: 2mm; }
+.five-head h2 { font-family: var(--font-display); font-size: 6mm; font-weight: 700; white-space: nowrap; }
+.five-head span { font-size: 2.5mm; }
+.five-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); grid-template-rows: repeat(5, minmax(0,1fr)); border-top: .4mm solid #111; border-left: .4mm solid #111; }
+.five-cell { display: flex; justify-content: center; align-items: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; font-size: 5mm; color: #111; background: white; }
+.five-rules { font-size: 2.5mm; line-height: 1.25; margin: 0; }
+.five-count-6 .five-head, .five-count-8 .five-head { flex-wrap: wrap; gap: .5mm 2mm; }
+.five-count-6 .five-head h2, .five-count-8 .five-head h2 { font-size: 4mm; }
+.five-count-8 .five-cell { font-size: 3mm; }
+.five-count-8 .five-card { gap: 1mm; }
+.five-count-8 .five-rules { font-size: 2mm; }
+/* Compact boards retain square cells instead of stretching to fill the sheet. */
+.five-count-6 .five-card,
+.five-count-8 .five-card,
+.five-count-10 .five-card { align-items: center; gap: 1mm; }
+.five-count-6 .five-grid,
+.five-count-8 .five-grid,
+.five-count-10 .five-grid { flex: none; width: 100%; aspect-ratio: 1; }
+.five-count-6 .five-grid { max-width: 72mm; }
+.five-count-6 .five-head,
+.five-count-8 .five-head,
+.five-count-10 .five-head { width: 100%; flex-direction: column; align-items: flex-start; gap: .5mm; }
+.five-count-6 .five-head { max-width: 72mm; }
+.five-count-10 .five-head h2 { font-size: 4mm; }
+.five-count-10 .five-head span { font-size: 2.2mm; }
+.five-count-6 .five-cell { font-size: 4mm; }
+.five-count-10 .five-cell { font-size: 2.8mm; }
+.five-count-6 .five-rules,
+.five-count-8 .five-rules,
+.five-count-10 .five-rules { font-size: 2mm; width: 100%; }
+.five-count-6 .five-rules { max-width: 72mm; }
+/* Square cells for the larger layouts as well. */
+.five-count-2 .five-card,
+.five-count-4 .five-card { align-items: center; }
+.five-count-2 .five-grid,
+.five-count-4 .five-grid { flex: none; width: 100%; aspect-ratio: 1; }
+.five-count-2 .five-head,
+.five-count-4 .five-head,
+.five-count-2 .five-rules,
+.five-count-4 .five-rules { width: 100%; }
+/* Fifteen square boards, five columns by three rows on landscape A4. */
+.five-count-15 .five-cards { gap: 3mm; }
+.five-count-15 .five-card { align-items: center; gap: .7mm; }
+.five-count-15 .five-grid { flex: none; width: 47mm; max-width: 100%; aspect-ratio: 1; }
+.five-count-15 .five-head { width: 47mm; max-width: 100%; flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.15; }
+.five-count-15 .five-head h2 { font-size: 3.2mm; }
+.five-count-15 .five-head span { font-size: 1.9mm; }
+.five-count-15 .five-cell { font-size: 2.6mm; }
+.five-count-15 .five-rules { width: 47mm; max-width: 100%; font-size: 1.8mm; line-height: 1.15; }
+/* Clear outer frame without changing the square grid dimensions. */
+.five-grid { position: relative; }
+.five-grid::after { content: ""; position: absolute; inset: 0; border: .8mm solid #111; pointer-events: none; }
+.bingo-page { height: 297mm; padding: 9mm; flex-shrink: 0; }
+.bingo-cards { display: grid; grid-template-rows: repeat(2, minmax(0,1fr)); gap: 6mm; margin-top: 5mm; }
+.bingo-per-4 .bingo-cards { grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 25mm; }
+.bingo-card { display: flex; flex-direction: column; align-items: center; gap: 1.5mm; min-width: 0; break-inside: avoid; }
+.bingo-card h3 { font-size: 4mm; font-weight: 700; }
+.bingo-card p { font-size: 2.4mm; margin: 0; }
+.bingo-grid { width: 101mm; max-width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); grid-template-rows: repeat(5,minmax(0,1fr)); border-top: .4mm solid #111; border-left: .4mm solid #111; outline: .4mm solid #111; }
+.bingo-grid > div { display: flex; align-items: center; justify-content: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; font-size: 6mm; font-weight: 600; }
+.bingo-per-4 .bingo-grid { width: 89mm; }
+.bingo-per-4 .bingo-grid > div { font-size: 5mm; }
+.bingo-instruction { font-size: 3mm; margin: 4mm 0; }
+.bingo-calls { width: 100%; border-collapse: collapse; font-size: 4.2mm; }
+.bingo-calls th, .bingo-calls td { border: .25mm solid #333; text-align: center; height: 5.8mm; padding: .3mm 2mm; }
+.bingo-calls th { font-weight: 700; }
+.bingo-call-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8mm; position: relative; align-items: start; }
+.bingo-call-columns::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: .6mm solid #111; }
+.bingo-call-columns .bingo-calls th, .bingo-call-columns .bingo-calls td { padding: .3mm 1mm; }

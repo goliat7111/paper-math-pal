@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-/** Skalning av arbetsbladen på skärmen: --fit anpassar efter sidans bredd,
+/** Skalning av arbetsbladen på skärmen: --fit anpassar efter både sidans bredd och fönstrets höjd,
  *  --zoom är användarens manuella zoom. Påverkar aldrig utskrift eller PDF. */
 export function useSheetZoom() {
   const mainRef = useRef<HTMLElement>(null);
@@ -13,15 +13,43 @@ export function useSheetZoom() {
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setFit(Math.min(1, el.clientWidth / (297 * 96 / 25.4))));
+    const updateFit = () => {
+      const width = el.clientWidth || el.getBoundingClientRect().width;
+      if (width <= 0) return;
+      const page = el.querySelector(".a4-page");
+      const landscape = page?.classList.contains("landscape");
+      const pageWidth = landscape ? 297 : 210;
+      const pageHeight = landscape ? 210 : 297;
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const documentTop = el.getBoundingClientRect().top + window.scrollY;
+      // On narrow screens the preview starts below the controls; fit it to a full viewport.
+      const top = documentTop < viewportHeight / 2 ? Math.max(16, documentTop) : 16;
+      const height = Math.max(1, viewportHeight - top - 24);
+      setFit(Math.max(0.01, Math.min(1, width / (pageWidth * 96 / 25.4), height / (pageHeight * 96 / 25.4))));
+    };
+    const ro = new ResizeObserver(updateFit);
+    const observer = new MutationObserver(updateFit);
+    observer.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+    updateFit();
     ro.observe(el);
-    return () => ro.disconnect();
+    window.addEventListener("resize", updateFit);
+    window.visualViewport?.addEventListener("resize", updateFit);
+    return () => { ro.disconnect(); observer.disconnect(); window.removeEventListener("resize", updateFit); window.visualViewport?.removeEventListener("resize", updateFit); };
   }, []);
   const mainProps = {
     ref: mainRef,
     style: { "--fit": fit, "--zoom": zoom } as CSSProperties,
   };
-  return { mainProps, zoom, setZoom, zoomStep };
+  const changeZoom = (value: number) => {
+    setZoom(value);
+    if (value === 1) requestAnimationFrame(() => {
+      const page = mainRef.current?.querySelector(".a4-page");
+      if (!page) return;
+      const rect = page.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) page.scrollIntoView({ block: "start", inline: "nearest" });
+    });
+  };
+  return { mainProps, zoom, setZoom: changeZoom, zoomStep };
 }
 
 export function ZoomControls({ zoom, setZoom, zoomStep }: { zoom: number; setZoom: (z: number) => void; zoomStep: (dir: number) => void }) {
