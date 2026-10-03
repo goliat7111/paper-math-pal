@@ -11,9 +11,9 @@ import { genMixed, type MixedLevel, type MixedTasks } from "@/lib/mixed";
 export const Route = createFileRoute("/blandade-mallar")({
   head: () => ({
     meta: [
-      { title: "Blandade övningar – Räknebladet" },
+      { title: "Dagens tal – Räknebladet" },
       { name: "description", content: "Bygg blandade övningar med flera räknesätt på samma A4-blad, med eller utan facit." },
-      { property: "og:title", content: "Blandade övningar – Räknebladet" },
+      { property: "og:title", content: "Dagens tal – Räknebladet" },
       { property: "og:description", content: "Bygg blandade övningar med flera räknesätt på samma A4-blad." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -46,7 +46,7 @@ function BlandadeMallarPage() {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`blandade-ovningar-niva-${level}${randomDec ? "-slumpade-decimaler" : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`dagens-tal-niva-${level}${randomDec ? "-slumpade-decimaler" : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -60,7 +60,7 @@ function BlandadeMallarPage() {
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Alla räknesätt</Link>
-          <h1 className="font-display text-2xl font-semibold text-foreground">Blandade övningar</h1>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Dagens tal</h1>
           <p className="text-sm text-muted-foreground">Fyra räknesätt · A4</p>
         </div>
       </header>
