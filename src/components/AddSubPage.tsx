@@ -19,6 +19,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [terms, setTerms] = useState(2);
   const [regroup, setRegroup] = useState(true);
   const [ownSetup, setOwnSetup] = useState(false);
+  const [ownGrid, setOwnGrid] = useState(true);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<AddSubTask[]>([]);
@@ -48,7 +49,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
       const url = URL.createObjectURL(result.blob); previewUrl.current = url;
       setPreview({ ...result, url });
-      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
+      setFileName(`${op === "add" ? "addition" : "subtraktion"}-${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`);
     } catch { setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut."); }
     finally { setExporting(false); }
   };
@@ -91,6 +92,10 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <button type="button" className={btn(!ownSetup)} onClick={() => setOwnSetup(false)}>Färdig uppställning</button>
           <button type="button" className={btn(ownSetup)} onClick={() => setOwnSetup(true)}>Tom ruta</button>
         </div></fieldset>
+        {ownSetup && <fieldset><legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend><div className="flex gap-2">
+          <button type="button" className={btn(ownGrid)} onClick={() => setOwnGrid(true)}>Med rutnät</button>
+          <button type="button" className={btn(!ownGrid)} onClick={() => setOwnGrid(false)}>Utan rutnät</button>
+        </div></fieldset>}
         <PrintContentChoice value={content} onChange={setContent} />
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">{COUNT} uppgifter · 4 rader × 3 kolumner.<br />PDF: {pagesLabel(content)} · A4 stående.</p>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
@@ -100,7 +105,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <button disabled={!tasks.length} onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Printer className="h-4 w-4" />Skriv ut</button></div>
         <p className="text-xs text-muted-foreground">Välj A4 stående, 100 % skala, inga marginaler och inga sidhuvuden eller sidfötter.</p>
       </aside>
-      <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">{tasks.length > 0 && <>{showSheet(content) && <SheetAddSub tasks={tasks} answers={false} ownSetup={ownSetup} />}{showKey(content) && <SheetAddSub tasks={tasks} answers ownSetup={ownSetup} />}</>}</main>
+      <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">{tasks.length > 0 && <>{showSheet(content) && <SheetAddSub tasks={tasks} answers={false} ownSetup={ownSetup} ownGrid={ownGrid} />}{showKey(content) && <SheetAddSub tasks={tasks} answers ownSetup={ownSetup} ownGrid={ownGrid} />}</>}</main>
     </div>
     {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
       <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-xl bg-background p-4 shadow-xl">
