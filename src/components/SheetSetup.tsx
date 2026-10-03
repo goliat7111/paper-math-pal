@@ -84,7 +84,7 @@ export function Problem({
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
         <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
-        {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
+        {/* Delprodukter */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
             {p.cells.map((c, i) => (
@@ -103,18 +103,28 @@ export function Problem({
         {multi && (
           <Cell v="+" col={L.sumLeft} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
         )}
-        {/* Tjockt streck ovanför summan, så brett som additionsdelen */}
+        {/* Tjockt streck under uppställningen, direkt ovanför den låga minnessifferraden */}
         {multi && (
           <div
             style={{
               gridColumn: `${L.sumLeft} / ${L.nCols + 1}`,
-              gridRow: productRowIdx,
+              gridRow: carryRowIdx,
               borderTop: "2px solid var(--sheet-ink)",
               position: "relative",
               zIndex: 1,
             }}
           />
         )}
+        {/* Låg rad för minnessiffrorna, direkt under strecket under uppställningen */}
+        {carryCells.map((c, i) => (
+          <div
+            key={`cr${i}`}
+            className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
+            style={{ gridColumn: i + 1, gridRow: carryRowIdx, height: "4mm" }}
+          >
+            {answers ? c : ""}
+          </div>
+        ))}
         {/* Produkten */}
         {L.productRow.map((c, i) => (
           <Cell
