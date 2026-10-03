@@ -46,7 +46,7 @@ export function SheetAddSub({ tasks, answers, ownSetup, ownGrid = true }: { task
   const maxRows = big ? Math.max(...layouts.map((L) => L.rows.length)) : 0;
   const boxHeight = big ? `${Math.round((4.5 + (maxRows + 1) * (cellMm ?? 6.5) + 12) * 10) / 10}mm` : undefined;
   return (
-    <div className="a4-page">
+    <div className="a4-page addsub-page">
       <SheetHeader title={answers ? `${title} – Facit` : title} subtitle={subtitle} score={`av ${tasks.length}`} />
       <p className="own-setup-instruction">
         {answers ? `Facit med uppställning. Små röda siffror visar ${regroup}.` : ownSetup ? "Ställ upp talen i rutan och räkna ut svaret." : "Räkna ut svaret."}
