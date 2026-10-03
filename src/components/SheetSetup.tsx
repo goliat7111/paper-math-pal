@@ -56,7 +56,7 @@ export function Problem({
 }) {
   const L = setupLayout(t);
   const cellSize = L.nCols >= 8 ? Math.min(digitMm, 4) : L.nCols >= 7 ? Math.min(digitMm, 4.5) : digitMm;
-  const gridCols = `repeat(${L.nCols}, ${cellSize}mm) 14mm`;
+  const gridCols = `repeat(${L.nCols}, ${cellSize}mm)`;
   const cellH = `${cellSize}mm`;
   const multi = L.partialRows.length > 0;
   // Rad 1 är minnessiffrornas rad, därefter faktorer, streck och delprodukter
