@@ -274,6 +274,8 @@ body { font-family: var(--font-sans); }
 .division-twelve-page .exercise-twelve-grid { margin-top: 3mm; }
 .division-twelve-page .own-setup-expression { font-size: 13px; min-height: 6mm; white-space: nowrap; overflow: hidden; }
 .division-twelve-page .division-note { font-size: 9px; min-width: 0; white-space: normal; line-height: 1.1; }
+.division-twelve-page .own-setup-expression:has(.division-note) { height: 13mm; min-height: 13mm; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
+.division-twelve-page .division-note { flex-basis: 100%; }
 .division-twelve-page .short-division { font-size: 16px; gap: 1mm; }
 .division-twelve-page .division-digit { min-width: 5mm; }
 .division-twelve-page .division-box { padding: 1mm; }
