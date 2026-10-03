@@ -5,7 +5,9 @@ function shuffle<T>(values: T[]): T[] {
   const result = [...values];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+    const tmp = result[i]!;
+    result[i] = result[j]!;
+    result[j] = tmp;
   }
   return result;
 }
@@ -25,8 +27,8 @@ export function makeBoards(mode: Mode): string[][] {
     if (mode === "blank") return Array<string>(25).fill("");
     const cellOperations = shuffle(Array.from({ length: 25 }, (_, cell) => operations[(cell + board) % 4]));
     return Array.from({ length: 25 }, (_, cell) => expression(
-      mode === "mixed-boards" ? boardOperations[board % 4] :
-      mode === "mixed-cells" ? cellOperations[cell] : mode
+      mode === "mixed-boards" ? boardOperations[board % 4]! :
+      mode === "mixed-cells" ? cellOperations[cell]! : mode
     ));
   });
 }

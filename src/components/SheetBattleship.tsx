@@ -2,7 +2,7 @@ import { FLEET, type Ship } from "@/lib/battleship";
 
 const letters = "ABCDEFGHIJ".split("");
 
-function Board({ ships, compact, enemy = false }: { ships?: Ship[]; compact: boolean; enemy?: boolean }) {
+function Board({ ships, compact, enemy = false }: { ships?: Ship[] | undefined; compact: boolean; enemy?: boolean }) {
 
   return <div className="bship-board-wrap">
     <div className="bship-board-title">{enemy ? "Fiendens skepp" : "Mina skepp"}</div>
@@ -36,7 +36,7 @@ function Fleet({ compact }: { compact: boolean }) {
   </div>;
 }
 
-function PlayerCard({ ships, compact }: { ships?: Ship[]; compact: boolean }) {
+function PlayerCard({ ships, compact }: { ships?: Ship[] | undefined; compact: boolean }) {
   return <section className={`bship-card ${compact ? "is-compact" : ""}`}>
     <div className="bship-card-head"><strong>Sänka skepp</strong><span>Namn: <i /></span></div>
     <div className="bship-boards"><Board ships={ships} compact={compact}/><Board compact={compact} enemy/></div>

@@ -9,7 +9,7 @@ it("creates complete boards with the selected operations and valid whole-number 
     for (const board of boards) {
       expect(board).toHaveLength(25);
       for (const cell of board) {
-        const [left, op, right] = cell.split(" ");
+        const [left, op, right] = cell.split(" ") as [string, string, string];
         const a = Number(left), b = Number(right);
         expect(b).toBeGreaterThan(0);
         if (op === "−") expect(a - b).toBeGreaterThanOrEqual(0);
@@ -22,7 +22,7 @@ it("creates complete boards with the selected operations and valid whole-number 
       }
     }
     if (mode === "mixed-boards") expect(new Set(boards.slice(0,4).map(board => symbol(board[0]))).size).toBe(4);
-    const expected = { addition: "+", subtraction: "−", multiplication: "×", division: "÷" }[mode];
+    const expected: string | undefined = ({ addition: "+", subtraction: "−", multiplication: "×", division: "÷" } as Record<string, string | undefined>)[mode];
     if (expected) expect(boards.flat().every(cell => symbol(cell) === expected)).toBe(true);
   }
 });
