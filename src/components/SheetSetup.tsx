@@ -80,6 +80,7 @@ export function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
+      <div className="setup-surround" style={{ "--setup-cell": cellH } as React.CSSProperties}>
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `repeat(3, ${cellH})` }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
@@ -147,6 +148,7 @@ export function Problem({
             comma={answers && i === L.commas.product}
           />
         ))}
+      </div>
       </div>
     </div>
   );
