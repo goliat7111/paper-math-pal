@@ -81,7 +81,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           {dec === "slumpa-decimaler" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler (1–3).</p>}
           {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.</p>}
         </fieldset>
-        <div className={op === "add" ? "flex flex-wrap items-start gap-x-5 gap-y-3" : undefined}>
+        <div className={op === "add" ? "flex flex-wrap items-start gap-x-3 gap-y-3" : undefined}>
           <fieldset className={op === "add" ? "min-w-0" : undefined}>
             <legend className="mb-0.5 text-sm font-medium">Antal siffror per tal</legend>
             {dec !== 0 && <p className="mb-2 text-xs text-muted-foreground">(inkl. decimaler)</p>}
