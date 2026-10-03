@@ -1,4 +1,4 @@
-import { Fragment, type CSSProperties } from "react";
+import { Fragment } from "react";
 import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
