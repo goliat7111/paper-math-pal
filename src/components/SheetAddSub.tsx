@@ -33,12 +33,12 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
   );
 }
 
-export function SheetAddSub({ tasks, answers, ownSetup }: { tasks: AddSubTask[]; answers: boolean; ownSetup: boolean }) {
+export function SheetAddSub({ tasks, answers, ownSetup, ownGrid = true }: { tasks: AddSubTask[]; answers: boolean; ownSetup: boolean; ownGrid?: boolean }) {
   const op = tasks[0]?.op ?? "add";
   const title = op === "add" ? "Addition" : "Subtraktion";
   const anyDec = tasks.some((t) => maxDec(t) > 0);
   const regroup = op === "add" ? "minnessiffror" : "växling";
-  const subtitle = `${anyDec ? "Decimaltal" : "Heltal"} · ${ownSetup ? "Egen uppställning" : "Uppställning"}`;
+  const subtitle = `${anyDec ? "Decimaltal" : "Heltal"} · ${ownSetup ? `Egen uppställning${ownGrid ? " med rutnät" : ""}` : "Uppställning"}`;
   // Större rutor när bladet har uppgifter med 3 termer (mer plats för uppställningen).
   const big = tasks.some((t) => t.terms.length >= 3);
   const layouts = big ? tasks.map(addSubLayout) : [];
@@ -58,7 +58,7 @@ export function SheetAddSub({ tasks, answers, ownSetup }: { tasks: AddSubTask[];
               <span className="own-setup-number">{i + 1})</span>
               {ownSetup ? t.terms.map((v, j) => formatDecimal(v, t.decs[j]!)).join(` ${SIGN[t.op]} `) : ""}
             </div>
-            <div className={`own-setup-box addsub-box${ownSetup && !answers ? " addsub-box--own" : ""}`} style={boxHeight ? { height: boxHeight } : undefined}>
+            <div className={`own-setup-box addsub-box${ownSetup && !answers ? (ownGrid ? " addsub-box--own addsub-box--grid" : " addsub-box--own") : ""}`} style={boxHeight ? { height: boxHeight } : undefined}>
               {(answers || !ownSetup) && <AddSubSetup t={t} answers={answers} {...(cellMm !== undefined ? { cellMm } : {})} />}
             </div>
           </section>
