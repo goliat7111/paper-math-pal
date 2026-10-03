@@ -267,7 +267,7 @@ body { font-family: var(--font-sans); }
 /* Samma 3 × 4 sidfyllande uppgiftsfält som additionsbladet. */
 .exercise-twelve-page { display: flex; flex-direction: column; height: 297mm; }
 .exercise-twelve-page > div:first-child > div:first-child > span { font-size: 10px; white-space: nowrap; }
-.exercise-twelve-page > div:first-child > div:nth-child(2) > div:last-child { white-space: nowrap; }
+.exercise-twelve-page > div:first-child > div:nth-child(2) > div:last-child { white-space: nowrap; flex-shrink: 0; }
 .exercise-twelve-grid { display: grid; flex: 1; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm 5mm; margin-top: 5mm; }
 .exercise-twelve-grid .own-setup-task { display: flex; flex-direction: column; min-height: 0; }
 .exercise-twelve-box { flex: 1; min-height: 0; min-width: 0; border: 1px solid var(--sheet-line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
