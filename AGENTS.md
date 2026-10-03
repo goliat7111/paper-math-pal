@@ -22,3 +22,4 @@
 - Direktutskrift isolerar `.print-area`; varje `.a4-page` använder namngiven stående/liggande `@page`, så skärmlayouten inte skapar extrasidor.
 - Blandade övningar återanvänder räknemotorer och uppställningar för de fyra räknesätten; nivåprofiler hålls separat så facit överensstämmer med befintliga blad.
 - Slumpade decimaler i divisionsutmaningar och blandade övningar flyttar kommat lika mycket i täljare och kvot (`randomizeDecimals` i `src/lib/mixed-division.ts`); uppgifter med rest, decimal divisor eller oändlig kvot lämnas orörda så att facit och utmaningen förblir korrekta.
+- Multiplikationsuppställning och division delar en fast 3×4 A4-rutlayout med addition/subtraktion; fasta tolv uppgifter håller elevblad och facit identiska och fyller skrivytan.

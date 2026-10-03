@@ -5,7 +5,7 @@ import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
 import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
 import { gen102, genSetup, genSnabba, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
-import { SheetSetup, type SetupFit } from "@/components/SheetSetup";
+import { SheetSetup } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
@@ -44,11 +44,6 @@ function MultiplikationPage() {
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [exporting, setExporting] = useState(false);
-  const [fitInfo, setFitInfo] = useState<SetupFit | null>(null);
-  const applyFit = (f: SetupFit) =>
-    setFitInfo((p) =>
-      p && p.count === f.count && p.cols === f.cols && p.rows === f.rows ? p : f,
-    );
 
   // Den undre faktorn får aldrig ha fler siffror än det övre talet
   const applySd = (v: [number, number]) => {
@@ -61,8 +56,7 @@ function MultiplikationPage() {
     setSb([Math.min(v[0], topHi), Math.min(v[1], topHi)]);
   };
 
-  // Stor pool: bladet visar själv så många uppgifter som ryms på A4-sidan
-  const SETUP_POOL = 40;
+  const SETUP_POOL = 12;
   useEffect(() => setT102(gen102(f1, f2)), [f1, f2]);
   useEffect(() => setT100(gen102(f1, f2, 100)), [f1, f2]);
   useEffect(() => setTSetup(genSetup(sd, sb, SETUP_POOL, dt, db)), [sd, sb, dt, db]);
@@ -179,25 +173,22 @@ function MultiplikationPage() {
               <fieldset className="space-y-2">
                 <legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="radio" name="setup-style" checked={!ownSetup} onChange={() => { setOwnSetup(false); setFitInfo(null); }} />
+                   <input type="radio" name="setup-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />
                   Med uppställning
                 </label>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="radio" name="setup-style" checked={ownSetup} onChange={() => { setOwnSetup(true); setFitInfo(null); }} />
+                   <input type="radio" name="setup-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />
                   Egen uppställning i tom ruta
                 </label>
-                {ownSetup && <p className="text-sm text-muted-foreground">Åtta uppgifter per blad med gott om skrivutrymme. Facit visar uppställningarna.</p>}
+                 {ownSetup && <p className="text-sm text-muted-foreground">Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.</p>}
               </fieldset>
             </>
           )}
           <PrintContentChoice value={content} onChange={setContent} />
           <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-            {tab === "setup" &&
-              (fitInfo
-                ? `Förhandsgranskning: ${fitInfo.count} uppgifter ryms på A4-sidan (${fitInfo.rows} rader × ${fitInfo.cols} kolumner). `
-                : "Förhandsgranskning: beräknar… ")}
+             {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
             PDF: {pagesLabel(content)} ·{" "}
-            {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : fitInfo ? `${fitInfo.count}` : "…"} uppgifter · A4 stående.
+             {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : 12} uppgifter · A4 stående.
           </p>
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           <div className="space-y-2 pt-2">
@@ -235,16 +226,16 @@ function MultiplikationPage() {
           )}
           {tab === "setup" && tSetup && !ownSetup && (
             <>
-              {showSheet(content) && <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} onFit={applyFit} />}
+               {showSheet(content) && <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />}
               {showKey(content) && (
-                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} onFit={applyFit} />
+                 <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />
               )}
             </>
           )}
           {tab === "setup" && tSetup && ownSetup && (
             <>
-              {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} onFit={applyFit} />}
-              {showKey(content) && <SheetOwnSetup tasks={tSetup} answers {...(content === "key" ? { onFit: applyFit } : {})} />}
+               {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} />}
+               {showKey(content) && <SheetOwnSetup tasks={tSetup} answers />}
             </>
           )}
         </main>

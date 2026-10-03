@@ -1,16 +1,8 @@
-import { Fragment, useEffect, useRef, useState } from "react";
-import { evenRowGap, fitGridCount, setupLayout, type SetupTask } from "@/lib/worksheets";
+import { Fragment } from "react";
+import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
-const colsFor = (tasks: SetupTask[]) => Math.max(...tasks.map((t) => setupLayout(t).nCols));
-const digitMM = (cols: number) => (cols >= 7 ? 6 : cols >= 6 ? 7 : cols >= 5 ? 7.5 : cols >= 4 ? 8 : 9);
-const gapMM = (cols: number) => (cols >= 6 ? 4 : cols >= 5 ? 6 : cols >= 4 ? 10 : 14);
-const MM_PX = 96 / 25.4; // CSS: 1mm = 96/25.4 px
-const SAFETY_MM = 2; // litet säkerhetsmått för fonter/avrundning
-
-export type SetupFit = { cols: number; rows: number; count: number; gapMM: number };
-
 const digitLabel = (range: [number, number], singular: string, plural: string) => {
   const [lo, hi] = [...range].sort((a, b) => a - b);
   return lo === hi ? `${lo}-${singular}` : `${lo}–${hi} ${plural}`;
@@ -21,101 +13,27 @@ export function SheetSetup({
   answers,
   topDigits,
   bottomDigits,
-  orientation = "portrait",
-  onFit,
 }: {
   tasks: SetupTask[];
   answers: boolean;
   topDigits: [number, number];
   bottomDigits: [number, number];
-  orientation?: "portrait" | "landscape";
-  onFit?: (fit: SetupFit) => void;
 }) {
-  const maxCols = colsFor(tasks);
-  const digitMm = digitMM(maxCols);
-  const colGapMm = gapMM(maxCols);
-  const multi = tasks.some((t) => setupLayout(t).partialRows.length > 0);
-  const rowGapMm = multi ? 8 : 12;
-  const landscape = orientation === "landscape";
-
-  // Fyll sidan: fler uppgifter när talen är små; mellanrummen fördelas jämnt
-  const pageRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState<SetupFit | null>(null);
-
-  useEffect(() => {
-    const page = pageRef.current;
-    const grid = gridRef.current;
-    const problems = Array.from(grid?.children ?? []) as HTMLElement[];
-    const first = problems[0];
-    if (!page || !grid || !first) return;
-    const ps = getComputedStyle(page);
-    // A4-höjden är fix (297/210 mm): sidan får inte växa med innehållet,
-    // annars mäts "tillgängligt utrymme" av ett överfullt blad och
-    // sidfyllnaden hamnar utanför pappret.
-    const mm = (cssLen: string) => parseFloat(cssLen) / MM_PX; // computed style är px
-    const pageHMM = landscape ? 210 : 297;
-    const availMM =
-      pageHMM -
-      mm(ps.paddingTop) -
-      mm(ps.paddingBottom) -
-      (grid.getBoundingClientRect().top - page.getBoundingClientRect().top) / MM_PX -
-      SAFETY_MM;
-    const innerWMM =
-      (page.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight)) / MM_PX;
-    const wMM = first.offsetWidth / MM_PX;
-    // Blandade en- och flersiffriga faktorer ger olika höga uppställningar.
-    // Räkna efter den högsta så att även den extra minnesraden ryms på A4.
-    const hMM = Math.max(...problems.map((problem) => problem.offsetHeight)) / MM_PX;
-    const { cols, rows, count } = fitGridCount(
-      innerWMM,
-      availMM,
-      wMM,
-      hMM,
-      colGapMm,
-      rowGapMm,
-      tasks.length,
-    );
-    const next: SetupFit = {
-      cols,
-      rows,
-      count,
-      gapMM: evenRowGap(availMM, rows, hMM, rowGapMm),
-    };
-    setFit((prev) =>
-      prev &&
-      prev.cols === next.cols &&
-      prev.rows === next.rows &&
-      prev.count === next.count &&
-      Math.abs(prev.gapMM - next.gapMM) < 0.01
-        ? prev
-        : next,
-    );
-    onFit?.(next);
-  }); // kör efter varje rendering tills måttet stabiliserats
-
-  const initial = Math.min(12, tasks.length);
-  const shown = tasks.slice(0, fit ? fit.count : initial);
-  const cols = fit ? fit.cols : 3;
+  const shown = tasks.slice(0, 12);
 
   return (
-    <div ref={pageRef} className={`a4-page${landscape ? " landscape" : ""}`}>
+    <div className="a4-page exercise-twelve-page">
       <SheetHeader
         title={answers ? "Multiplikation – Facit" : "Multiplikation"}
         subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}${tasks.some((t) => t.dt || t.db) ? " · decimaltal" : ""}`}
         score={`av ${shown.length}`}
       />
-      <div
-        ref={gridRef}
-        className="mt-8 grid justify-items-center"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-          columnGap: `${colGapMm}mm`,
-          rowGap: `${fit ? fit.gapMM : rowGapMm}mm`,
-        }}
-      >
+      <div className="exercise-twelve-grid">
         {shown.map((t, i) => (
-          <Problem key={i} n={i + 1} t={t} answers={answers} digitMm={digitMm} />
+          <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
+            <div className="own-setup-expression addsub-expression"><span className="own-setup-number">{i + 1})</span></div>
+            <div className="exercise-twelve-box"><Problem n={i + 1} t={t} answers={answers} digitMm={5.5} showNumber={false} /></div>
+          </section>
         ))}
       </div>
     </div>
