@@ -7,5 +7,8 @@
 - Gemensamt sidhuvud med namn, datum och poäng för alla hela arbetsblad och kommande övningar; Snabba tal undantas som klippblad
 - Utskrivbara mallar: 100-ruta efter Excel-mallen, välj 2, 4, 6 eller 8 sidfyllande rutor på A4 och visa eller dölj produkterna
 
+## Pågår
+- [ ] Multiplikationsuppställning och division: tolv lika stora rutor per A4 som additionsbladet, inklusive facit och PDF
+
 ## Senare (väntar på Magnus)
 - [x] Addition och subtraktion (med/utan växling, heltal/decimaltal, färdig uppställning/tom ruta)
