@@ -85,7 +85,7 @@ export function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
-      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
+      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length}, ${cellH}) ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
         {/* Tom rutrad runt uppställningen */}
         {ring.map((cell, i) => (
           <div key={`ring${i}`} className="border border-sheet-grid" style={{ gridColumn: cell.col, gridRow: cell.row }} />
@@ -119,19 +119,19 @@ export function Problem({
         {multi && (
           <Cell v="+" col={L.sumLeft + 1} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
         )}
-        {/* Tjockt streck under uppställningen, direkt ovanför den låga minnessifferraden */}
+        {/* Tjockt streck under delprodukterna, direkt ovanför produkten */}
         {multi && (
           <div
             style={{
               gridColumn: `${L.sumLeft + 1} / ${L.nCols + 2}`,
-              gridRow: carryRowIdx,
+              gridRow: productRowIdx,
               borderTop: "2px solid var(--sheet-ink)",
               position: "relative",
               zIndex: 1,
             }}
           />
         )}
-        {/* Låg rad för minnessiffrorna, direkt under strecket under uppställningen */}
+        {/* Låg rad för minnessiffrorna: ovanför översta delprodukten (flersiffrig faktor) eller under strecket under faktorerna (ensiffrig) */}
         {carryCells.map((c, i) => (
           <div
             key={`cr${i}`}
