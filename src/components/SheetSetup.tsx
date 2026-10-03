@@ -60,11 +60,12 @@ export function Problem({
   const multi = L.partialRows.length > 0;
   // Uppställningen ligger i ett rutnät med en tom rutrad runt om (ring), så
   // alla linjer linjerar exakt. Innehållet förskjuts ett steg (+1 rad/kolumn).
-  // Låg rad för minnessiffrorna direkt under strecket: vid flersiffrig faktor
-  // under delprodukterna (additionens minnessiffror), annars under faktorerna.
-  const partialStartRow = 4;
-  const carryRowIdx = multi ? partialStartRow + L.partialRows.length : 4;
-  const productRowIdx = carryRowIdx + 1;
+  // Låg rad för minnessiffrorna: vid flersiffrig faktor ovanför den översta
+  // delprodukten (additionens minnessiffror hör till termerna), annars i en
+  // låg rad direkt under strecket under faktorerna.
+  const carryRowIdx = 4;
+  const partialStartRow = multi ? 5 : 4;
+  const productRowIdx = multi ? partialStartRow + L.partialRows.length : carryRowIdx + 1;
   const totalRows = productRowIdx + 1; // sista raden är ringens nederkant
   const totalCols = L.nCols + 2;
   const carryCells = multi ? L.additionCarries : L.carryRow;
@@ -84,7 +85,7 @@ export function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
-      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
+      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length}, ${cellH}) ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
         {/* Tom rutrad runt uppställningen */}
         {ring.map((cell, i) => (
           <div key={`ring${i}`} className="border border-sheet-grid" style={{ gridColumn: cell.col, gridRow: cell.row }} />
@@ -118,19 +119,19 @@ export function Problem({
         {multi && (
           <Cell v="+" col={L.sumLeft + 1} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
         )}
-        {/* Tjockt streck under uppställningen, direkt ovanför den låga minnessifferraden */}
+        {/* Tjockt streck under delprodukterna, direkt ovanför produkten */}
         {multi && (
           <div
             style={{
               gridColumn: `${L.sumLeft + 1} / ${L.nCols + 2}`,
-              gridRow: carryRowIdx,
+              gridRow: productRowIdx,
               borderTop: "2px solid var(--sheet-ink)",
               position: "relative",
               zIndex: 1,
             }}
           />
         )}
-        {/* Låg rad för minnessiffrorna, direkt under strecket under uppställningen */}
+        {/* Låg rad för minnessiffrorna: ovanför översta delprodukten (flersiffrig faktor) eller under strecket under faktorerna (ensiffrig) */}
         {carryCells.map((c, i) => (
           <div
             key={`cr${i}`}
