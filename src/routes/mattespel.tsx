@@ -4,7 +4,7 @@ import { GamePicker } from "@/components/GamePicker";
 export const Route = createFileRoute("/mattespel")({
   head: () => ({ meta: [
     { title: "Mattespel – Räknebladet" },
-    { name: "description", content: "Välj och skriv ut matematikspel på A4: Sänka skepp, 5-i-rad och mattebingo." },
+    { name: "description", content: "Välj och skriv ut matematikspel på A4: Sänka skepp, 5-i-rad, mattebingo och ordgömma." },
     { property: "og:title", content: "Mattespel – Räknebladet" },
     { property: "og:description", content: "Utskrivbara matematikspel för klassrummet." },
     { property: "og:type", content: "website" },
@@ -22,6 +22,7 @@ function GamesHome() {
         <p><strong className="text-foreground">Sänka skepp:</strong> spelplaner med koordinater och möjlighet att slumpa skeppen.</p>
         <p><strong className="text-foreground">5-i-rad:</strong> kvadratiska rutnät med tomma rutor eller räkneuppgifter.</p>
         <p><strong className="text-foreground">Mattebingo:</strong> elevbrickor med svar och lärarens utropslista med uppgifter.</p>
+        <p><strong className="text-foreground">Ordgömma:</strong> ordletarspel med eget område, ordlista och valbar spelplansstorlek.</p>
       </div>
     </main>
   </div>;

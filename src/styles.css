@@ -591,21 +591,28 @@ body { font-family: var(--font-sans); }
 .bingo-page.landscape { height: 210mm; min-height: 210mm; }
 .bingo-cards { display: grid; grid-template-rows: repeat(2, minmax(0,1fr)); gap: 6mm; margin-top: 5mm; }
 .bingo-per-4 .bingo-cards { grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 25mm; }
-.bingo-number-25.bingo-per-4 .bingo-cards { margin-top: 3mm; row-gap: 10mm; }
+.bingo-number-25.bingo-per-4 .bingo-cards { margin-top: 3mm; row-gap: 7mm; }
 .bingo-number-25.bingo-per-2 .bingo-cards { height: 100%; margin-top: 0; grid-template-columns: repeat(2, minmax(0,1fr)); grid-template-rows: minmax(0,1fr); gap: 8mm; align-items: center; }
 .bingo-math.bingo-per-2 .bingo-cards { height: 100%; margin-top: 0; grid-template-columns: repeat(2, minmax(0,1fr)); grid-template-rows: minmax(0,1fr); gap: 8mm; align-items: center; }
-.bingo-page.bingo-math.bingo-per-4 { padding-top: 5mm; padding-bottom: 5mm; }
-.bingo-math.bingo-per-4 .bingo-cards { height: 100%; margin-top: 0; row-gap: 4mm; }
+.bingo-page.bingo-math.bingo-per-4 { padding: 9mm; }
+.bingo-math.bingo-per-4 .bingo-cards { height: 100%; margin-top: 0; row-gap: 8mm; }
+.bingo-math.bingo-per-4 .bingo-card h3 { margin-bottom: 0; }
+.bingo-math.bingo-per-4 .bingo-number-name { margin: 3mm 0 2mm; }
+.bingo-math.bingo-per-4 .bingo-grid,
+.bingo-math.bingo-per-4 .bingo-column-headers { width: 78mm; }
 .bingo-card { display: flex; flex-direction: column; align-items: center; gap: 1.5mm; min-width: 0; break-inside: avoid; }
 .bingo-card h3 { font-size: calc(5mm + 4pt); font-weight: 700; }
 .bingo-card p { font-size: calc(2.4mm + 4pt); margin: 0; }
 .bingo-card .bingo-name { font-size: calc(3.5mm + 4pt); }
-.bingo-column-headers { width: 101mm; max-width: 100%; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); text-align: center; font-size: calc(7mm + 4pt); line-height: 1; font-weight: 700; }
+.bingo-column-headers { width: 101mm; max-width: 100%; box-sizing: border-box; aspect-ratio: 5 / 1; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); align-items: stretch; text-align: center; font-size: calc(7mm + 4pt); line-height: 1; font-weight: 700; border: .8mm solid #111; }
+.bingo-column-headers > span { display: flex; align-items: center; justify-content: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; background-color: #bfbfbf; }
 .bingo-grid { width: 101mm; max-width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); grid-template-rows: repeat(5,minmax(0,1fr)); border-top: .4mm solid #111; border-left: .4mm solid #111; outline: .4mm solid #111; }
 .bingo-grid > div { display: flex; align-items: center; justify-content: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; font-size: calc(6mm + 4pt); font-weight: 600; }
 .bingo-grid > .bingo-free-cell { background-color: #ccc; }
 .bingo-per-4 .bingo-grid { width: 89mm; }
 .bingo-per-4 .bingo-column-headers { width: 89mm; }
+.bingo-number-25.bingo-per-4 .bingo-grid,
+.bingo-number-25.bingo-per-4 .bingo-column-headers { width: 76mm; }
 .bingo-call-title { margin: 0 0 4mm; text-align: center; font-size: 6mm; font-weight: 700; }
 .bingo-per-4 .bingo-grid > div { font-size: calc(5mm + 4pt); }
 .bingo-page.bingo-number-75.bingo-per-2 { padding: 5mm; }
@@ -622,6 +629,7 @@ body { font-family: var(--font-sans); }
 .bingo-math.bingo-per-2 .bingo-number-name .bingo-name-line { flex: 0 0 86mm; border-bottom: .3mm solid #111; }
 .bingo-number-25.bingo-per-4 .bingo-number-name,
 .bingo-math.bingo-per-4 .bingo-number-name { position: relative; display: block; width: 89mm; height: 1em; }
+.bingo-number-25.bingo-per-4 .bingo-card .bingo-name { margin-bottom: 2.5mm; }
 .bingo-number-25.bingo-per-4 .bingo-number-name-label,
 .bingo-math.bingo-per-4 .bingo-number-name-label { position: absolute; right: calc(74mm + 2pt); bottom: 0; white-space: nowrap; }
 .bingo-number-25.bingo-per-4 .bingo-number-name .bingo-name-line,
@@ -643,9 +651,9 @@ body { font-family: var(--font-sans); }
 .bingo-number-75.bingo-per-3 .bingo-card .bingo-card-subtitle { font-size: calc(3mm + 4pt); }
 .bingo-number-75.bingo-per-3 .bingo-card .bingo-name { margin-bottom: 2mm; font-size: calc(3.5mm + 4pt); }
 .bingo-number-75.bingo-per-2 .bingo-75-panels { display: flex; width: min(100%, 78mm); flex-direction: column; align-items: center; }
-.bingo-number-75.bingo-per-3 .bingo-75-panels { display: flex; width: 55mm; flex-direction: column; align-items: center; }
+.bingo-number-75.bingo-per-3 .bingo-75-panels { display: flex; width: 48mm; flex-direction: column; align-items: center; }
 .bingo-number-75 .bingo-75-panels { border: .8mm solid #111; }
-.bingo-number-75 .bingo-75-panels > .bingo-column-headers { position: relative; box-sizing: border-box; aspect-ratio: 5 / 1; align-items: stretch; grid-template-rows: minmax(0, 1fr); }
+.bingo-number-75 .bingo-75-panels > .bingo-column-headers { position: relative; box-sizing: border-box; aspect-ratio: 5 / 1; align-items: stretch; grid-template-rows: minmax(0, 1fr); border: 0; }
 .bingo-number-75 .bingo-75-panels > .bingo-column-headers > span { display: flex; align-items: center; justify-content: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; }
 .bingo-number-75.bingo-per-2 .bingo-75-panels > .bingo-column-headers { font-size: calc(7mm + 4pt); }
 .bingo-75-panel { width: 100%; min-width: 0; }
@@ -672,3 +680,10 @@ body { font-family: var(--font-sans); }
 .bingo-calls-numbers-75 th:nth-child(2), .bingo-calls-numbers-75 td:nth-child(2) { width: 10mm; }
 .bingo-calls-numbers-75 th:nth-child(3), .bingo-calls-numbers-75 td:nth-child(3) { width: 28mm; }
 .bingo-call-columns .bingo-calls th, .bingo-call-columns .bingo-calls td { padding: .3mm 1mm; }
+.word-search-page { height: 297mm; display: flex; flex-direction: column; }
+.word-search-content { display: grid; flex: 1; grid-template-columns: 32mm auto; align-content: start; justify-content: center; align-items: start; gap: 7mm; padding-top: 12mm; }
+.word-search-list { min-width: 0; color: var(--sheet-ink); font-size: 11pt; }
+.word-search-list h3 { margin-bottom: 3mm; font-weight: 700; }
+.word-search-list ul { display: grid; gap: 1.5mm; list-style: none; padding: 0; }
+.word-search-grid { display: grid; aspect-ratio: 1; border-top: .4mm solid #111; border-left: .4mm solid #111; color: var(--sheet-ink); font-size: 4.5mm; font-weight: 600; }
+.word-search-grid > div { display: flex; align-items: center; justify-content: center; border-right: .4mm solid #111; border-bottom: .4mm solid #111; }
