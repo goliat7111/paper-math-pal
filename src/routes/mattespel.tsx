@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GamePicker } from "@/components/GamePicker";
 
-export const Route = createFileRoute("/mattespel")({ component: GamesHome });
+export const Route = createFileRoute("/mattespel")({
+  head: () => ({ meta: [
+    { title: "Mattespel – Räknebladet" },
+    { name: "description", content: "Välj och skriv ut matematikspel på A4: Sänka skepp, 5-i-rad och mattebingo." },
+    { property: "og:title", content: "Mattespel – Räknebladet" },
+    { property: "og:description", content: "Utskrivbara matematikspel för klassrummet." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: GamesHome,
+});
 function GamesHome() {
   return <div className="min-h-screen bg-background">
     <header className="border-b bg-card"><div className="mx-auto max-w-6xl px-6 py-4"><h1 className="font-display text-2xl font-semibold">Mattespel</h1><p className="text-sm text-muted-foreground">Utskrivbara matematikspel · A4</p></div></header>

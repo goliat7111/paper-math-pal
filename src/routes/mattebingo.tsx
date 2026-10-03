@@ -7,7 +7,17 @@ import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { buildSheetsPdf, saveBlob } from "@/lib/exportPdf";
 import { bingoModes, makeBingo, type BingoMode, type BingoGame } from "@/lib/bingo";
 
-export const Route = createFileRoute("/mattebingo")({ component: BingoPage });
+export const Route = createFileRoute("/mattebingo")({
+  head: () => ({ meta: [
+    { title: "Mattebingo – Räknebladet" },
+    { name: "description", content: "Skapa bingobrickor med matematikuppgifter och lärarens utropslista för utskrift." },
+    { property: "og:title", content: "Mattebingo – Räknebladet" },
+    { property: "og:description", content: "Utskrivbara bingobrickor och utropslista i matematik." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: BingoPage,
+});
 function BingoPage() {
   const [mode, setMode] = useState<BingoMode>("multiplication");
   const [count, setCount] = useState(20);

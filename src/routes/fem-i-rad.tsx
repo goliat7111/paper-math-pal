@@ -5,7 +5,17 @@ import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { buildSheetsPdf, saveBlob } from "@/lib/exportPdf";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 
-export const Route = createFileRoute("/fem-i-rad")({ component: FiveInRow });
+export const Route = createFileRoute("/fem-i-rad")({
+  head: () => ({ meta: [
+    { title: "5-i-rad – Räknebladet" },
+    { name: "description", content: "Skriv ut spelplaner för 5-i-rad med tomma rutor eller matematikuppgifter." },
+    { property: "og:title", content: "5-i-rad – Räknebladet" },
+    { property: "og:description", content: "Skapa utskrivbara 5-i-rad-spel i matematik." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: FiveInRow,
+});
 import { makeBoards, type Mode } from "@/lib/five-in-row";
 const layouts = {
   2: { columns: 2, rows: 1, landscape: true },

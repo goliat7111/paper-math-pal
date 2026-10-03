@@ -11,7 +11,14 @@ import { SheetDivision } from "@/components/SheetDivision";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 
 export const Route = createFileRoute("/division")({
-  head: () => ({ meta: [{ title: "Division – Räknebladet" }, { name: "description", content: "Skapa divisionsblad med åtta uppgifter, egen uppställning och facit på A4." }] }),
+  head: () => ({ meta: [
+    { title: "Division – Räknebladet" },
+    { name: "description", content: "Skapa divisionsblad med åtta uppgifter, egen uppställning och facit på A4." },
+    { property: "og:title", content: "Division – Räknebladet" },
+    { property: "og:description", content: "Skapa och skriv ut divisionsblad med uppställning och facit på A4." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: DivisionPage,
 });
 
