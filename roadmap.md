@@ -9,6 +9,7 @@
 
 ## Klart i denna ändring
 - Multiplikationsuppställning och division: tolv lika stora rutor per A4 som additionsbladet, inklusive facit och PDF
+- Multiplikationsuppställning: en tom rutrad runt varje uppställning på elevblad och facit
 
 ## Senare (väntar på Magnus)
 - [x] Addition och subtraktion (med/utan växling, heltal/decimaltal, färdig uppställning/tom ruta)

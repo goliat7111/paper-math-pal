@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, type CSSProperties } from "react";
 import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
@@ -54,8 +54,9 @@ export function Problem({
   showNumber?: boolean;
 }) {
   const L = setupLayout(t);
-  const gridCols = `repeat(${L.nCols}, ${digitMm}mm) 14mm`;
-  const cellH = `${digitMm}mm`;
+  const cellSize = L.nCols >= 8 ? Math.min(digitMm, 4) : L.nCols >= 7 ? Math.min(digitMm, 4.5) : digitMm;
+  const gridCols = `repeat(${L.nCols}, ${cellSize}mm) 14mm`;
+  const cellH = `${cellSize}mm`;
   const multi = L.partialRows.length > 0;
   const partialStartRow = multi ? 4 : 3;
   const productRowIdx = partialStartRow + L.partialRows.length;
@@ -80,6 +81,7 @@ export function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
+      <div className="setup-surround" style={{ "--setup-cell": cellH } as CSSProperties}>
       <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `repeat(3, ${cellH})` }}>
         {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
@@ -147,6 +149,7 @@ export function Problem({
             comma={answers && i === L.commas.product}
           />
         ))}
+      </div>
       </div>
     </div>
   );
