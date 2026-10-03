@@ -60,15 +60,13 @@ export function Problem({
   const multi = L.partialRows.length > 0;
   // Uppställningen ligger i ett rutnät med en tom rutrad runt om (ring), så
   // alla linjer linjerar exakt. Innehållet förskjuts ett steg (+1 rad/kolumn).
-  // Låg rad för minnessiffrorna: vid flersiffrig faktor ovanför den översta
-  // delprodukten (additionens minnessiffror hör till termerna), annars i en
-  // låg rad direkt under strecket under faktorerna.
+  // Multiplikationens minnessiffror ligger ovanför delprodukterna.
   const carryRowIdx = 4;
   const partialStartRow = multi ? 5 : 4;
-  const productRowIdx = multi ? partialStartRow + L.partialRows.length : carryRowIdx + 1;
+  const additionCarryRowIdx = multi ? partialStartRow + L.partialRows.length : -1;
+  const productRowIdx = multi ? additionCarryRowIdx + 1 : carryRowIdx + 1;
   const totalRows = productRowIdx + 1; // sista raden är ringens nederkant
   const totalCols = L.nCols + 2;
-  const carryCells = multi ? L.additionCarries : L.carryRow;
 
   // Teckenrad: × plus den undre faktorn högerställd mot ental
   const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
@@ -85,7 +83,7 @@ export function Problem({
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
-      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length}, ${cellH}) ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
+      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
         {/* Tom rutrad runt uppställningen */}
         {ring.map((cell, i) => (
           <div key={`ring${i}`} className="border border-sheet-grid" style={{ gridColumn: cell.col, gridRow: cell.row }} />
@@ -131,12 +129,22 @@ export function Problem({
             }}
           />
         )}
-        {/* Låg rad för minnessiffrorna: ovanför översta delprodukten (flersiffrig faktor) eller under strecket under faktorerna (ensiffrig) */}
-        {carryCells.map((c, i) => (
+        {/* Minnessiffrorna från multiplikationen */}
+        {L.carryRow.map((c, i) => (
           <div
-            key={`cr${i}`}
+            key={`mul-cr${i}`}
             className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
             style={{ gridColumn: i + 2, gridRow: carryRowIdx, height: "4mm" }}
+          >
+            {answers ? c : ""}
+          </div>
+        ))}
+        {/* Minnessiffrorna från additionen av delprodukterna */}
+        {multi && L.additionCarries.map((c, i) => (
+          <div
+            key={`add-cr${i}`}
+            className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
+            style={{ gridColumn: i + 2, gridRow: additionCarryRowIdx, height: "4mm" }}
           >
             {answers ? c : ""}
           </div>
