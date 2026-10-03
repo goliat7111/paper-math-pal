@@ -21,7 +21,7 @@ it("creates complete boards with the selected operations and valid whole-number 
         expect(new Set(board.map(symbol)).size).toBe(1);
       }
     }
-    if (mode === "mixed-boards") expect(new Set(boards.slice(0,4).map(board => symbol(board[0]))).size).toBe(4);
+    if (mode === "mixed-boards") expect(new Set(boards.slice(0,4).map(board => symbol(board[0]!))).size).toBe(4);
     const expected: string | undefined = ({ addition: "+", subtraction: "−", multiplication: "×", division: "÷" } as Record<string, string | undefined>)[mode];
     if (expected) expect(boards.flat().every(cell => symbol(cell) === expected)).toBe(true);
   }
