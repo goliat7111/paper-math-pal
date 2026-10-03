@@ -129,6 +129,10 @@ export type SetupLayout = {
   productRow: string[];
   /** Minnessiffror för produkten, endast när den undre faktorn har en siffra. */
   carries: number[];
+  /** Multiplikationens minnessiffror per kolumn, placerade i en egen rad
+   *  ovanför den övre faktorn; "" = tom cell. Vid flersiffrig undre faktor
+   *  slås delprodukternas minnessiffror samman (första vinner vid krock). */
+  carryRow: string[];
   /** Vänsterkolumnen (0-indexerad) för additionsdelen (delprodukter + summa),
    *  dvs. den bredaste raden; plus-tecknet står en kolumn till vänster.
    *  -1 när den undre faktorn är ensiffrig (ingen additionsdel). */
@@ -187,6 +191,21 @@ export function setupLayout(t: SetupTask): SetupLayout {
     }
   }
 
+  // Multiplikationens minnessiffror: siffran ur kolumn k (från ental) skrivs
+  // ovanför kolumnen ett steg till vänster; delprodukter förskjuts vänster.
+  const carryRow: string[] = Array(nCols).fill("");
+  const addCarries = (carries: number[], shift: number) => {
+    carries.forEach((c, k) => {
+      const col = nCols - 2 - k - shift;
+      if (c > 0 && col >= 0 && !carryRow[col]) carryRow[col] = String(c);
+    });
+  };
+  if (bottomLen > 1) {
+    for (let pos = bottomLen - 1; pos >= 0; pos--) addCarries(rowCarries(top, bottom[bottomLen - 1 - pos]!), pos);
+  } else {
+    addCarries(rowCarries(top, bottom[0]!), 0);
+  }
+
   // Additionsdelen (delprodukter + summa): vänsterkolumnen för den bredaste raden
   const sumLeft = bottomLen > 1 ? nCols - maxExtent : -1;
   const additionCarries: string[] = Array(nCols).fill("");
@@ -207,6 +226,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
     partialRows,
     productRow: align(product, nCols - 1),
     carries: bottomLen > 1 ? [] : rowCarries(top, bottom[0]!).filter((c) => c > 0),
+    carryRow,
     sumLeft,
     additionCarries,
     commas: {
