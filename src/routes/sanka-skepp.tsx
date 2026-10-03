@@ -8,7 +8,17 @@ import { buildSheetsPdf, saveBlob } from "@/lib/exportPdf";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 
-export const Route = createFileRoute("/sanka-skepp")({ component: MathGamesPage });
+export const Route = createFileRoute("/sanka-skepp")({
+  head: () => ({ meta: [
+    { title: "Sänka skepp – Räknebladet" },
+    { name: "description", content: "Skapa spelplaner för Sänka skepp med koordinater och slumpade skepp, klara att skriva ut." },
+    { property: "og:title", content: "Sänka skepp – Räknebladet" },
+    { property: "og:description", content: "Skriv ut spelplaner för Sänka skepp på A4." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: MathGamesPage,
+});
 
 function MathGamesPage() {
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();

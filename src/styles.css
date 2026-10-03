@@ -340,11 +340,11 @@ body { font-family: var(--font-sans); }
 .addsub-expression { font-size: 15px; white-space: nowrap; height: 6mm; align-items: flex-end; }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; border: none; }
 .addsub-box--own { border: 1px solid var(--sheet-ink-strong); }
-/* Tom ruta med rutnät: rutmönster i samma storlek som uppställningens celler. */
+/* Tom ruta med rutnät: nio kolumner även när de slumpade talen blir breda. */
 .addsub-box--own.addsub-box--grid {
   background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px);
   background-position: 0 0;
-  background-size: 6.5mm 6.5mm;
+  background-size: calc(100% / 9) 6.5mm;
 }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
 .addsub-cell { position: relative; height: var(--addsub-cell, 6.5mm); display: flex; align-items: center; justify-content: center; border: 1px solid var(--sheet-grid); }
