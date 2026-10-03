@@ -81,13 +81,19 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           {dec === "slumpa-decimaler" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler (1–3).</p>}
           {dec === "slumpa" && <p className="mt-2 text-xs text-muted-foreground">Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.</p>}
         </fieldset>
-        <fieldset><legend className="mb-2 text-sm font-medium">Antal siffror per tal{dec !== 0 ? " (inkl. decimaler)" : ""}</legend><div className="flex items-end gap-2">
-          <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
-          <label className="text-sm">Till<select aria-label="Siffror till" className={sel} value={hi} onChange={e => { const v = Number(e.target.value); setHi(v); if (v < lo) setLo(v); }}>{[2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
-        </div></fieldset>
-        {op === "add" && <fieldset><legend className="mb-2 text-sm font-medium">Antal termer</legend><div className="flex gap-2">
-          {[2, 3].map(n => <button key={n} type="button" className={btn(terms === n)} onClick={() => setTerms(n)}>{n} tal</button>)}
-        </div></fieldset>}
+        <div className={op === "add" ? "flex flex-wrap items-start gap-x-3 gap-y-3" : undefined}>
+          <fieldset className={op === "add" ? "min-w-0" : undefined}>
+            <legend className="mb-0.5 text-sm font-medium">Antal siffror per tal</legend>
+            {dec !== 0 && <p className="mb-2 text-xs text-muted-foreground">(inkl. decimaler)</p>}
+            <div className="flex items-end gap-2">
+              <label className="text-sm">Från<select aria-label="Siffror från" className={sel} value={lo} onChange={e => { const v = Number(e.target.value); setLo(v); if (v > hi) setHi(v); }}>{[2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
+              <label className="text-sm">Till<select aria-label="Siffror till" className={sel} value={hi} onChange={e => { const v = Number(e.target.value); setHi(v); if (v < lo) setLo(v); }}>{[2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}</select></label>
+            </div>
+          </fieldset>
+          {op === "add" && <fieldset><legend className="mb-2 text-sm font-medium">Antal termer</legend><div className="flex gap-2">
+            {[2, 3].map(n => <button key={n} type="button" className={btn(terms === n)} onClick={() => setTerms(n)}>{n} tal</button>)}
+          </div></fieldset>}
+        </div>
         <fieldset><legend className="mb-2 text-sm font-medium">Elevblad</legend><div className="flex flex-wrap gap-2">
           <button type="button" className={btn(!ownSetup)} onClick={() => setOwnSetup(false)}>Färdig uppställning</button>
           <button type="button" className={btn(ownSetup)} onClick={() => setOwnSetup(true)}>Tom ruta</button>
