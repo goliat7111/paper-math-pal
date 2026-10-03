@@ -59,9 +59,12 @@ export function Problem({
   const gridCols = `repeat(${L.nCols}, ${cellSize}mm)`;
   const cellH = `${cellSize}mm`;
   const multi = L.partialRows.length > 0;
-  // Rad 1 är minnessiffrornas rad, därefter faktorer, streck och delprodukter
-  const partialStartRow = multi ? 5 : 4;
-  const productRowIdx = partialStartRow + L.partialRows.length;
+  // Låg rad för minnessiffrorna direkt under strecket: vid flersiffrig faktor
+  // under delprodukterna (additionens minnessiffror), annars under faktorerna.
+  const partialStartRow = 3;
+  const carryRowIdx = multi ? partialStartRow + L.partialRows.length : 3;
+  const productRowIdx = carryRowIdx + 1;
+  const carryCells = multi ? L.additionCarries : L.carryRow;
 
   // Teckenrad: × plus den undre faktorn högerställd mot ental
   const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
@@ -70,37 +73,17 @@ export function Problem({
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
       <div className="setup-surround" style={{ "--setup-cell": cellH } as CSSProperties}>
-      <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `4mm repeat(2, ${cellH}) 4mm repeat(${L.partialRows.length + 1}, ${cellH})` : `4mm repeat(3, ${cellH})` }}>
-        {/* Rad 1: multiplikationens minnessiffror, ovanför den övre faktorn */}
-        {L.carryRow.map((c, i) => (
-          <div
-            key={`cr${i}`}
-            className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
-            style={{ gridColumn: i + 1, gridRow: 1, height: "4mm" }}
-          >
-            {answers ? c : ""}
-          </div>
-        ))}
-        {/* Rad 2: övre faktorn */}
+      <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH}` : `repeat(2, ${cellH}) 4mm ${cellH}` }}>
+        {/* Rad 1: övre faktorn */}
         {L.topRow.map((c, i) => (
-          <Cell key={`t${i}`} v={c} col={i + 1} row={2} height={cellH} comma={i === L.commas.top} />
+          <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} comma={i === L.commas.top} />
         ))}
-        {/* Rad 3: teckenrad */}
+        {/* Rad 2: teckenrad */}
         {signRow.map((c, i) => (
-          <Cell key={`s${i}`} v={c} col={i + 1} row={3} height={cellH} comma={i === L.commas.bottom} />
+          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} comma={i === L.commas.bottom} />
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
-        <div style={{ gridColumn: "1 / -1", gridRow: 3, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
-        {/* Lägre rad för additionens minnessiffror, direkt under övre strecket */}
-        {multi && L.additionCarries.map((c, i) => (
-          <div
-            key={`ac${i}`}
-            className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
-            style={{ gridColumn: i + 1, gridRow: 4, height: "4mm" }}
-          >
-            {answers ? c : ""}
-          </div>
-        ))}
+        <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
         {/* Delprodukter (minnessiffrorna ligger i den övre rutan) */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
