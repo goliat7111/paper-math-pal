@@ -60,11 +60,12 @@ export function Problem({
   const multi = L.partialRows.length > 0;
   // Uppställningen ligger i ett rutnät med en tom rutrad runt om (ring), så
   // alla linjer linjerar exakt. Innehållet förskjuts ett steg (+1 rad/kolumn).
-  // Låg rad för minnessiffrorna direkt under strecket: vid flersiffrig faktor
-  // under delprodukterna (additionens minnessiffror), annars under faktorerna.
-  const partialStartRow = 4;
-  const carryRowIdx = multi ? partialStartRow + L.partialRows.length : 4;
-  const productRowIdx = carryRowIdx + 1;
+  // Låg rad för minnessiffrorna: vid flersiffrig faktor ovanför den översta
+  // delprodukten (additionens minnessiffror hör till termerna), annars i en
+  // låg rad direkt under strecket under faktorerna.
+  const carryRowIdx = 4;
+  const partialStartRow = multi ? 5 : 4;
+  const productRowIdx = multi ? partialStartRow + L.partialRows.length : carryRowIdx + 1;
   const totalRows = productRowIdx + 1; // sista raden är ringens nederkant
   const totalCols = L.nCols + 2;
   const carryCells = multi ? L.additionCarries : L.carryRow;
