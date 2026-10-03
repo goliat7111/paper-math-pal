@@ -16,12 +16,12 @@ it("generates unique boards with complete, correct, nonduplicated calls", () => 
         if (free) expect(board[12]).toBeNull();
       }
       for (const call of game.calls) {
-        const [a, op, b] = call.question.split(" ");
+        const [a, op, b] = call.question.split(" ") as [string, string, string];
         const actual = op === "+" ? +a + +b : op === "−" ? +a - +b : op === "×" ? +a * +b : +a / +b;
         expect(actual).toBe(call.answer);
         expect(Number.isInteger(actual) && actual >= 0).toBe(true);
       }
-      if (mode === "mixed") expect(new Set(game.calls.map(c => c.question.split(" ")[1])).size).toBe(4);
+      if (mode === "mixed") expect(new Set(game.calls.map(c => c.question.split(" ")[1]!)).size).toBe(4);
     }
   }
 });

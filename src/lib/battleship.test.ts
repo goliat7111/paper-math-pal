@@ -14,7 +14,7 @@ describe("randomFleet", () => {
         ship.cells.forEach(([r, c], cellIndex) => {
           expect(r >= 0 && r < 10 && c >= 0 && c < 10).toBe(true);
           if (cellIndex > 0) {
-            const [pr, pc] = ship.cells[cellIndex - 1];
+            const [pr, pc] = ship.cells[cellIndex - 1]!;
             expect(Math.abs(r - pr) + Math.abs(c - pc)).toBe(1);
           }
           for (const other of ships.slice(index + 1)) {
