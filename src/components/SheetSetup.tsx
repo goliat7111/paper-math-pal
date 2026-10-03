@@ -59,25 +59,12 @@ export function Problem({
   const gridCols = `repeat(${L.nCols}, ${cellSize}mm) 14mm`;
   const cellH = `${cellSize}mm`;
   const multi = L.partialRows.length > 0;
-  const partialStartRow = multi ? 4 : 3;
+  // Rad 1 är minnessiffrornas rad, därefter faktorer, streck och delprodukter
+  const partialStartRow = multi ? 5 : 4;
   const productRowIdx = partialStartRow + L.partialRows.length;
 
   // Teckenrad: × plus den undre faktorn högerställd mot ental
   const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
-
-  const carryBox = (carries: number[], row: string | number) => (
-    <div
-      className="flex flex-col items-center justify-center gap-[1px] border border-sheet-grid"
-      style={{ gridColumn: L.nCols + 1, gridRow: row, minHeight: cellH }}
-    >
-      {answers &&
-        carries.map((c, i) => (
-          <div key={i} className="text-[11px] font-bold leading-none text-sheet-answer">
-            {c}
-          </div>
-        ))}
-    </div>
-  );
 
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
