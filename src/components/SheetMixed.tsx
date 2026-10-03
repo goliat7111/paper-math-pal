@@ -41,7 +41,7 @@ export function SheetMixed({ tasks, level, answers, showGrid = true }: { tasks: 
         {answers && <div className="mixed-hint">Utmaning: {div.note}{div.shown ? ` · skriv om: ${dividendText} / ${div.divisor}` : ""}{div.rounded !== undefined ? ` · ${formatDecimal(div.quotient, 3)}… ≈ ${quotientText}` : ""}</div>}
         <div className={workClass}>{answers && <div className="short-division" aria-label="Kort division">
           <div className="division-fraction"><div className="division-numerator">{divisionSteps(div).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
-            {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (div.dividendDecimals ?? 0) > 0) && <span className="division-comma">,</span>}
+            {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (div.dividendDecimals ?? 0) > 0) && <span className="worksheet-comma">,</span>}
           </span>)}</div><div className="division-denominator">{div.divisor}</div></div>
           <span>=</span><div className="division-result"><span className={`division-answer${answers ? " is-answer" : ""}`}>{answers ? (div.rounded !== undefined ? `${formatDecimal(div.quotient, 3)}…` : quotientText) : ""}</span></div>
         </div>}</div>

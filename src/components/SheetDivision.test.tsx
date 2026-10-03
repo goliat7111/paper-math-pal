@@ -4,6 +4,18 @@ import { genDivisionProgression } from "../lib/division-complexity";
 import { SheetDivision } from "./SheetDivision";
 
 describe("Progressionsserie på arbetsblad", () => {
+  it("uses the shared low comma position in division cells", () => {
+    const markup = renderToStaticMarkup(
+      <SheetDivision
+        tasks={[{ dividend: 125, divisor: 5, quotient: 25, remainder: 0, dividendDecimals: 1, quotientDecimals: 1 }]}
+        answers
+        ownSetup={false}
+      />,
+    );
+
+    expect(markup.match(/class="worksheet-comma"/g)).toHaveLength(1);
+  });
+
   it("behåller ordning och numrering över två sidor i båda uppställningarna", () => {
     const tasks = genDivisionProgression(() => 0);
     for (const ownSetup of [true, false])
@@ -20,13 +32,17 @@ describe("Progressionsserie på arbetsblad", () => {
           ),
         );
         expect(pages[0]!.match(/class="own-setup-task"/g)).toHaveLength(6);
-        expect(pages[1]!.match(/class="own-setup-task"/g)).toHaveLength(4);
+        expect(pages[1]!.match(/class="own-setup-task"/g)).toHaveLength(6);
         expect(pages[1]).toContain('aria-label="Uppgift 9"');
         expect(pages[1]).toContain('aria-label="Uppgift 10"');
+        expect(pages[1]).toContain('aria-label="Uppgift 11"');
+        expect(pages[1]).toContain('aria-label="Uppgift 12"');
         expect(pages[1]).toContain("Progressionsserie");
         expect(pages[1]!.includes(tasks[9]!.note!)).toBe(answers);
-        if (answers) expect(pages[1]).toContain(`rest ${tasks[9]!.remainder}`);
+        expect(pages[1]!.includes(tasks[10]!.note!)).toBe(answers);
+        expect(pages[1]!.includes(tasks[11]!.note!)).toBe(answers);
+        expect(tasks.slice(9, 12).every((task) => task.remainder === 0)).toBe(true);
+        if (answers) expect(pages[1]).not.toContain("rest 0");
       }
   });
 });
-

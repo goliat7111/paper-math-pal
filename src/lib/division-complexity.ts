@@ -104,14 +104,32 @@ export const divisionProgression: ReadonlyArray<{ label: string; rules: Division
       rules: { ...plain, dividendDigits: 3, withRemainder: true, minTransfers: 2 },
     },
     {
-      label: "Kombination: flera växlingar, nollor och rest",
+      label: "Kombination: flera växlingar och nollor",
       rules: {
         dividendDigits: 4,
         groupFirstDigits: false,
         minTransfers: 2,
         zeroInDividend: true,
         zeroInQuotient: true,
-        withRemainder: true,
+        withRemainder: false,
+      },
+    },
+    {
+      label: "Gruppering",
+      rules: {
+        ...plain,
+        dividendDigits: 3,
+        groupFirstDigits: true,
+        withRemainder: false,
+      },
+    },
+    {
+      label: "Nolla i kvoten",
+      rules: {
+        ...plain,
+        dividendDigits: 3,
+        zeroInQuotient: true,
+        withRemainder: false,
       },
     },
   ];
@@ -148,15 +166,100 @@ export function findDivisionCandidates(rules: DivisionComplexityRules): Division
 // Fasta steg delar kandidatpool mellan nya varianter. Manuella regler kan senare
 // använda findDivisionCandidates utan att en obegränsad regelcache byggs upp.
 let progressionPools: DivisionTask[][] | undefined;
-export function genDivisionProgression(random: () => number = Math.random): DivisionTask[] {
-  progressionPools ??= divisionProgression.map((step) => findDivisionCandidates(step.rules));
-  return divisionProgression.map((step, i) => {
-    const pool = progressionPools![i]!;
-    if (!pool.length) throw new Error(`Hittade inga divisioner för ${step.label}.`);
-    const draw = random();
-    if (!Number.isFinite(draw) || draw < 0 || draw >= 1)
-      throw new Error("Slumptalet måste vara mellan 0 och 1 (exklusive 1).");
-    return { ...pool[Math.floor(draw * pool.length)]!, note: step.label };
-  });
+type ChallengeProfile = { mask: number; tasks: DivisionTask[] };
+type ChallengeProfilePair = [ChallengeProfile, ChallengeProfile];
+let finalChallengeProfiles: ChallengeProfilePair[] | undefined;
+
+const finalChallengeLabels = [
+  "Gruppering",
+  "En växling",
+  "Flera växlingar",
+  "Nolla i dividenden",
+  "Nolla i kvoten",
+] as const;
+
+function getFinalChallengeProfiles(): ChallengeProfilePair[] {
+  if (finalChallengeProfiles) return finalChallengeProfiles;
+
+  const profiles = new Map<number, DivisionTask[]>();
+  for (const task of findDivisionCandidates({ dividendDigits: 3, withRemainder: false })) {
+    const complexity = analyzeDivisionComplexity(task);
+    const features = [
+      complexity.groupFirstDigits,
+      complexity.transfers === 1,
+      complexity.transfers >= 2,
+      complexity.zeroInDividend,
+      complexity.zeroInQuotient,
+    ];
+    const mask = features.reduce((value, present, i) => value | (present ? 1 << i : 0), 0);
+    const tasks = profiles.get(mask) ?? [];
+    tasks.push(task);
+    profiles.set(mask, tasks);
+  }
+
+  const groupedProfiles = [...profiles].map(([mask, tasks]) => ({ mask, tasks }));
+  let maxChallenges = -1;
+  const bestPairs: ChallengeProfilePair[] = [];
+  for (let i = 0; i < groupedProfiles.length; i++) {
+    for (let j = i; j < groupedProfiles.length; j++) {
+      const first = groupedProfiles[i]!;
+      const second = groupedProfiles[j]!;
+      if (i === j && first.tasks.length < 2) continue;
+      const covered = first.mask | second.mask;
+      let challengeCount = 0;
+      for (let bits = covered; bits; bits &= bits - 1) challengeCount++;
+      if (challengeCount > maxChallenges) {
+        maxChallenges = challengeCount;
+        bestPairs.length = 0;
+      }
+      if (challengeCount === maxChallenges) bestPairs.push([first, second]);
+    }
+  }
+  if (!bestPairs.length) throw new Error("Hittade inga kombinationer för uppgift 11 och 12.");
+  finalChallengeProfiles = bestPairs;
+  return bestPairs;
 }
 
+function drawIndex(length: number, random: () => number): number {
+  const draw = random();
+  if (!Number.isFinite(draw) || draw < 0 || draw >= 1)
+    throw new Error("Slumptalet måste vara mellan 0 och 1 (exklusive 1).");
+  return Math.floor(draw * length);
+}
+
+function genFinalChallengePair(random: () => number): DivisionTask[] {
+  const pairs = getFinalChallengeProfiles();
+  const pair = pairs[drawIndex(pairs.length, random)];
+  if (!pair) throw new Error("Hittade inga kombinationer för uppgift 11 och 12.");
+  const [firstProfile, secondProfile] = pair;
+  const firstIndex = drawIndex(firstProfile.tasks.length, random);
+  const secondIndex =
+    firstProfile === secondProfile
+      ? (firstIndex + 1 + drawIndex(firstProfile.tasks.length - 1, random)) %
+        firstProfile.tasks.length
+      : drawIndex(secondProfile.tasks.length, random);
+  const tasks = [{ ...firstProfile.tasks[firstIndex]! }, { ...secondProfile.tasks[secondIndex]! }];
+  if (drawIndex(2, random) === 1) tasks.reverse();
+  for (const task of tasks) {
+    const complexity = analyzeDivisionComplexity(task);
+    const features = [
+      complexity.groupFirstDigits,
+      complexity.transfers === 1,
+      complexity.transfers >= 2,
+      complexity.zeroInDividend,
+      complexity.zeroInQuotient,
+    ];
+    task.note = finalChallengeLabels.filter((_, i) => features[i]).join(" · ");
+  }
+  return tasks;
+}
+
+export function genDivisionProgression(random: () => number = Math.random): DivisionTask[] {
+  progressionPools ??= divisionProgression.map((step) => findDivisionCandidates(step.rules));
+  const tasks = divisionProgression.slice(0, 10).map((step, i) => {
+    const pool = progressionPools![i]!;
+    if (!pool.length) throw new Error(`Hittade inga divisioner för ${step.label}.`);
+    return { ...pool[drawIndex(pool.length, random)]!, note: step.label };
+  });
+  return [...tasks, ...genFinalChallengePair(random)];
+}

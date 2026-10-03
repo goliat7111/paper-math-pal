@@ -271,8 +271,7 @@ body { font-family: var(--font-sans); }
 .exercise-twelve-grid { display: grid; flex: 1; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm 5mm; margin-top: 5mm; }
 .exercise-twelve-grid .own-setup-task { display: flex; flex-direction: column; min-height: 0; }
 .exercise-twelve-box { flex: 1; min-height: 0; min-width: 0; border: 1px solid var(--sheet-line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.exercise-twelve-box.own-setup-key > div > div:first-child { display: none; }
-.exercise-twelve-box.multiplication-own-grid { background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px); background-size: calc(100% / 9) 6.5mm; }
+.exercise-twelve-box.multiplication-own-grid { background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px); background-size: 10% calc(100% / 9); }
 .division-twelve-page .own-setup-instruction { margin: 3mm 0 0; font-size: 12px; }
 .division-twelve-page .exercise-twelve-grid { margin-top: 3mm; }
 .division-twelve-page .own-setup-expression { font-size: 13px; min-height: 6mm; white-space: nowrap; overflow: hidden; }
@@ -292,15 +291,13 @@ body { font-family: var(--font-sans); }
 .division-progression-page .division-note { flex-basis: 100%; line-height: 1.35; }
 .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .own-setup-box { height: 44mm; border: 1px solid var(--sheet-line); }
-.own-setup-key { display: flex; align-items: center; justify-content: center; }
-.own-setup-key > div > div:first-child { display: none; }
 .division-box { padding: 5mm; display: flex; align-items: center; justify-content: center; }
 .short-division { display: flex; align-items: center; justify-content: center; gap: 3mm; font-family: var(--font-mono); font-size: 20px; }
 .division-fraction { text-align: center; }
 .division-numerator { display: flex; justify-content: center; border-bottom: 2px solid var(--sheet-ink); padding: 4mm 1mm 1mm; }
 .division-digit { position: relative; min-width: 7mm; }
-.division-digit sup { position: absolute; top: -2mm; left: -1mm; font-size: 11px; color: var(--sheet-answer); }
-.division-comma { position: absolute; right: -0.8mm; bottom: 0; }
+.division-digit sup { position: absolute; top: -1mm; left: -1mm; font-size: 11px; color: var(--sheet-answer); }
+.worksheet-comma { position: absolute; right: -0.8mm; bottom: -1.5mm; z-index: 10; line-height: 1; }
 .division-digit.is-added { color: var(--sheet-answer); font-weight: bold; }
 .division-denominator { padding-top: 1mm; }
 .division-answer { min-width: 20mm; min-height: 8mm; border-bottom: 1px solid var(--sheet-line); }
@@ -368,7 +365,8 @@ body { font-family: var(--font-sans); }
 .addsub-setup { display: grid; font-family: var(--font-mono); font-size: 18px; grid-auto-rows: auto; }
 .addsub-cell { position: relative; height: var(--addsub-cell, 6.5mm); display: flex; align-items: center; justify-content: center; border: 1px solid var(--sheet-grid); }
 .addsub-cell.addsub-small { border: 0; }
-.addsub-cell.addsub-small { height: 4.5mm; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
+.addsub-cell.addsub-small { height: var(--addsub-cell, 6.5mm); align-items: flex-end; padding-bottom: 0.5mm; box-sizing: border-box; font-size: 10px; font-weight: bold; color: var(--sheet-answer); }
+.addsub-cell.addsub-small.is-borrow-used::after { content: ""; position: absolute; left: 50%; top: calc(100% - 2.5mm); width: 3mm; border-top: 0.3mm solid currentColor; transform: translate(-50%, -50%) rotate(-35deg); }
 .addsub-cell.is-struck { background-image: linear-gradient(to top right, transparent calc(50% - 0.55px), var(--sheet-answer) calc(50% - 0.55px), var(--sheet-answer) calc(50% + 0.55px), transparent calc(50% + 0.55px)); }
 .addsub-cell.is-answer { font-weight: bold; color: var(--sheet-answer); }
 .addsub-line { position: relative; z-index: 1; border-top: 2px solid var(--sheet-ink); height: 0; }

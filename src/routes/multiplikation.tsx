@@ -46,15 +46,15 @@ function MultiplikationPage() {
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [exporting, setExporting] = useState(false);
 
-  // Den undre faktorn får aldrig ha fler siffror än det övre talet
+  // Den undre faktorn får ha högst två siffror och aldrig fler än det övre talet.
   const applySd = (v: [number, number]) => {
     setSd(v);
-    const topHi = Math.max(...v);
-    setSb(([lo, hi]) => [Math.min(lo, topHi), Math.min(hi, topHi)]);
+    const maxBottomDigits = Math.min(2, Math.max(...v));
+    setSb(([lo, hi]) => [Math.min(lo, maxBottomDigits), Math.min(hi, maxBottomDigits)]);
   };
   const applySb = (v: [number, number]) => {
-    const topHi = Math.max(...sd);
-    setSb([Math.min(v[0], topHi), Math.min(v[1], topHi)]);
+    const maxBottomDigits = Math.min(2, Math.max(...sd));
+    setSb([Math.min(v[0], maxBottomDigits), Math.min(v[1], maxBottomDigits)]);
   };
 
   const SETUP_POOL = 12;
@@ -151,9 +151,9 @@ function MultiplikationPage() {
             </>
           ) : (
             <>
-              <RangeInput label="Siffror i övre talet mellan" value={sd} onChange={applySd} min={1} max={3} />
-              <RangeInput label="Siffror i undre talet mellan" value={sb} onChange={applySb} min={1} max={Math.max(...sd)} />
-              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst lika många siffror som övre talet, och gränserna korrigeras automatiskt.</p>
+              <RangeInput label="Faktor 1" value={sd} onChange={applySd} min={1} max={3} />
+              <RangeInput label="Faktor 2" value={sb} onChange={applySb} min={1} max={Math.min(2, Math.max(...sd))} />
+              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst två siffror och aldrig fler än övre talet.</p>
               <fieldset>
                 <legend className="mb-2 text-sm font-medium">Decimaler</legend>
                 <div className="flex gap-3">
@@ -193,11 +193,6 @@ function MultiplikationPage() {
             </>
           )}
           <PrintContentChoice value={content} onChange={setContent} />
-          <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-             {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
-            PDF: {pagesLabel(content)} ·{" "}
-             {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : 12} uppgifter · A4 stående.
-          </p>
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           <div className="space-y-2 pt-2">
             <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
@@ -211,6 +206,11 @@ function MultiplikationPage() {
             </button>
           </div>
           <p className="text-xs text-muted-foreground">Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.</p>
+          <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+             {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
+            PDF: {pagesLabel(content)} ·{" "}
+             {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : 12} uppgifter · A4 stående.
+          </p>
         </aside>
 
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">

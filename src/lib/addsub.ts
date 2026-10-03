@@ -160,6 +160,8 @@ export type AddSubLayout = {
   /** Subtraktion: liten markering ovanför övre talet, samt om siffran stryks. */
   marks: string[];
   struck: boolean[];
+  /** Växlade 10:or som lånats vidare till nästa kolumn. */
+  marksStruck: boolean[];
   /** Komma-kolumn per termrad (-1 = ingen). */
   commas: number[];
   /** Komma-kolumn i resultatraden (-1 = ingen). */
@@ -182,6 +184,7 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   const carries = Array(nCols).fill("");
   const marks = Array(nCols).fill("");
   const struck = Array(nCols).fill(false);
+  const marksStruck = Array(nCols).fill(false);
   if (t.op === "add") {
     addCarries(s).forEach((c, i) => { if (c > 0 && i < nCols) carries[nCols - 1 - i] = String(c); });
   } else {
@@ -190,7 +193,10 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
       // Endast snedstreck på kolumner som växlar bort, och en liten 10:a i
       // varje mottagande kolumn — ingen siffra för vad som blir kvar.
       if (c.lent) struck[col] = true;
-      if (c.received) marks[col] = "10";
+      if (c.received) {
+        marks[col] = "10";
+        marksStruck[col] = c.lent;
+      }
     });
   }
   return {
@@ -200,6 +206,7 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
     carries,
     marks,
     struck,
+    marksStruck,
     commas: t.decs.map(() => (m > 0 ? nCols - 1 - m : -1)),
     resultComma: m > 0 ? nCols - 1 - m : -1,
   };

@@ -41,6 +41,13 @@ describe("växling i subtraktion", () => {
     expect(L.struck).toEqual([true, true, false]);
     expect(L.result).toEqual(["3", "9", "3"]);
   });
+  it("strikes each received 10 that must be lent onward across decimal zeroes", () => {
+    const L = addSubLayout({ op: "sub", terms: [922, 388], decs: [0, 2] });
+    expect(L.marks).toEqual(["", "", "10", "10", "10"]);
+    expect(L.marksStruck).toEqual([false, false, true, true, false]);
+    expect(L.struck).toEqual([false, true, true, true, false]);
+    expect(L.result).toEqual(["9", "1", "8", "1", "2"]);
+  });
   it("utan lån ingen markering", () => {
     expect(subBorrows(58, 23).some((c) => c.received)).toBe(false);
   });

@@ -27,7 +27,7 @@ export function SheetOwnSetup({ tasks, answers, ownGrid = true }: {
               <span className="own-setup-number">{i + 1})</span>
               {formatDecimal(digitValue(task.digits), task.dt)} · {formatDecimal(digitValue(task.m), task.db)}
             </div>
-            <div className={`exercise-twelve-box${answers ? " own-setup-key" : ownGrid ? " multiplication-own-grid" : ""}`}>
+            <div className={`exercise-twelve-box${!answers && ownGrid ? " multiplication-own-grid" : ""}`}>
               {answers && <Problem n={i + 1} t={task} answers digitMm={5.5} showNumber={false} />}
             </div>
           </section>

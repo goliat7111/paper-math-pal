@@ -11,20 +11,26 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
   const cellSize = cellMm ?? 6.5;
   const cellStyle = { "--addsub-cell": `${cellSize}mm` } as React.CSSProperties;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
-
     <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
-      {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="division-comma">,</span>}
+      {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="worksheet-comma">,</span>}
     </div>
   );
   const top = L.rows.length;
   const bg = [];
   for (let r = 1; r <= totalRows; r++) for (let c = 1; c <= totalCols; c++) bg.push(<div key={`bg${r}-${c}`} className="addsub-cell" style={{ gridColumn: c, gridRow: r }} />);
   return (
-    <div className="addsub-setup" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle, ...(cellMm && cellMm > 6.5 ? { fontSize: "20px" } : {}) }}>
-
+    <div
+      className="addsub-setup"
+      style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle, ...(cellMm && cellMm > 6.5 ? { fontSize: "20px" } : {}) }}
+    >
       {bg}
-
-      {L.rows[0]!.map((_, c) => cell(answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "", c, 1, "addsub-small", `m${c}`))}
+      {L.rows[0]!.map((_, c) => cell(
+        answers ? (t.op === "add" ? L.carries[c]! : L.marks[c]!) : "",
+        c,
+        1,
+        `addsub-small${answers && t.op === "sub" && L.marksStruck[c] ? " is-borrow-used" : ""}`,
+        `m${c}`,
+      ))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
       <div className="addsub-cell" style={{ gridColumn: 2, gridRow: top + 2 }}>{SIGN[t.op]}</div>
       <div className="addsub-line" style={{ gridColumn: `2 / ${L.nCols + 3}`, gridRow: top + 3, alignSelf: "start" }} />

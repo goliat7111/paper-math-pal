@@ -4,6 +4,19 @@ import { SheetHeader } from "./SheetHeader";
 export type TalkamratRange = "10" | "20" | "both" | "custom";
 export type Strategy = "dubbel" | "tio" | "ett" | "nastan" | "tva" | "tre";
 
+export const TALKAMRAT_RANGE_OPTIONS: { id: TalkamratRange; label: string }[] = [
+  { id: "10", label: "Upp till 10" },
+  { id: "20", label: "Upp till 20" },
+  { id: "both", label: "Båda" },
+  { id: "custom", label: "Välj tal" },
+];
+
+export function talkamratRangeLabel(range: TalkamratRange): string {
+  if (range === "custom") return "Välj tal";
+  if (range === "both") return "Upp till 10 och 20";
+  return `Upp till ${range}`;
+}
+
 export const STRATEGIES: { id: Strategy; label: string }[] = [
   { id: "ett", label: "Öka med ett" },
   { id: "tva", label: "Öka med två" },
@@ -83,7 +96,8 @@ function Table({ range, colors, showPairs, sums = [], fs = 1 }: { range: "10" | 
 export function SheetTalkamrater({ range, colors, showPairs, landscape = false, sums = [], count = 1 }: { range: TalkamratRange; colors: boolean; showPairs: boolean; landscape?: boolean; sums?: number[]; count?: 1 | 2 | 4 }) {
   const parts: ("10" | "20" | "custom")[] = range === "both" ? ["10", "20"] : [range];
   const sorted = [...sums].sort((a, b) => a - b);
-  const subtitle = range === "10" ? "Addition upp till 10" : range === "20" ? "Addition upp till 20" : range === "custom" ? `${sorted.join(", ")}-kamrater` : "Addition upp till 10 och 20";
+  const subrange = range === "custom" ? null : talkamratRangeLabel(range);
+  const subtitle = range === "custom" ? `${sorted.join(", ")}-kamrater` : range === "both" ? "Addition upp till 10 och 20" : `Addition ${subrange!.toLowerCase()}`;
   const wide = range === "both" && landscape;
   const useColors = range === "custom" ? false : colors;
   const legend = useColors && (
