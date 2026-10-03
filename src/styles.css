@@ -267,6 +267,10 @@ body { font-family: var(--font-sans); }
 .own-setup-task { min-width: 0; break-inside: avoid; page-break-inside: avoid; }
 .own-setup-expression { display: flex; align-items: baseline; gap: 3mm; height: 9mm; font-size: 20px; font-family: var(--font-mono); }
 .division-note { font-size: 12px; font-family: var(--font-sans); color: #555; }
+/* Progressionsseriens längre momenttexter får en egen rad ovanför rutan. */
+.division-progression-page .own-setup-expression { height: auto; min-height: 9mm; flex-wrap: wrap; row-gap: 0; padding-bottom: 2mm; }
+.division-progression-page .division-expression { white-space: nowrap; }
+.division-progression-page .division-note { flex-basis: 100%; line-height: 1.35; }
 .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .own-setup-box { height: 44mm; border: 1px solid var(--sheet-line); }
 .own-setup-key { display: flex; align-items: center; justify-content: center; }
