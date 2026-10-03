@@ -159,3 +159,4 @@ export function genDivisionProgression(random: () => number = Math.random): Divi
     return { ...pool[Math.floor(draw * pool.length)]!, note: step.label };
   });
 }
+

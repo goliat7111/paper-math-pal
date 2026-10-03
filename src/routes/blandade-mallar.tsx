@@ -25,6 +25,7 @@ export const Route = createFileRoute("/blandade-mallar")({
 function BlandadeMallarPage() {
   const [level, setLevel] = useState<MixedLevel>(1);
   const [randomDec, setRandomDec] = useState(false);
+  const [showGrid, setShowGrid] = useState(true);
   const [tasks, setTasks] = useState<MixedTasks | null>(null);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
@@ -73,6 +74,7 @@ function BlandadeMallarPage() {
           </label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={randomDec} onChange={e => { setRandomDec(e.target.checked); setTasks(genMixed(level, e.target.checked)); }} />Slumpade decimaler</label>
           {randomDec && <p className="text-xs text-muted-foreground">Uppgifterna får olika antal decimaler på samma blad.</p>}
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} />Visa rutnät på elevbladet</label>
           <PrintContentChoice value={content} onChange={setContent} />
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
@@ -83,7 +85,7 @@ function BlandadeMallarPage() {
           </div>
         </aside>
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
-          {tasks && showSheet(content) && <SheetMixed tasks={tasks} level={level} answers={false} />}
+          {tasks && showSheet(content) && <SheetMixed tasks={tasks} level={level} showGrid={showGrid} answers={false} />}
           {tasks && showKey(content) && <SheetMixed tasks={tasks} level={level} answers />}
         </main>
       </div>

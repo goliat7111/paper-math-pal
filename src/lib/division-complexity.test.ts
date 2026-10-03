@@ -83,3 +83,4 @@ describe("Division - komplexitetsmatris", () => {
     expect(() => findDivisionCandidates({ dividendDigits: 3, minTransfers: -1 })).toThrow();
   });
 });
+

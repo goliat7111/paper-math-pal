@@ -13,8 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdditionRouteImport } from './routes/addition'
 import { Route as BlandadeMallarRouteImport } from './routes/blandade-mallar'
 import { Route as DivisionRouteImport } from './routes/division'
+import { Route as FemIRadRouteImport } from './routes/fem-i-rad'
 import { Route as MallarRouteImport } from './routes/mallar'
+import { Route as MattebingoRouteImport } from './routes/mattebingo'
+import { Route as MattespelRouteImport } from './routes/mattespel'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
+import { Route as SankaSkeppRouteImport } from './routes/sanka-skepp'
 import { Route as SubtraktionRouteImport } from './routes/subtraktion'
 import { Route as TextuppgifterRouteImport } from './routes/textuppgifter'
 
@@ -38,14 +42,34 @@ const DivisionRoute = DivisionRouteImport.update({
   path: '/division',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FemIRadRoute = FemIRadRouteImport.update({
+  id: '/fem-i-rad',
+  path: '/fem-i-rad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MallarRoute = MallarRouteImport.update({
   id: '/mallar',
   path: '/mallar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MattebingoRoute = MattebingoRouteImport.update({
+  id: '/mattebingo',
+  path: '/mattebingo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MattespelRoute = MattespelRouteImport.update({
+  id: '/mattespel',
+  path: '/mattespel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MultiplikationRoute = MultiplikationRouteImport.update({
   id: '/multiplikation',
   path: '/multiplikation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SankaSkeppRoute = SankaSkeppRouteImport.update({
+  id: '/sanka-skepp',
+  path: '/sanka-skepp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SubtraktionRoute = SubtraktionRouteImport.update({
@@ -64,8 +88,12 @@ export interface FileRoutesByFullPath {
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
+  '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
+  '/mattebingo': typeof MattebingoRoute
+  '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
@@ -74,8 +102,12 @@ export interface FileRoutesByTo {
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
+  '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
+  '/mattebingo': typeof MattebingoRoute
+  '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
@@ -85,8 +117,12 @@ export interface FileRoutesById {
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
   '/division': typeof DivisionRoute
+  '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
+  '/mattebingo': typeof MattebingoRoute
+  '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
+  '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
@@ -97,8 +133,12 @@ export interface FileRouteTypes {
     | '/addition'
     | '/blandade-mallar'
     | '/division'
+    | '/fem-i-rad'
     | '/mallar'
+    | '/mattebingo'
+    | '/mattespel'
     | '/multiplikation'
+    | '/sanka-skepp'
     | '/subtraktion'
     | '/textuppgifter'
   fileRoutesByTo: FileRoutesByTo
@@ -107,8 +147,12 @@ export interface FileRouteTypes {
     | '/addition'
     | '/blandade-mallar'
     | '/division'
+    | '/fem-i-rad'
     | '/mallar'
+    | '/mattebingo'
+    | '/mattespel'
     | '/multiplikation'
+    | '/sanka-skepp'
     | '/subtraktion'
     | '/textuppgifter'
   id:
@@ -117,8 +161,12 @@ export interface FileRouteTypes {
     | '/addition'
     | '/blandade-mallar'
     | '/division'
+    | '/fem-i-rad'
     | '/mallar'
+    | '/mattebingo'
+    | '/mattespel'
     | '/multiplikation'
+    | '/sanka-skepp'
     | '/subtraktion'
     | '/textuppgifter'
   fileRoutesById: FileRoutesById
@@ -128,8 +176,12 @@ export interface RootRouteChildren {
   AdditionRoute: typeof AdditionRoute
   BlandadeMallarRoute: typeof BlandadeMallarRoute
   DivisionRoute: typeof DivisionRoute
+  FemIRadRoute: typeof FemIRadRoute
   MallarRoute: typeof MallarRoute
+  MattebingoRoute: typeof MattebingoRoute
+  MattespelRoute: typeof MattespelRoute
   MultiplikationRoute: typeof MultiplikationRoute
+  SankaSkeppRoute: typeof SankaSkeppRoute
   SubtraktionRoute: typeof SubtraktionRoute
   TextuppgifterRoute: typeof TextuppgifterRoute
 }
@@ -164,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DivisionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fem-i-rad': {
+      id: '/fem-i-rad'
+      path: '/fem-i-rad'
+      fullPath: '/fem-i-rad'
+      preLoaderRoute: typeof FemIRadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mallar': {
       id: '/mallar'
       path: '/mallar'
@@ -171,11 +230,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MallarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mattebingo': {
+      id: '/mattebingo'
+      path: '/mattebingo'
+      fullPath: '/mattebingo'
+      preLoaderRoute: typeof MattebingoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mattespel': {
+      id: '/mattespel'
+      path: '/mattespel'
+      fullPath: '/mattespel'
+      preLoaderRoute: typeof MattespelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/multiplikation': {
       id: '/multiplikation'
       path: '/multiplikation'
       fullPath: '/multiplikation'
       preLoaderRoute: typeof MultiplikationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sanka-skepp': {
+      id: '/sanka-skepp'
+      path: '/sanka-skepp'
+      fullPath: '/sanka-skepp'
+      preLoaderRoute: typeof SankaSkeppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/subtraktion': {
@@ -200,8 +280,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdditionRoute: AdditionRoute,
   BlandadeMallarRoute: BlandadeMallarRoute,
   DivisionRoute: DivisionRoute,
+  FemIRadRoute: FemIRadRoute,
   MallarRoute: MallarRoute,
+  MattebingoRoute: MattebingoRoute,
+  MattespelRoute: MattespelRoute,
   MultiplikationRoute: MultiplikationRoute,
+  SankaSkeppRoute: SankaSkeppRoute,
   SubtraktionRoute: SubtraktionRoute,
   TextuppgifterRoute: TextuppgifterRoute,
 }
