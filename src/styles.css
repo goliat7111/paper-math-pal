@@ -273,7 +273,6 @@ body { font-family: var(--font-sans); }
 .exercise-twelve-box { flex: 1; min-height: 0; min-width: 0; border: 1px solid var(--sheet-line); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .exercise-twelve-box.own-setup-key > div > div:first-child { display: none; }
 .exercise-twelve-box.multiplication-own-grid { background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px); background-size: calc(100% / 9) 6.5mm; }
-.exercise-twelve-box.setup-full-grid { background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px); background-size: var(--setup-cell) var(--setup-cell); background-position: center; }
 .setup-surround { padding: var(--setup-cell); border: 1px solid var(--sheet-grid); background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px); background-size: var(--setup-cell) var(--setup-cell); }
 .division-twelve-page .own-setup-instruction { margin: 3mm 0 0; font-size: 12px; }
 .division-twelve-page .exercise-twelve-grid { margin-top: 3mm; }

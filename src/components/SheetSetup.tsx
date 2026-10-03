@@ -40,10 +40,6 @@ export function SheetSetup({
   );
 }
 
-function setupCellMm(t: SetupTask, digitMm: number) {
-  const n = setupLayout(t).nCols;
-  return n >= 8 ? Math.min(digitMm, 4) : n >= 7 ? Math.min(digitMm, 4.5) : digitMm;
-}
 
 export function Problem({
   n,
