@@ -332,6 +332,11 @@ body { font-family: var(--font-sans); }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 .addsub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Additions-/subtraktionsbladet fyller hela A4-sidan: rutorna sträcks jämnt. */
+.addsub-page { display: flex; flex-direction: column; height: 297mm; }
+.addsub-page .addsub-grid { flex: 1; min-height: 0; grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.addsub-page .own-setup-task { display: flex; flex-direction: column; min-height: 0; }
+.addsub-page .addsub-box { flex: 1; min-height: 0; height: auto; }
 .addsub-expression { font-size: 15px; white-space: nowrap; height: 6mm; align-items: flex-end; }
 .addsub-box { height: 42mm; display: flex; align-items: center; justify-content: center; border: none; }
 .addsub-box--own { border: 1px solid var(--sheet-ink-strong); }
