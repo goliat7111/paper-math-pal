@@ -1,4 +1,4 @@
-import { Fragment, type CSSProperties } from "react";
+import { Fragment } from "react";
 import { setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
@@ -56,34 +56,49 @@ export function Problem({
 }) {
   const L = setupLayout(t);
   const cellSize = L.nCols >= 8 ? Math.min(digitMm, 4) : L.nCols >= 7 ? Math.min(digitMm, 4.5) : digitMm;
-  const gridCols = `repeat(${L.nCols}, ${cellSize}mm)`;
   const cellH = `${cellSize}mm`;
   const multi = L.partialRows.length > 0;
+  // Uppställningen ligger i ett rutnät med en tom rutrad runt om (ring), så
+  // alla linjer linjerar exakt. Innehållet förskjuts ett steg (+1 rad/kolumn).
   // Låg rad för minnessiffrorna direkt under strecket: vid flersiffrig faktor
   // under delprodukterna (additionens minnessiffror), annars under faktorerna.
-  const partialStartRow = 3;
-  const carryRowIdx = multi ? partialStartRow + L.partialRows.length : 3;
+  const partialStartRow = 4;
+  const carryRowIdx = multi ? partialStartRow + L.partialRows.length : 4;
   const productRowIdx = carryRowIdx + 1;
+  const totalRows = productRowIdx + 1; // sista raden är ringens nederkant
+  const totalCols = L.nCols + 2;
   const carryCells = multi ? L.additionCarries : L.carryRow;
 
   // Teckenrad: × plus den undre faktorn högerställd mot ental
   const signRow = L.bottomRow.map((c, i) => (i === L.signCol ? "×" : c));
 
+  // Tomma ringceller runt uppställningen
+  const ring: { col: number; row: number }[] = [];
+  for (let c = 1; c <= totalCols; c++) {
+    ring.push({ col: c, row: 1 }, { col: c, row: totalRows });
+  }
+  for (let r = 2; r < totalRows; r++) {
+    ring.push({ col: 1, row: r }, { col: totalCols, row: r });
+  }
+
   return (
     <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
-      <div className="setup-surround" style={{ "--setup-cell": cellH } as CSSProperties}>
-      <div className="grid-sheet" style={{ gridTemplateColumns: gridCols, gridTemplateRows: multi ? `repeat(2, ${cellH}) repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH}` : `repeat(2, ${cellH}) 4mm ${cellH}` }}>
-        {/* Rad 1: övre faktorn */}
-        {L.topRow.map((c, i) => (
-          <Cell key={`t${i}`} v={c} col={i + 1} row={1} height={cellH} comma={i === L.commas.top} />
+      <div className="grid-sheet" style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellH})`, gridTemplateRows: multi ? `${cellH} repeat(2, ${cellH}) repeat(${L.partialRows.length}, ${cellH}) 4mm ${cellH} ${cellH}` : `${cellH} repeat(2, ${cellH}) 4mm ${cellH} ${cellH}` }}>
+        {/* Tom rutrad runt uppställningen */}
+        {ring.map((cell, i) => (
+          <div key={`ring${i}`} className="border border-sheet-grid" style={{ gridColumn: cell.col, gridRow: cell.row }} />
         ))}
-        {/* Rad 2: teckenrad */}
+        {/* Rad 2: övre faktorn */}
+        {L.topRow.map((c, i) => (
+          <Cell key={`t${i}`} v={c} col={i + 2} row={2} height={cellH} comma={i === L.commas.top} />
+        ))}
+        {/* Rad 3: teckenrad */}
         {signRow.map((c, i) => (
-          <Cell key={`s${i}`} v={c} col={i + 1} row={2} height={cellH} comma={i === L.commas.bottom} />
+          <Cell key={`s${i}`} v={c} col={i + 2} row={3} height={cellH} comma={i === L.commas.bottom} />
         ))}
         {/* Tjockt streck under teckenraden, över hela uppställningens bredd */}
-        <div style={{ gridColumn: "1 / -1", gridRow: 2, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
+        <div style={{ gridColumn: "2 / -2", gridRow: 3, borderBottom: "2px solid var(--sheet-ink)", position: "relative", zIndex: 1 }} />
         {/* Delprodukter */}
         {L.partialRows.map((p, r) => (
           <Fragment key={`par${r}`}>
@@ -91,7 +106,7 @@ export function Problem({
               <Cell
                 key={`p${r}-${i}`}
                 v={answers ? c : ""}
-                col={i + 1}
+                col={i + 2}
                 row={partialStartRow + r}
                 height={cellH}
                 answer={answers}
@@ -101,13 +116,13 @@ export function Problem({
         ))}
         {/* Plus-tecknet står på sista delproduktraden, vänster om additionsdelen */}
         {multi && (
-          <Cell v="+" col={L.sumLeft} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
+          <Cell v="+" col={L.sumLeft + 1} row={partialStartRow + L.partialRows.length - 1} height={cellH} />
         )}
         {/* Tjockt streck under uppställningen, direkt ovanför den låga minnessifferraden */}
         {multi && (
           <div
             style={{
-              gridColumn: `${L.sumLeft} / ${L.nCols + 1}`,
+              gridColumn: `${L.sumLeft + 1} / ${L.nCols + 2}`,
               gridRow: carryRowIdx,
               borderTop: "2px solid var(--sheet-ink)",
               position: "relative",
@@ -120,7 +135,7 @@ export function Problem({
           <div
             key={`cr${i}`}
             className="flex items-center justify-center border border-sheet-grid font-mono text-[11px] font-bold text-sheet-answer"
-            style={{ gridColumn: i + 1, gridRow: carryRowIdx, height: "4mm" }}
+            style={{ gridColumn: i + 2, gridRow: carryRowIdx, height: "4mm" }}
           >
             {answers ? c : ""}
           </div>
@@ -130,14 +145,13 @@ export function Problem({
           <Cell
             key={`pr${i}`}
             v={answers ? c : ""}
-            col={i + 1}
+            col={i + 2}
             row={productRowIdx}
             height={cellH}
             answer={answers}
             comma={answers && i === L.commas.product}
           />
         ))}
-      </div>
       </div>
     </div>
   );
