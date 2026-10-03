@@ -10,6 +10,7 @@ import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { Button } from "@/components/ui/button";
+import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 export const Route = createFileRoute("/multiplikation")({
   head: () => ({
@@ -171,18 +172,8 @@ function MultiplikationPage() {
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">Decimaltalen slutar aldrig på 0. På elevbladet sätter eleven själv ut kommat i svaret.</p>
               </fieldset>
-              <fieldset className="space-y-2">
-                <legend className="mb-2 text-sm font-medium">Utformning av elevblad</legend>
-                <label className="flex items-center gap-2 text-sm">
-                   <input type="radio" name="setup-style" checked={!ownSetup} onChange={() => setOwnSetup(false)} />
-                  Med uppställning
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                   <input type="radio" name="setup-style" checked={ownSetup} onChange={() => setOwnSetup(true)} />
-                  Egen uppställning i tom ruta
-                </label>
-                 {ownSetup && <p className="text-sm text-muted-foreground">Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.</p>}
-              </fieldset>
+              <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
+              {ownSetup && <p className="text-sm text-muted-foreground">Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.</p>}
                {ownSetup && <fieldset>
                  <legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend>
                  <div className="flex gap-2">

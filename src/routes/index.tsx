@@ -19,11 +19,6 @@ export const Route = createFileRoute("/")({
 
 const operations = [
   {
-    title: "Multiplikation",
-    to: "/multiplikation",
-    icon: <span className="font-display text-3xl font-bold leading-none">×</span>,
-  },
-  {
     title: "Addition",
     to: "/addition",
     icon: <Plus className="h-5 w-5" />,
@@ -32,6 +27,11 @@ const operations = [
     title: "Subtraktion",
     to: "/subtraktion",
     icon: <Minus className="h-5 w-5" />,
+  },
+  {
+    title: "Multiplikation",
+    to: "/multiplikation",
+    icon: <span className="font-display text-3xl font-bold leading-none">×</span>,
   },
   {
     title: "Division",

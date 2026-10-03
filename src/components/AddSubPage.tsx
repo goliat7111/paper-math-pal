@@ -6,6 +6,7 @@ import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type Pri
 import { genAddSub, type AddSubOp, type AddSubTask } from "@/lib/addsub";
 import { SheetAddSub } from "./SheetAddSub";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 const COUNT = 12;
 const btn = (on: boolean) =>
@@ -94,10 +95,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
             {[2, 3].map(n => <button key={n} type="button" className={btn(terms === n)} onClick={() => setTerms(n)}>{n} tal</button>)}
           </div></fieldset>}
         </div>
-        <fieldset><legend className="mb-2 text-sm font-medium">Elevblad</legend><div className="flex flex-wrap gap-2">
-          <button type="button" className={btn(!ownSetup)} onClick={() => setOwnSetup(false)}>Färdig uppställning</button>
-          <button type="button" className={btn(ownSetup)} onClick={() => setOwnSetup(true)}>Tom ruta</button>
-        </div></fieldset>
+        <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
         {ownSetup && <fieldset><legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend><div className="flex gap-2">
           <button type="button" className={btn(ownGrid)} onClick={() => setOwnGrid(true)}>Med rutnät</button>
           <button type="button" className={btn(!ownGrid)} onClick={() => setOwnGrid(false)}>Utan rutnät</button>

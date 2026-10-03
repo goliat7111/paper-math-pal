@@ -14,12 +14,20 @@ export async function buildSheetsPdf(
     document.querySelectorAll<HTMLElement>(".print-area .a4-page"),
   );
   if (pages.length === 0) return null;
-  const pdf = new jsPDF({ orientation, unit: "mm", format: "a4", compress: true });
+  const getPageOrientation = (page: HTMLElement): Orientation =>
+    page.classList.contains("portrait-page")
+      ? "portrait"
+      : page.classList.contains("landscape")
+        ? "landscape"
+        : orientation;
+  const firstOrientation = getPageOrientation(pages[0]!);
+  const pdf = new jsPDF({ orientation: firstOrientation, unit: "mm", format: "a4", compress: true });
   const images: string[] = [];
-  const w = orientation === "portrait" ? 210 : 297;
-  const h = orientation === "portrait" ? 297 : 210;
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i]!;
+    const pageOrientation = getPageOrientation(page);
+    const w = pageOrientation === "portrait" ? 210 : 297;
+    const h = pageOrientation === "portrait" ? 297 : 210;
     // Skärmzoomen (CSS zoom på .a4-page) får aldrig följa med i PDF:en –
     // bladet fångas alltid i exakt A4-storlek (96 px per tum).
     const pxW = Math.round((w * 96) / 25.4);
@@ -41,7 +49,7 @@ export async function buildSheetsPdf(
       page.style.zoom = prevZoom;
     });
     images.push(png);
-    if (i > 0) pdf.addPage("a4", orientation);
+    if (i > 0) pdf.addPage("a4", pageOrientation);
     pdf.addImage(png, "PNG", 0, 0, w, h);
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);

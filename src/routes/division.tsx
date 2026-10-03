@@ -9,6 +9,7 @@ import { genChallengeDivision, randomizeSheetDecimals } from "@/lib/mixed-divisi
 import type { MixedLevel } from "@/lib/mixed";
 import { SheetDivision } from "@/components/SheetDivision";
 import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 export const Route = createFileRoute("/division")({
   head: () => ({ meta: [
@@ -155,22 +156,7 @@ function DivisionPage() {
               </div>
             )}
           </div>}
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Utformning av elevblad</p>
-            <button
-              type="button"
-              aria-pressed={ownSetup}
-              aria-label={ownSetup ? "Växla till uppställning" : "Växla till tom ruta"}
-              onClick={() => setOwnSetup(value => !value)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium text-white ${
-                ownSetup
-                  ? "bg-green-700 hover:bg-green-800"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {ownSetup ? "Uppst." : "Tom ruta"}
-            </button>
-          </div>
+          <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
         </form>
         <PrintContentChoice value={content} onChange={setContent} />
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
