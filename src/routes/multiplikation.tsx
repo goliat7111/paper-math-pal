@@ -30,6 +30,7 @@ type Tab = "102" | "100" | "setup" | "snabba";
 function MultiplikationPage() {
   const [tab, setTab] = useState<Tab>("102");
   const [ownSetup, setOwnSetup] = useState(false);
+  const [ownGrid, setOwnGrid] = useState(true);
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
@@ -80,7 +81,7 @@ function MultiplikationPage() {
     const top = sd[0] === sd[1] ? `${sd[0]}` : `${sd[0]}-${sd[1]}`;
     const bot = sb[0] === sb[1] ? `${sb[0]}` : `${sb[0]}-${sb[1]}`;
     const decLabel = (v: number) => (v === -1 ? "slump" : `${v}`);
-    return `multiplikation-${ownSetup ? "egen-uppstallning" : "uppstallning"}-${top}x${bot}-siffror${dt || db ? `-decimaler-${decLabel(dt)}x${decLabel(db)}` : ""}-${d}`;
+    return `multiplikation-${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${top}x${bot}-siffror${dt || db ? `-decimaler-${decLabel(dt)}x${decLabel(db)}` : ""}-${d}`;
   };
 
   const downloadPdf = async () => {
@@ -182,6 +183,13 @@ function MultiplikationPage() {
                 </label>
                  {ownSetup && <p className="text-sm text-muted-foreground">Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.</p>}
               </fieldset>
+               {ownSetup && <fieldset>
+                 <legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend>
+                 <div className="flex gap-2">
+                   <Button type="button" size="sm" variant={ownGrid ? "default" : "outline"} aria-pressed={ownGrid} onClick={() => setOwnGrid(true)}>Med rutnät</Button>
+                   <Button type="button" size="sm" variant={!ownGrid ? "default" : "outline"} aria-pressed={!ownGrid} onClick={() => setOwnGrid(false)}>Utan rutnät</Button>
+                 </div>
+               </fieldset>}
             </>
           )}
           <PrintContentChoice value={content} onChange={setContent} />
@@ -234,8 +242,8 @@ function MultiplikationPage() {
           )}
           {tab === "setup" && tSetup && ownSetup && (
             <>
-               {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} />}
-               {showKey(content) && <SheetOwnSetup tasks={tSetup} answers />}
+               {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} ownGrid={ownGrid} />}
+               {showKey(content) && <SheetOwnSetup tasks={tSetup} answers ownGrid={ownGrid} />}
             </>
           )}
         </main>
