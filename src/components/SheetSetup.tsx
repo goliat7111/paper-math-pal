@@ -32,12 +32,17 @@ export function SheetSetup({
         {shown.map((t, i) => (
           <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
             <div className="own-setup-expression addsub-expression"><span className="own-setup-number">{i + 1})</span></div>
-            <div className="exercise-twelve-box"><Problem n={i + 1} t={t} answers={answers} digitMm={5.5} showNumber={false} /></div>
+            <div className="exercise-twelve-box setup-full-grid" style={{ "--setup-cell": `${setupCellMm(t, 5.5)}mm` } as CSSProperties}><Problem n={i + 1} t={t} answers={answers} digitMm={5.5} showNumber={false} /></div>
           </section>
         ))}
       </div>
     </div>
   );
+}
+
+function setupCellMm(t: SetupTask, digitMm: number) {
+  const n = setupLayout(t).nCols;
+  return n >= 8 ? Math.min(digitMm, 4) : n >= 7 ? Math.min(digitMm, 4.5) : digitMm;
 }
 
 export function Problem({
