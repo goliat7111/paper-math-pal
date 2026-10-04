@@ -9,7 +9,7 @@ export function AddSubSetup({ t, answers, cellMm, fill }: { t: AddSubTask; answe
   // Fyllt läge: uppställningens eget rutnät utökas till hela rutan (ett enda lager rutor).
   const totalCols = fill ? Math.max(fill.cols, L.nCols + 3) : L.nCols + 3;
   const totalRows = fill ? Math.max(fill.rows, L.rows.length + 4) : L.rows.length + 4;
-  const o = totalCols - (L.nCols + 3);
+  const o = Math.floor((totalCols - (L.nCols + 3)) / 2);
   const cellSize = cellMm ?? 6.5;
   const cellStyle = { "--addsub-cell": fill ? "100%" : `${cellSize}mm` } as React.CSSProperties;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
@@ -36,8 +36,8 @@ export function AddSubSetup({ t, answers, cellMm, fill }: { t: AddSubTask; answe
         `m${c}`,
       ))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
-      <div className="addsub-cell" style={{ gridColumn: 2, gridRow: top + 2 }}>{SIGN[t.op]}</div>
-      <div className="addsub-line" style={{ gridColumn: `2 / ${L.nCols + 3}`, gridRow: top + 3, alignSelf: "start" }} />
+      <div className="addsub-cell" style={{ gridColumn: 2 + o, gridRow: top + 2 }}>{SIGN[t.op]}</div>
+      <div className="addsub-line" style={{ gridColumn: `${2 + o} / ${L.nCols + 3 + o}`, gridRow: top + 3, alignSelf: "start" }} />
       {L.result.map((d, c) => cell(answers ? d : "", c, top + 2, "is-answer", `r${c}`, L.resultComma === c))}
     </div>
   );
