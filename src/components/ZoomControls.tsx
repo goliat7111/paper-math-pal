@@ -21,10 +21,7 @@ export function useSheetZoom() {
       const pageWidth = landscape ? 297 : 210;
       const pageHeight = landscape ? 210 : 297;
       const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-      const documentTop = el.getBoundingClientRect().top + window.scrollY;
-      // On narrow screens the preview starts below the controls; fit it to a full viewport.
-      const top = documentTop < viewportHeight / 2 ? Math.max(16, documentTop) : 16;
-      const height = Math.max(1, viewportHeight - top - 24);
+      const height = Math.max(1, viewportHeight - 32);
       setFit(Math.max(0.01, Math.min(1, width / (pageWidth * 96 / 25.4), height / (pageHeight * 96 / 25.4))));
     };
     const ro = new ResizeObserver(updateFit);

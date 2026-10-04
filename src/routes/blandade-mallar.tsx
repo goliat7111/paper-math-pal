@@ -74,7 +74,19 @@ function BlandadeMallarPage() {
           </label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={randomDec} onChange={e => { setRandomDec(e.target.checked); setTasks(genMixed(level, e.target.checked)); }} />Slumpade decimaler</label>
           {randomDec && <p className="text-xs text-muted-foreground">Uppgifterna får olika antal decimaler på samma blad.</p>}
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} />Visa rutnät på elevbladet</label>
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">Rutnät på elevbladet</legend>
+            <Button
+              type="button"
+              size="sm"
+              className="bg-green-600 text-white hover:bg-green-700"
+              aria-label="Rutnät på elevbladet"
+              aria-pressed={showGrid}
+              onClick={() => setShowGrid(!showGrid)}
+            >
+              {showGrid ? "Tom ruta" : "Rutnät"}
+            </Button>
+          </fieldset>
           <PrintContentChoice value={content} onChange={setContent} />
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}

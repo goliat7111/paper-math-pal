@@ -390,9 +390,8 @@ body { font-family: var(--font-sans); }
 .mixed-work--grid {
   margin-top: 4mm;
   padding-top: 0;
-  border: 1px solid var(--sheet-grid);
-  background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px);
-  background-size: 7mm 7mm;
+  border: 1px solid var(--sheet-grid-strong);
+  background-image: repeating-linear-gradient(to right, var(--sheet-line) 0 0.3mm, transparent 0.3mm 7mm), repeating-linear-gradient(to bottom, var(--sheet-line) 0 0.3mm, transparent 0.3mm 7mm);
 }
 .mixed-work .addsub-setup { font-size: 16px; }
 .mixed-work .short-division { font-size: 17px; }
