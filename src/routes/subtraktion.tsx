@@ -5,9 +5,9 @@ export const Route = createFileRoute("/subtraktion")({
   head: () => ({
     meta: [
       { title: "Subtraktion – Räknebladet" },
-      { name: "description", content: "Skapa subtraktionsblad med eller utan växling, heltal eller decimaltal, färdig uppställning eller tom ruta – med facit på A4." },
+      { name: "description", content: "Skapa subtraktionsblad med uppställning eller 100 tal på sex minuter – med facit på A4." },
       { property: "og:title", content: "Subtraktion – Räknebladet" },
-      { property: "og:description", content: "Utskriftsklara subtraktionsuppställningar med växling markerad i facit." },
+      { property: "og:description", content: "Utskriftsklara subtraktionsuppställningar och 100-talstest med facit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

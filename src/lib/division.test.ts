@@ -48,6 +48,14 @@ describe("Divisionsblad", () => {
  expect(task.dividend / task.divisor).toBe(task.quotient);
     }
   });
+  it("kan skapa 100 jämna heltalsdivisioner till sexminutersbladet", () => {
+    const tasks = genDivision(10, 99, 2, 9, 100);
+    expect(tasks).toHaveLength(100);
+    for (const task of tasks) {
+      expect(task.dividend / task.divisor).toBe(task.quotient);
+      expect(task.remainder).toBe(0);
+    }
+  });
   it("avvisar ogiltiga inställningar utan att generera felaktiga uppgifter", () => {
     for (const [lo, hi, dmin, dmax] of [[0, 99, 2, 9], [99, 10, 2, 9], [2.5, 99, 2, 9], [2, 10000, 2, 9], [10, 99, 1, 9], [10, 99, 2, 10], [10, 99, 9, 2]]) {
       expect(() => genDivision(lo!, hi!, dmin!, dmax!)).toThrow();

@@ -5,9 +5,9 @@ export const Route = createFileRoute("/addition")({
   head: () => ({
     meta: [
       { title: "Addition – Räknebladet" },
-      { name: "description", content: "Skapa additionsblad med eller utan växling, heltal eller decimaltal, färdig uppställning eller tom ruta – med facit på A4." },
+      { name: "description", content: "Skapa additionsblad med uppställning eller 100 tal på sex minuter – med facit på A4." },
       { property: "og:title", content: "Addition – Räknebladet" },
-      { property: "og:description", content: "Utskriftsklara additionsuppställningar med minnessiffror i facit." },
+      { property: "og:description", content: "Utskriftsklara additionsuppställningar och 100-talstest med facit." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -38,7 +38,7 @@ export function genDivision(
   if (![dividendMin, dividendMax, divisorMin, divisorMax, count, dividendDecimals, extraDecimals].every(Number.isInteger)
     || dividendMin < 2 || dividendMax > 9999 || dividendMin > dividendMax
     || divisorMin < 2 || divisorMax > 9 || divisorMin > divisorMax
-    || count < 1 || count > 40
+    || count < 1 || count > 100
     || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < -1 || extraDecimals > 3) {
     throw new Error("Välj täljare mellan 2 och 9999 och nämnare mellan 2 och 9.");
   }

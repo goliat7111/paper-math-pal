@@ -14,6 +14,16 @@ describe("genAddSub", () => {
             if (dec) t.terms.forEach((v) => expect(v % 10).not.toBe(0));
           }
         });
+
+  it.each(["add", "sub"] as const)("skapar 100 heltalsuppgifter för sexminutersbladet (%s)", op => {
+    const tasks = genAddSub({ op, digits: [1, 2], dec: 0, terms: 2, regroup: true, count: 100 });
+    expect(tasks).toHaveLength(100);
+    for (const task of tasks) {
+      expect(task.op).toBe(op);
+      expect(hasRegroup(task)).toBe(true);
+      if (op === "sub") expect(addSubResult(task)).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("subtraktion: alltid positiv differens", () => {

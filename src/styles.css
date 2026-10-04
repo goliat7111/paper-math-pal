@@ -396,8 +396,83 @@ body { font-family: var(--font-sans); }
 .mixed-work .addsub-setup { font-size: 16px; }
 .mixed-work .short-division { font-size: 17px; }
 .mixed-work .division-digit { min-width: 6mm; }
+.pyramid-page { display: flex; flex-direction: column; }
+.pyramid-grid { flex: 1; min-height: 0; display: grid; margin-top: 5mm; }
+.pyramid-grid--3 { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.pyramid-grid--4, .pyramid-grid--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.pyramid-task { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 5mm; border-right: 1px solid var(--sheet-line); border-bottom: 1px solid var(--sheet-line); }
+.pyramid-grid--3 .pyramid-task:nth-child(4n) { border-right: 0; }
+.pyramid-grid--3 .pyramid-task:nth-last-child(-n+4), .pyramid-grid--4 .pyramid-task:nth-last-child(-n+2), .pyramid-grid--5 .pyramid-task:nth-last-child(-n+2) { border-bottom: 0; }
+.pyramid-grid--4 .pyramid-task:nth-child(2n), .pyramid-grid--5 .pyramid-task:nth-child(2n) { border-right: 0; }
+.pyramid-task > strong { font-size: 12px; }
+.pyramid-shape { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: 1mm; }
+.pyramid-row { display: flex; justify-content: center; gap: 1mm; }
+.pyramid-cell { box-sizing: border-box; width: 12mm; height: 9mm; display: flex; align-items: center; justify-content: center; border: 0.3mm solid var(--sheet-grid-strong); font-family: var(--font-mono); font-size: 4mm; }
+.pyramid-cell.is-filled { font-weight: 600; }
+.probability-page { display: flex; flex-direction: column; }
+.probability-instruction { margin: 3mm 0; font-size: 3.5mm; }
+.probability-bottles { display: grid; flex: 1; min-height: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 3mm 4mm; }
+.probability-pair { display: grid; flex: 1; min-height: 0; grid-template-columns: 0.8fr 1.2fr; gap: 8mm; }
+.probability-dice { display: flex; flex: 1; min-height: 0; flex-direction: column; justify-content: space-around; gap: 8mm; }
+.probability-experiment { min-width: 0; display: flex; flex-direction: column; }
+.probability-experiment h3 { margin-bottom: 2mm; font-size: 3.5mm; font-weight: 600; }
+.probability-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 3mm; }
+.probability-table th, .probability-table td { height: 9mm; border: 0.3mm solid var(--sheet-grid-strong); padding: 1mm; text-align: center; }
+.probability-table thead th { height: 7mm; font-weight: 600; }
+.probability-table th:first-child { width: 25mm; text-align: left; }
+.probability-table td { background: var(--sheet-paper); }
+.probability-table--compact { font-size: 2.7mm; }
+.probability-table--compact th, .probability-table--compact td { height: 8mm; padding: 0.5mm; }
+.probability-table--compact thead th { height: 6mm; }
+.probability-table--compact th:first-child { width: 17mm; }
+.probability-table--compact th:not(:first-child) { overflow-wrap: anywhere; }
 @media screen { .a4-page { zoom: calc(var(--fit, 1) * var(--zoom, 1)); } }
 
+.hundred-tasks-page { display: flex; flex-direction: column; height: 297mm; }
+.hundred-tasks-grid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 7mm;
+  padding-top: 5mm;
+}
+.hundred-tasks-column { display: flex; min-width: 0; flex-direction: column; }
+.hundred-tasks-group { display: flex; min-height: 0; flex: 1 1 0; flex-direction: column; }
+.hundred-tasks-group + .hundred-tasks-group { margin-top: 1.5mm; }
+.hundred-task {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 0;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hundred-task-left { width: 10mm; text-align: right; }
+.hundred-task-operator { width: 5mm; text-align: center; }
+.hundred-task-right { width: 10mm; text-align: left; }
+.hundred-task-equals { width: 5mm; text-align: center; }
+.hundred-task-answer { flex: 1; min-width: 0; border-bottom: 0.25mm solid var(--sheet-line); padding-bottom: 0.5mm; text-align: left; }
+.hundred-task-answer strong { color: var(--sheet-answer); }
+.number-systems-page { display: flex; flex-direction: column; height: 297mm; }
+.number-systems-instructions { margin-top: 5mm; font-size: 12px; }
+.number-systems-grid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 12mm;
+  padding-top: 4mm;
+}
+.number-systems-column { display: flex; flex-direction: column; }
+.number-systems-task { display: flex; min-height: 0; flex: 1 1 0; flex-direction: column; justify-content: center; border-bottom: 0.2mm solid var(--sheet-grid); }
+.number-systems-equation { display: flex; align-items: baseline; gap: 3mm; font-family: var(--font-mono); font-size: 17px; font-variant-numeric: tabular-nums; }
+.number-systems-answer { display: inline-block; width: 38mm; border-bottom: 0.25mm solid var(--sheet-line); }
+.number-systems-task strong { color: var(--sheet-answer); }
+.number-systems-work { width: 100%; height: 8mm; }
 /* Talkamratshäfte (A6, vikt A4) */
 .a4-page.booklet-sheet { padding: 0; height: 297mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .booklet-cell { position: relative; overflow: hidden; padding: 9mm 8mm; display: flex; flex-direction: column; outline: 0.2mm dashed var(--sheet-grid); }
