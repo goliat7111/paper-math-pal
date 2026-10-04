@@ -8,7 +8,7 @@
 - Utskrivbara mallar: 100-ruta efter Excel-mallen, välj 2, 4, 6 eller 8 sidfyllande rutor på A4 och visa eller dölj produkterna
 
 ## Klart i denna ändring
-- Dagens tal: facit använder elevbladets rutnätsval i addition, subtraktion och multiplikation, medan divisionen är utan rutnät
+- Dagens tal: facit har alltid heltäckande rutnät i addition, subtraktion och multiplikation oavsett elevbladets rutnätsval, medan divisionen är utan rutnät
 - Multiplikationsuppställning och division: tolv lika stora rutor per A4 som additionsbladet, inklusive facit och PDF
 - Multiplikationsuppställning: en tom rutrad runt varje uppställning på elevblad och facit
 - Multiplikationens tomma ruta: val mellan rutnät och blank ruta på elevbladet, oförändrat facit
