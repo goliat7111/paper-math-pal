@@ -295,6 +295,12 @@ body { font-family: var(--font-sans); }
 .own-setup-number { font-size: 15px; font-weight: 700; color: var(--sheet-ink); }
 .own-setup-box { height: 44mm; border: 1px solid var(--sheet-line); }
 .division-box { padding: 5mm; display: flex; align-items: center; justify-content: center; }
+/* Tom ruta med rutnät (elevblad): samma rutnät som addition/subtraktion; facit blir utan. */
+.division-box--grid {
+  background-image: linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px);
+  background-position: 0 0;
+  background-size: calc(100% / 9) 6.5mm;
+}
 .short-division { display: flex; align-items: center; justify-content: center; gap: 3mm; font-family: var(--font-mono); font-size: 20px; }
 .division-fraction { text-align: center; }
 .division-numerator { display: flex; justify-content: center; border-bottom: 2px solid var(--sheet-ink); padding: 4mm 1mm 1mm; }
