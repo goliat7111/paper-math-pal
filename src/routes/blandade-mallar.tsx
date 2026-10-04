@@ -86,7 +86,7 @@ function BlandadeMallarPage() {
         </aside>
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
           {tasks && showSheet(content) && <SheetMixed tasks={tasks} level={level} showGrid={showGrid} answers={false} />}
-          {tasks && showKey(content) && <SheetMixed tasks={tasks} level={level} answers />}
+          {tasks && showKey(content) && <SheetMixed tasks={tasks} level={level} showGrid={showGrid} answers />}
         </main>
       </div>
       {preview && <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF" aria-modal="true">
