@@ -39,7 +39,7 @@ export function SheetMixed({ tasks, level, answers, showGrid = true }: { tasks: 
         <div className="mixed-expression"><strong>4. Division</strong><span>{shownDividend} / {shownDivisor} {rel} {answers ? quotientText : ""}</span></div>
         {div.rounded !== undefined && <div className="mixed-hint">Avrunda till två decimaler.</div>}
         {answers && <div className="mixed-hint">Utmaning: {div.note}{div.shown ? ` · skriv om: ${dividendText} / ${div.divisor}` : ""}{div.rounded !== undefined ? ` · ${formatDecimal(div.quotient, 3)}… ≈ ${quotientText}` : ""}</div>}
-        <div className="mixed-work">{answers && <div className="short-division" aria-label="Kort division">
+        <div className={workClass}>{answers && <div className="short-division" aria-label="Kort division">
           <div className="division-fraction"><div className="division-numerator">{divisionSteps(div).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
             {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}{step.digit}{step.comma && (answers || (div.dividendDecimals ?? 0) > 0) && <span className="worksheet-comma">,</span>}
           </span>)}</div><div className="division-denominator">{div.divisor}</div></div>
