@@ -8,7 +8,7 @@ import type { MixedLevel, MixedTasks } from "@/lib/mixed";
 
 export function SheetMixed({ tasks, level, answers, showGrid = true }: { tasks: MixedTasks; level: MixedLevel; answers: boolean; showGrid?: boolean }) {
   const { add, sub, mul, div } = tasks;
-  const workClass = `mixed-work${showGrid ? " mixed-work--grid" : ""}`;
+  const workClass = `mixed-work${showGrid && !answers ? " mixed-work--grid" : ""}`;
   const addText = add.terms.map((v, i) => formatDecimal(v, add.decs[i])).join(" + ");
   const subText = sub.terms.map((v, i) => formatDecimal(v, sub.decs[i])).join(" − ");
   const mulText = `${formatDecimal(digitValue(mul.digits), mul.dt)} × ${formatDecimal(digitValue(mul.m), mul.db)}`;
