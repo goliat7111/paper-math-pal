@@ -27,11 +27,11 @@ export function SheetMixed({ tasks, level, answers, showGrid = true }: { tasks: 
     <div className="mixed-grid">
       <section className="mixed-quadrant" aria-label="Uppgift 1 Addition">
         <div className="mixed-expression"><strong>1. Addition</strong><span>{addText} = {answers ? formatDecimal(addSubResult(add), maxDec(add)) : ""}</span></div>
-        <div className={workClass}>{answers && <AddSubSetup t={add} answers {...(showGrid ? { fill: FILL } : {})} />}</div>
+        <div className={workClass}>{answers && <AddSubSetup t={add} answers fill={FILL} />}</div>
       </section>
       <section className="mixed-quadrant" aria-label="Uppgift 2 Subtraktion">
         <div className="mixed-expression"><strong>2. Subtraktion</strong><span>{subText} = {answers ? formatDecimal(addSubResult(sub), maxDec(sub)) : ""}</span></div>
-        <div className={workClass}>{answers && <AddSubSetup t={sub} answers {...(showGrid ? { fill: FILL } : {})} />}</div>
+        <div className={workClass}>{answers && <AddSubSetup t={sub} answers fill={FILL} />}</div>
       </section>
       <section className="mixed-quadrant" aria-label="Uppgift 3 Multiplikation">
         <div className="mixed-expression"><strong>3. Multiplikation</strong><span>{mulText} = {answers ? formatDecimal(setupValue(mul), (mul.dt ?? 0) + (mul.db ?? 0)) : ""}</span></div>
