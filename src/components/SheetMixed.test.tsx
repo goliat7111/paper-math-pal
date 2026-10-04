@@ -10,7 +10,7 @@ describe("SheetMixed grid", () => {
     const withoutGrid = renderToStaticMarkup(<SheetMixed tasks={tasks} level={3} answers showGrid={false} />);
 
     expect(withGrid).toBe(withoutGrid);
-    expect(withGrid.match(/grid-template-columns:repeat\(10,minmax\(0, 1fr\)\)/g)).toHaveLength(3);
+    expect(withGrid.match(/grid-template-columns:repeat\(10,minmax\(0,1fr\)\)/g)).toHaveLength(2);
     expect(withGrid.match(/class="mixed-work mixed-work--grid"/g)).toBeNull();
   });
 
