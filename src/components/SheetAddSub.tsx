@@ -4,14 +4,16 @@ import { SheetHeader } from "./SheetHeader";
 
 const SIGN = { add: "+", sub: "−" } as const;
 
-export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: boolean; cellMm?: number }) {
+export function AddSubSetup({ t, answers, cellMm, fill }: { t: AddSubTask; answers: boolean; cellMm?: number; fill?: { cols: number; rows: number } }) {
   const L = addSubLayout(t);
-  const totalCols = L.nCols + 3;
-  const totalRows = L.rows.length + 4;
+  // Fyllt läge: uppställningens eget rutnät utökas till hela rutan (ett enda lager rutor).
+  const totalCols = fill ? Math.max(fill.cols, L.nCols + 3) : L.nCols + 3;
+  const totalRows = fill ? Math.max(fill.rows, L.rows.length + 4) : L.rows.length + 4;
+  const o = Math.floor((totalCols - (L.nCols + 3)) / 2);
   const cellSize = cellMm ?? 6.5;
-  const cellStyle = { "--addsub-cell": `${cellSize}mm` } as React.CSSProperties;
+  const cellStyle = { "--addsub-cell": fill ? "100%" : `${cellSize}mm` } as React.CSSProperties;
   const cell = (text: string, col: number, row: number, extra = "", key?: string, comma = false) => (
-    <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3, gridRow: row + 1 }}>
+    <div key={key ?? `${row}-${col}`} className={`addsub-cell ${extra}`} style={{ gridColumn: col + 3 + o, gridRow: row + 1 }}>
       {text}{comma && text !== "" && extra.indexOf("addsub-small") < 0 && <span className="worksheet-comma">,</span>}
     </div>
   );
@@ -21,7 +23,9 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
   return (
     <div
       className="addsub-setup"
-      style={{ gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle, ...(cellMm && cellMm > 6.5 ? { fontSize: "20px" } : {}) }}
+      style={fill
+        ? { gridTemplateColumns: `repeat(${totalCols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${totalRows}, minmax(0, 1fr))`, width: "100%", height: "100%", ...cellStyle }
+        : { gridTemplateColumns: `repeat(${totalCols}, ${cellSize}mm)`, ...cellStyle, ...(cellMm && cellMm > 6.5 ? { fontSize: "20px" } : {}) }}
     >
       {bg}
       {L.rows[0]!.map((_, c) => cell(
@@ -32,8 +36,8 @@ export function AddSubSetup({ t, answers, cellMm }: { t: AddSubTask; answers: bo
         `m${c}`,
       ))}
       {L.rows.map((row, r) => row.map((d, c) => cell(d, c, r + 2, answers && t.op === "sub" && r === 0 && L.struck[c] ? "is-struck" : "", undefined, L.commas[r] === c)))}
-      <div className="addsub-cell" style={{ gridColumn: 2, gridRow: top + 2 }}>{SIGN[t.op]}</div>
-      <div className="addsub-line" style={{ gridColumn: `2 / ${L.nCols + 3}`, gridRow: top + 3, alignSelf: "start" }} />
+      <div className="addsub-cell" style={{ gridColumn: 2 + o, gridRow: top + 2 }}>{SIGN[t.op]}</div>
+      <div className="addsub-line" style={{ gridColumn: `${2 + o} / ${L.nCols + 3 + o}`, gridRow: top + 3, alignSelf: "start" }} />
       {L.result.map((d, c) => cell(answers ? d : "", c, top + 2, "is-answer", `r${c}`, L.resultComma === c))}
     </div>
   );
