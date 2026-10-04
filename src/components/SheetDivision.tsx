@@ -36,7 +36,7 @@ export function SheetDivision({ tasks, answers, ownSetup, progression = false, s
         const quotientText = formatDecimal(t.quotient, t.quotientDecimals);
         return <section key={i} className="own-setup-task" aria-label={`Uppgift ${startIndex + i + 1}`}>
            <div className="own-setup-expression addsub-expression"><span className="own-setup-number">{startIndex + i + 1})</span>{progression ? <span className="division-expression">{dividendText} / {divisorText}</span> : <>{dividendText} / {divisorText}</>}{answers && t.note && <span className="division-note">{progression ? "" : " · "}{t.note}</span>}</div>
-           <div className="exercise-twelve-box division-box">
+            <div className={`exercise-twelve-box division-box${ownSetup && !answers ? " division-box--grid" : ""}`}>
             {(answers || !ownSetup) && <div className="short-division" aria-label={`${dividendText} delat med ${divisorText}${answers ? ` är ${quotientText}${t.remainder > 0 ? ` rest ${t.remainder}` : ""}` : ""}`}>
               <div className="division-fraction">
                 <div className="division-numerator">{extend && !answers ? <span className="division-digit">{dividendText}</span> : divisionSteps(t).map((step, n) => (!step.added || answers) && <span className={`division-digit${step.added ? " is-added" : ""}`} key={n}>
