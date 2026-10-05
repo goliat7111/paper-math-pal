@@ -28,12 +28,6 @@ function GamesHome() {
         </div>
       </header>
       <main className="mx-auto max-w-6xl space-y-6 px-6 py-10">
-        <div>
-          <h2 className="font-display text-3xl font-semibold">Vilket spel vill du skriva ut?</h2>
-          <p className="mt-2 text-muted-foreground">
-            Välj ett spel för att ställa in spelplaner, räknesätt och utskrift.
-          </p>
-        </div>
         <GamePicker />
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>
@@ -51,6 +45,14 @@ function GamesHome() {
           <p>
             <strong className="text-foreground">Ordgömma:</strong> ordletarspel med eget område,
             ordlista och valbar spelplansstorlek.
+          </p>
+          <p>
+            <strong className="text-foreground">PLING-PLONG matematik:</strong> matematikfrågor
+            bakom rutor som grupperna vänder och samlar poäng på.
+          </p>
+          <p>
+            <strong className="text-foreground">PLING-PLONG ämnen:</strong> välj skolämne för
+            färdiga frågor eller skriv in egna frågor och svar.
           </p>
         </div>
       </main>

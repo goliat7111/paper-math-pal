@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Anchor, Grid2X2, Search } from "lucide-react";
+import { Anchor, Grid2X2, Search, Sparkles } from "lucide-react";
 
 export function GamePicker() {
   const games = [
@@ -39,26 +39,65 @@ export function GamePicker() {
       color: "bg-red-700 hover:bg-red-800",
     },
   ] as const;
+  const plingPlongGames = [
+    {
+      id: "pling-plong-math",
+      to: "/pling-plong",
+      search: { mode: "math" as const },
+      label: "PLING-PLONG matematik",
+      icon: Sparkles,
+      color: "bg-pink-700 hover:bg-pink-800",
+    },
+    {
+      id: "pling-plong-subjects",
+      to: "/pling-plong",
+      search: { mode: "subjects" as const },
+      label: "PLING-PLONG ämnen",
+      icon: Sparkles,
+      color: "bg-fuchsia-700 hover:bg-fuchsia-800",
+    },
+  ] as const;
   return (
     <nav
       aria-label="Välj mattespel"
       className="no-print rounded-xl border border-border bg-muted/40 p-4"
     >
       <h2 className="mb-3 text-base font-semibold text-foreground">Välj spel</h2>
-      <div className="flex flex-wrap gap-3">
-        {games.map((game) => {
-          const Icon = game.icon;
-          return (
-            <Link
-              key={game.id}
-              to={game.to}
-              className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${game.color}`}
-            >
-              <Icon className="h-5 w-5" aria-hidden="true" />
-              {game.label}
-            </Link>
-          );
-        })}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-3">
+          {games.map((game) => {
+            const Icon = game.icon;
+            return (
+              <Link
+                key={game.id}
+                to={game.to}
+                className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${game.color}`}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                {game.label}
+              </Link>
+            );
+          })}
+        </div>
+        <div
+          aria-label="PLING-PLONG-spel"
+          className="flex flex-wrap gap-3 border-t border-border pt-3"
+        >
+          {plingPlongGames.map((game) => {
+            const Icon = game.icon;
+            return (
+              <Link
+                key={game.id}
+                to={game.to}
+                search={game.search}
+                className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${game.color}`}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                {game.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

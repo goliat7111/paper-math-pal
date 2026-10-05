@@ -19,6 +19,7 @@ import { Route as MattebingoRouteImport } from './routes/mattebingo'
 import { Route as MattespelRouteImport } from './routes/mattespel'
 import { Route as MultiplikationRouteImport } from './routes/multiplikation'
 import { Route as OrdgommaRouteImport } from './routes/ordgomma'
+import { Route as PlingPlongRouteImport } from './routes/pling-plong'
 import { Route as SankaSkeppRouteImport } from './routes/sanka-skepp'
 import { Route as SubtraktionRouteImport } from './routes/subtraktion'
 import { Route as SudokuRouteImport } from './routes/sudoku'
@@ -74,6 +75,11 @@ const OrdgommaRoute = OrdgommaRouteImport.update({
   path: '/ordgomma',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlingPlongRoute = PlingPlongRouteImport.update({
+  id: '/pling-plong',
+  path: '/pling-plong',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SankaSkeppRoute = SankaSkeppRouteImport.update({
   id: '/sanka-skepp',
   path: '/sanka-skepp',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
   '/ordgomma': typeof OrdgommaRoute
+  '/pling-plong': typeof PlingPlongRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
   '/ordgomma': typeof OrdgommaRoute
+  '/pling-plong': typeof PlingPlongRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/mattespel': typeof MattespelRoute
   '/multiplikation': typeof MultiplikationRoute
   '/ordgomma': typeof OrdgommaRoute
+  '/pling-plong': typeof PlingPlongRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/mattespel'
     | '/multiplikation'
     | '/ordgomma'
+    | '/pling-plong'
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/mattespel'
     | '/multiplikation'
     | '/ordgomma'
+    | '/pling-plong'
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/mattespel'
     | '/multiplikation'
     | '/ordgomma'
+    | '/pling-plong'
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
@@ -206,6 +218,7 @@ export interface RootRouteChildren {
   MattespelRoute: typeof MattespelRoute
   MultiplikationRoute: typeof MultiplikationRoute
   OrdgommaRoute: typeof OrdgommaRoute
+  PlingPlongRoute: typeof PlingPlongRoute
   SankaSkeppRoute: typeof SankaSkeppRoute
   SubtraktionRoute: typeof SubtraktionRoute
   SudokuRoute: typeof SudokuRoute
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdgommaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pling-plong': {
+      id: '/pling-plong'
+      path: '/pling-plong'
+      fullPath: '/pling-plong'
+      preLoaderRoute: typeof PlingPlongRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sanka-skepp': {
       id: '/sanka-skepp'
       path: '/sanka-skepp'
@@ -326,6 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   MattespelRoute: MattespelRoute,
   MultiplikationRoute: MultiplikationRoute,
   OrdgommaRoute: OrdgommaRoute,
+  PlingPlongRoute: PlingPlongRoute,
   SankaSkeppRoute: SankaSkeppRoute,
   SubtraktionRoute: SubtraktionRoute,
   SudokuRoute: SudokuRoute,
