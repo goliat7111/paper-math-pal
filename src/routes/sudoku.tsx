@@ -66,8 +66,11 @@ function SudokuPage() {
   const handleVisibleCluesChange = (value: number) => {
     const nextValue = Math.max(17, Math.min(81, value));
     setVisibleClues(nextValue);
-    generateNewPuzzle(difficulty, nextValue);
+    setDifficulty(getSudokuDifficultyForClues(nextValue));
+    generateNewPuzzle(getSudokuDifficultyForClues(nextValue), nextValue);
   };
+
+  const clueRange = SUDOKU_CLUE_RANGES[difficulty];
 
   return (
     <>
