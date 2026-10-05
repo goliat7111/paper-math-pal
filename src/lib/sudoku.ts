@@ -187,3 +187,17 @@ export function getSudokuDifficultyLabel(difficulty: Difficulty): string {
       return "Medel";
   }
 }
+
+// Svårighetsgraden styrs av antalet synliga siffror: rubrik och vald knapp
+// följer alltid det verkliga intervallet spelplanen ligger i.
+export const SUDOKU_CLUE_RANGES: Record<Difficulty, { min: number; max: number }> = {
+  easy: { min: 36, max: 81 },
+  medium: { min: 29, max: 35 },
+  hard: { min: 17, max: 28 },
+};
+
+export function getSudokuDifficultyForClues(clues: number): Difficulty {
+  if (clues >= SUDOKU_CLUE_RANGES.easy.min) return "easy";
+  if (clues >= SUDOKU_CLUE_RANGES.medium.min) return "medium";
+  return "hard";
+}

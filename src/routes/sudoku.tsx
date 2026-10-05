@@ -3,7 +3,13 @@ import { ArrowLeft, Eye, EyeOff, Printer, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GamePicker } from "@/components/GamePicker";
-import { generateSudokuPuzzle, getSudokuDifficultyLabel, type Difficulty } from "@/lib/sudoku";
+import {
+  generateSudokuPuzzle,
+  getSudokuDifficultyLabel,
+  getSudokuDifficultyForClues,
+  SUDOKU_CLUE_RANGES,
+  type Difficulty,
+} from "@/lib/sudoku";
 
 export const Route = createFileRoute("/sudoku")({
   head: () => ({
@@ -60,8 +66,11 @@ function SudokuPage() {
   const handleVisibleCluesChange = (value: number) => {
     const nextValue = Math.max(17, Math.min(81, value));
     setVisibleClues(nextValue);
-    generateNewPuzzle(difficulty, nextValue);
+    setDifficulty(getSudokuDifficultyForClues(nextValue));
+    generateNewPuzzle(getSudokuDifficultyForClues(nextValue), nextValue);
   };
+
+  const clueRange = SUDOKU_CLUE_RANGES[difficulty];
 
   return (
     <>
@@ -171,7 +180,8 @@ function SudokuPage() {
           >
             <div className="flex items-end justify-between text-sm" style={{ height: "8mm" }}>
               <span className="font-semibold">
-                Sudoku – {getSudokuDifficultyLabel(difficulty)}
+                Sudoku – {getSudokuDifficultyLabel(difficulty)} ({clueRange.min}–
+                {clueRange.max} siffror)
                 {showSolution ? " (lösning)" : ""}
               </span>
               <span>Namn: ______________________</span>
