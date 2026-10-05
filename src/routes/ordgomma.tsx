@@ -8,6 +8,7 @@ import { generateThemeWords } from "@/lib/word-search.functions";
 import {
   generateWordSearch,
   prepareWordList,
+  type WordSearchLanguage,
   type WordSearchPuzzle,
   type WordSearchSize,
 } from "@/lib/word-search";
