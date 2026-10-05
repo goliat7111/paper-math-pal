@@ -17,9 +17,9 @@ describe("Sudoku generator", () => {
       expect(isValidSudokuBoard(solved!)).toBe(true);
       for (let row = 0; row < 9; row += 1) {
         for (let col = 0; col < 9; col += 1) {
-          const value = generated.puzzle[row][col];
+          const value = generated.puzzle[row]![col]!;
           if (value !== 0) {
-            expect(solved![row][col]).toBe(value);
+            expect(solved![row]![col]!).toBe(value);
           }
         }
       }

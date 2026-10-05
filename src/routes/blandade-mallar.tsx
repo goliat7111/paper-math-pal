@@ -47,8 +47,8 @@ function parseProtocol(value: unknown): ProbabilityProtocol {
 
 export const Route = createFileRoute("/blandade-mallar")({
   validateSearch: (search: Record<string, unknown>) => ({
-    worksheet: parseWorksheetKind(search.worksheet),
-    protocol: parseProtocol(search.protocol),
+    worksheet: parseWorksheetKind(search["worksheet"]),
+    protocol: parseProtocol(search["protocol"]),
   }),
   head: () => ({
     meta: [

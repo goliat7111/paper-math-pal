@@ -16,7 +16,10 @@ function shuffle<T>(items: readonly T[]): T[] {
   const copy = [...items];
   for (let index = copy.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+    const current = copy[index]!;
+    const swap = copy[swapIndex]!;
+    copy[index] = swap;
+    copy[swapIndex] = current;
   }
   return copy;
 }
@@ -24,7 +27,7 @@ function shuffle<T>(items: readonly T[]): T[] {
 function findEmptyCell(board: number[][]): [number, number] | null {
   for (let row = 0; row < 9; row += 1) {
     for (let col = 0; col < 9; col += 1) {
-      if (board[row][col] === 0) {
+      if (board[row]![col] === 0) {
         return [row, col];
       }
     }
@@ -34,10 +37,10 @@ function findEmptyCell(board: number[][]): [number, number] | null {
 
 function isValidPlacement(board: number[][], row: number, col: number, value: number): boolean {
   for (let index = 0; index < 9; index += 1) {
-    if (board[row][index] === value && index !== col) {
+    if (board[row]![index] === value && index !== col) {
       return false;
     }
-    if (board[index][col] === value && index !== row) {
+    if (board[index]![col] === value && index !== row) {
       return false;
     }
   }
@@ -49,7 +52,10 @@ function isValidPlacement(board: number[][], row: number, col: number, value: nu
     for (let colIndex = 0; colIndex < 3; colIndex += 1) {
       const currentRow = boxRow + rowIndex;
       const currentCol = boxCol + colIndex;
-      if (board[currentRow][currentCol] === value && (currentRow !== row || currentCol !== col)) {
+      if (
+        board[currentRow]![currentCol] === value &&
+        (currentRow !== row || currentCol !== col)
+      ) {
         return false;
       }
     }
@@ -70,13 +76,13 @@ function solveBoard(board: number[][]): boolean {
       continue;
     }
 
-    board[row][col] = value;
+    board[row]![col] = value;
 
     if (solveBoard(board)) {
       return true;
     }
 
-    board[row][col] = 0;
+    board[row]![col] = 0;
   }
 
   return false;
@@ -97,7 +103,7 @@ export function isValidSudokuBoard(board: number[][]): boolean {
   for (let row = 0; row < 9; row += 1) {
     const seenInRow = new Set<number>();
     for (let col = 0; col < 9; col += 1) {
-      const value = board[row][col];
+      const value = board[row]![col]!;
       if (value === 0) {
         continue;
       }
@@ -111,7 +117,7 @@ export function isValidSudokuBoard(board: number[][]): boolean {
   for (let col = 0; col < 9; col += 1) {
     const seenInColumn = new Set<number>();
     for (let row = 0; row < 9; row += 1) {
-      const value = board[row][col];
+      const value = board[row]![col]!;
       if (value === 0) {
         continue;
       }
@@ -127,7 +133,7 @@ export function isValidSudokuBoard(board: number[][]): boolean {
       const seenInBox = new Set<number>();
       for (let row = boxRow; row < boxRow + 3; row += 1) {
         for (let col = boxCol; col < boxCol + 3; col += 1) {
-          const value = board[row][col];
+          const value = board[row]![col]!;
           if (value === 0) {
             continue;
           }
@@ -149,14 +155,17 @@ export function generateSudokuPuzzle(
 ): SudokuPuzzle {
   const solution = generateSolvedSudokuBoard();
   const puzzle = cloneBoard(solution);
-  const targetClues = Math.max(17, Math.min(81, visibleClues ?? { easy: 39, medium: 32, hard: 26 }[difficulty]));
+  const targetClues = Math.max(
+    17,
+    Math.min(81, visibleClues ?? { easy: 39, medium: 32, hard: 26 }[difficulty]),
+  );
 
   const cells = shuffle(Array.from({ length: 81 }, (_, index) => index));
   for (let index = 0; index < 81 - targetClues; index += 1) {
-    const cell = cells[index];
+    const cell = cells[index]!;
     const row = Math.floor(cell / 9);
     const col = cell % 9;
-    puzzle[row][col] = 0;
+    puzzle[row]![col] = 0;
   }
 
   return {
