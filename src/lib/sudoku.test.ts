@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { generateSudokuPuzzle, isValidSudokuBoard, solveSudoku } from "./sudoku";
+import {
+  generateSudokuPuzzle,
+  getSudokuDifficultyForClues,
+  isValidSudokuBoard,
+  solveSudoku,
+  SUDOKU_CLUE_RANGES,
+} from "./sudoku";
 
 describe("Sudoku generator", () => {
   it("generates valid puzzles and solutions for all difficulties", () => {
@@ -37,5 +43,19 @@ describe("Sudoku generator", () => {
     expect(visibleClues).toBe(45);
     expect(isValidSudokuBoard(generated.solution)).toBe(true);
     expect(solveSudoku(generated.puzzle)).not.toBeNull();
+  });
+
+  it("maps clue counts to difficulty intervals", () => {
+    expect(getSudokuDifficultyForClues(39)).toBe("easy");
+    expect(getSudokuDifficultyForClues(36)).toBe("easy");
+    expect(getSudokuDifficultyForClues(35)).toBe("medium");
+    expect(getSudokuDifficultyForClues(29)).toBe("medium");
+    expect(getSudokuDifficultyForClues(28)).toBe("hard");
+    expect(getSudokuDifficultyForClues(17)).toBe("hard");
+
+    // Standardknapparna hamnar i var sitt intervall.
+    expect(getSudokuDifficultyForClues(SUDOKU_CLUE_RANGES.easy.min)).toBe("easy");
+    expect(getSudokuDifficultyForClues(SUDOKU_CLUE_RANGES.medium.min)).toBe("medium");
+    expect(getSudokuDifficultyForClues(SUDOKU_CLUE_RANGES.hard.min)).toBe("hard");
   });
 });
