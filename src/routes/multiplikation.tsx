@@ -2,7 +2,14 @@ import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
-import { PrintContentChoice, keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/components/PrintContentChoice";
+import {
+  PrintContentChoice,
+  keySuffix,
+  pagesLabel,
+  showKey,
+  showSheet,
+  type PrintContent,
+} from "@/components/PrintContentChoice";
 import { gen102, genSetup, genSnabba, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup } from "@/components/SheetSetup";
@@ -16,9 +23,17 @@ export const Route = createFileRoute("/multiplikation")({
   head: () => ({
     meta: [
       { title: "Multiplikation – Räknebladet" },
-      { name: "description", content: "Generera och skriv ut multiplikationsdiagnoser (102 tal) och uppställningar på A4, med facit." },
+      {
+        name: "description",
+        content:
+          "Generera och skriv ut multiplikationsdiagnoser (102 tal) och uppställningar på A4, med facit.",
+      },
       { property: "og:title", content: "Multiplikation – Räknebladet" },
-      { property: "og:description", content: "Slumpade diagnoser och uppställningar i multiplikation, utskriftsklara på A4 med facit." },
+      {
+        property: "og:description",
+        content:
+          "Slumpade diagnoser och uppställningar i multiplikation, utskriftsklara på A4 med facit.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -71,7 +86,12 @@ function MultiplikationPage() {
     else setTSnabba(genSnabba(sr));
   };
 
-  const [preview, setPreview] = useState<{ url: string; blob: Blob; pages: number; images: string[] } | null>(null);
+  const [preview, setPreview] = useState<{
+    url: string;
+    blob: Blob;
+    pages: number;
+    images: string[];
+  } | null>(null);
   const [fileName, setFileName] = useState("");
 
   const suggestName = () => {
@@ -92,7 +112,12 @@ function MultiplikationPage() {
       const r = await buildSheetsPdf("portrait");
       if (r) {
         setFileName(suggestName() + keySuffix(content));
-        setPreview({ url: URL.createObjectURL(r.blob), blob: r.blob, pages: r.pages, images: r.images });
+        setPreview({
+          url: URL.createObjectURL(r.blob),
+          blob: r.blob,
+          pages: r.pages,
+          images: r.images,
+        });
       }
     } finally {
       setExporting(false);
@@ -115,11 +140,16 @@ function MultiplikationPage() {
     <div className="min-h-screen bg-background">
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-6 py-4">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4" /> Alla räknesätt
           </Link>
           <h1 className="font-display text-2xl font-semibold text-foreground">Multiplikation</h1>
-          <p className="text-sm text-muted-foreground">102 tal · 100 tal · Mult. uppställning · Snabba tal</p>
+          <p className="text-sm text-muted-foreground">
+            102 tal · 100 tal · Mult. uppställning · Snabba tal
+          </p>
         </div>
       </header>
 
@@ -129,13 +159,25 @@ function MultiplikationPage() {
           <fieldset>
             <legend className="mb-2 text-sm font-medium text-foreground">Övning</legend>
             <div className="flex flex-wrap gap-2">
-              {([
-                ["102", "102 tal (6 min)"],
-                ["100", "100 tal (6 min)"],
-                ["setup", "Mult. uppställning"],
-                ["snabba", "Snabba tal"],
-              ] as const).map(([k, label]) => (
-                <Button key={k} type="button" size="sm" className="h-7 px-3 text-xs font-semibold" variant={tab === k ? "default" : "outline"} aria-pressed={tab === k} onClick={() => setTab(k)}>{label}</Button>
+              {(
+                [
+                  ["102", "102 tal (6 min)"],
+                  ["100", "100 tal (6 min)"],
+                  ["setup", "Mult. uppställning"],
+                  ["snabba", "Snabba tal"],
+                ] as const
+              ).map(([k, label]) => (
+                <Button
+                  key={k}
+                  type="button"
+                  size="sm"
+                  className="h-7 px-3 text-xs font-semibold"
+                  variant={tab === k ? "default" : "outline"}
+                  aria-pressed={tab === k}
+                  onClick={() => setTab(k)}
+                >
+                  {label}
+                </Button>
               ))}
             </div>
           </fieldset>
@@ -143,25 +185,49 @@ function MultiplikationPage() {
             <>
               <RangeInput label="Faktor 1 mellan" value={f1} onChange={setF1} />
               <RangeInput label="Faktor 2 mellan" value={f2} onChange={setF2} />
-              <p className="-mt-3 text-xs text-muted-foreground">{tab === "100" ? "4 kolumner med 25 tal i varje – 100 uppgifter på 6 minuter." : "3 kolumner med 34 tal i varje – 102 uppgifter på 6 minuter."}</p>
+              <p className="-mt-3 text-xs text-muted-foreground">
+                {tab === "100"
+                  ? "4 kolumner med 25 tal i varje – 100 uppgifter på 6 minuter."
+                  : "3 kolumner med 34 tal i varje – 102 uppgifter på 6 minuter."}
+              </p>
             </>
           ) : tab === "snabba" ? (
             <>
               <RangeInput label="Faktorer mellan" value={sr} onChange={setSr} min={1} />
-              <p className="-mt-3 text-xs text-muted-foreground">Båda faktorerna slumpas ur samma talområde. 4 olika övningar per A4-sida, 10 tal i varje.</p>
+              <p className="-mt-3 text-xs text-muted-foreground">
+                Båda faktorerna slumpas ur samma talområde. 4 olika övningar per A4-sida, 10 tal i
+                varje.
+              </p>
             </>
           ) : (
             <>
               <RangeInput label="Faktor 1" value={sd} onChange={applySd} min={1} max={3} />
-              <RangeInput label="Faktor 2" value={sb} onChange={applySb} min={1} max={Math.min(2, Math.max(...sd))} />
-              <p className="-mt-3 text-xs text-muted-foreground">Undre talet får ha högst två siffror och aldrig fler än övre talet.</p>
+              <RangeInput
+                label="Faktor 2"
+                value={sb}
+                onChange={applySb}
+                min={1}
+                max={Math.min(2, Math.max(...sd))}
+              />
+              <p className="-mt-3 text-xs text-muted-foreground">
+                Undre talet får ha högst två siffror och aldrig fler än övre talet.
+              </p>
               <fieldset>
                 <legend className="mb-2 text-sm font-medium">Decimaler</legend>
                 <div className="flex gap-3">
-                  {([["Övre talet", dt, setDt], ["Undre talet", db, setDb]] as const).map(([label, v, set]) => (
+                  {(
+                    [
+                      ["Övre talet", dt, setDt],
+                      ["Undre talet", db, setDb],
+                    ] as const
+                  ).map(([label, v, set]) => (
                     <label key={label} className="text-sm">
                       {label}
-                      <select value={v} onChange={(e) => set(Number(e.target.value))} className="mt-1 block w-28 rounded-md border border-input bg-background px-2 py-1.5">
+                      <select
+                        value={v}
+                        onChange={(e) => set(Number(e.target.value))}
+                        className="mt-1 block w-28 rounded-md border border-input bg-background px-2 py-1.5"
+                      >
                         <option value={0}>Heltal</option>
                         <option value={1}>1 decimal</option>
                         <option value={2}>2 decimaler</option>
@@ -170,37 +236,82 @@ function MultiplikationPage() {
                     </label>
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">Decimaltalen slutar aldrig på 0. På elevbladet sätter eleven själv ut kommat i svaret.</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Decimaltalen slutar aldrig på 0. På elevbladet sätter eleven själv ut kommat i
+                  svaret.
+                </p>
               </fieldset>
               <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
-              {ownSetup && <p className="text-sm text-muted-foreground">Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.</p>}
-               {ownSetup && <fieldset>
-                 <legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend>
-                 <div className="flex gap-2">
-                   <Button type="button" size="sm" variant={ownGrid ? "default" : "outline"} aria-pressed={ownGrid} onClick={() => setOwnGrid(true)}>Med rutnät</Button>
-                   <Button type="button" size="sm" variant={!ownGrid ? "default" : "outline"} aria-pressed={!ownGrid} onClick={() => setOwnGrid(false)}>Utan rutnät</Button>
-                 </div>
-               </fieldset>}
+              {ownSetup && (
+                <p className="text-sm text-muted-foreground">
+                  Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.
+                </p>
+              )}
+              {ownSetup && (
+                <fieldset>
+                  <legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={ownGrid ? "default" : "outline"}
+                      aria-pressed={ownGrid}
+                      onClick={() => setOwnGrid(true)}
+                    >
+                      Med rutnät
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={!ownGrid ? "default" : "outline"}
+                      aria-pressed={!ownGrid}
+                      onClick={() => setOwnGrid(false)}
+                    >
+                      Utan rutnät
+                    </Button>
+                  </div>
+                </fieldset>
+              )}
             </>
           )}
           <PrintContentChoice value={content} onChange={setContent} />
           <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
           <div className="space-y-2 pt-2">
-            <button onClick={regenerate} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+            <button
+              onClick={regenerate}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+            >
               <RefreshCw className="h-4 w-4" /> Ny slumpad variant
             </button>
-            <button onClick={downloadPdf} disabled={exporting} className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-60">
-              <FileDown className="h-4 w-4" /> {exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}
+            <button
+              onClick={downloadPdf}
+              disabled={exporting}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-60"
+            >
+              <FileDown className="h-4 w-4" />{" "}
+              {exporting ? "Skapar förhandsgranskning…" : "Förhandsgranska & ladda ner PDF"}
             </button>
-            <button onClick={() => window.print()} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            <button
+              onClick={() => window.print()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
               <Printer className="h-4 w-4" /> Skriv ut
             </button>
           </div>
-          <p className="text-xs text-muted-foreground">Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.</p>
+          <p className="text-xs text-muted-foreground">
+            Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.
+          </p>
           <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-             {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
+            {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
             PDF: {pagesLabel(content)} ·{" "}
-             {tab === "102" ? 102 : tab === "100" ? 100 : tab === "snabba" ? "40 (4 övningar à 10 tal)" : 12} uppgifter · A4 stående.
+            {tab === "102"
+              ? 102
+              : tab === "100"
+                ? 100
+                : tab === "snabba"
+                  ? "40 (4 övningar à 10 tal)"
+                  : 12}{" "}
+            uppgifter · A4 stående.
           </p>
         </aside>
 
@@ -225,38 +336,65 @@ function MultiplikationPage() {
           )}
           {tab === "setup" && tSetup && !ownSetup && (
             <>
-               {showSheet(content) && <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />}
+              {showSheet(content) && (
+                <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />
+              )}
               {showKey(content) && (
-                 <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />
+                <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />
               )}
             </>
           )}
           {tab === "setup" && tSetup && ownSetup && (
             <>
-               {showSheet(content) && <SheetOwnSetup tasks={tSetup} answers={false} ownGrid={ownGrid} />}
-               {showKey(content) && <SheetOwnSetup tasks={tSetup} answers ownGrid={ownGrid} />}
+              {showSheet(content) && (
+                <SheetOwnSetup tasks={tSetup} answers={false} ownGrid={ownGrid} />
+              )}
+              {showKey(content) && <SheetOwnSetup tasks={tSetup} answers ownGrid={ownGrid} />}
             </>
           )}
         </main>
       </div>
       {preview && (
-        <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4" role="dialog" aria-label="Förhandsgranskning av PDF">
+        <div
+          className="no-print fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4"
+          role="dialog"
+          aria-label="Förhandsgranskning av PDF"
+        >
           <div className="flex h-full max-h-[95vh] w-full max-w-4xl flex-col gap-3 rounded-xl bg-background p-4 shadow-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Förhandsgranskning av PDF · {preview.pages} {preview.pages === 1 ? "sida" : "sidor"}</h2>
-              <button onClick={closePreview} className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent">Stäng</button>
+              <h2 className="text-lg font-semibold text-foreground">
+                Förhandsgranskning av PDF · {preview.pages} {preview.pages === 1 ? "sida" : "sidor"}
+              </h2>
+              <button
+                onClick={closePreview}
+                className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent"
+              >
+                Stäng
+              </button>
             </div>
             <PdfPagesPreview images={preview.images} />
             <div className="flex flex-wrap items-end gap-2">
               <label className="flex-1 text-sm font-medium text-foreground">
                 Filnamn
                 <div className="mt-1 flex items-center gap-1">
-                  <input value={fileName} onChange={(e) => setFileName(e.target.value)} className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm" />
+                  <input
+                    value={fileName}
+                    onChange={(e) => setFileName(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+                  />
                   <span className="text-sm text-muted-foreground">.pdf</span>
                 </div>
               </label>
-              <button onClick={closePreview} className="rounded-lg border border-input px-4 py-2 text-sm hover:bg-accent">Avbryt</button>
-              <button onClick={savePreview} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              <button
+                onClick={closePreview}
+                className="rounded-lg border border-input px-4 py-2 text-sm hover:bg-accent"
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={savePreview}
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
                 <FileDown className="h-4 w-4" /> Ladda ner
               </button>
             </div>
@@ -292,9 +430,19 @@ function RangeInput({
     <div>
       <div className="mb-1.5 text-sm font-medium text-foreground">{label}</div>
       <div className="flex items-center gap-2">
-        <input type="number" value={value[0]} onChange={(e) => set(0, e.target.value)} className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm" />
+        <input
+          type="number"
+          value={value[0]}
+          onChange={(e) => set(0, e.target.value)}
+          className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm"
+        />
         <span className="text-sm text-muted-foreground">och</span>
-        <input type="number" value={value[1]} onChange={(e) => set(1, e.target.value)} className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm" />
+        <input
+          type="number"
+          value={value[1]}
+          onChange={(e) => set(1, e.target.value)}
+          className="w-16 rounded-md border border-input bg-background px-2 py-1.5 text-center text-sm"
+        />
       </div>
     </div>
   );

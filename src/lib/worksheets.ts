@@ -11,11 +11,12 @@ export type MulTask = { a: number; b: number };
  *  Försöker täcka alla unika faktorkombinationer inom intervallen;
  *  återstående platser fylls med slumpade dubbletter. */
 export function gen102(f1: [number, number], f2: [number, number], count = 102): MulTask[] {
-  const lo1 = Math.min(...f1), hi1 = Math.max(...f1);
-  const lo2 = Math.min(...f2), hi2 = Math.max(...f2);
+  const lo1 = Math.min(...f1),
+    hi1 = Math.max(...f1);
+  const lo2 = Math.min(...f2),
+    hi2 = Math.max(...f2);
   const all: MulTask[] = [];
-  for (let a = lo1; a <= hi1; a++)
-    for (let b = lo2; b <= hi2; b++) all.push({ a, b });
+  for (let a = lo1; a <= hi1; a++) for (let b = lo2; b <= hi2; b++) all.push({ a, b });
   // Blanda alla unika kombinationer
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -150,7 +151,13 @@ export function setupLayout(t: SetupTask): SetupLayout {
   const top = t.digits;
   const bottomAll = t.m;
   // Inledande nollor (0,7) räknas inte som egna delprodukter
-  const firstSig = Math.max(0, Math.min(bottomAll.findIndex((d) => d !== 0), bottomAll.length - 1));
+  const firstSig = Math.max(
+    0,
+    Math.min(
+      bottomAll.findIndex((d) => d !== 0),
+      bottomAll.length - 1,
+    ),
+  );
   const bottom = bottomAll.slice(firstSig === -1 ? 0 : firstSig);
   const topLen = top.length;
   const bottomLen = bottom.length;
@@ -201,7 +208,8 @@ export function setupLayout(t: SetupTask): SetupLayout {
     });
   };
   if (bottomLen > 1) {
-    for (let pos = bottomLen - 1; pos >= 0; pos--) addCarries(rowCarries(top, bottom[bottomLen - 1 - pos]!), pos);
+    for (let pos = bottomLen - 1; pos >= 0; pos--)
+      addCarries(rowCarries(top, bottom[bottomLen - 1 - pos]!), pos);
   } else {
     addCarries(rowCarries(top, bottom[0]!), 0);
   }
@@ -237,7 +245,7 @@ export function setupLayout(t: SetupTask): SetupLayout {
   };
 }
 
-export const chunk = <T,>(arr: T[], sizes: number[]) => {
+export const chunk = <T>(arr: T[], sizes: number[]) => {
   const out: T[][] = [];
   let i = 0;
   for (const s of sizes) {
@@ -265,12 +273,7 @@ export function fitGridCount(
 
 /** Radmellanrum som fördelar resten av sidhöjden jämnt mellan raderna,
  *  men aldrig mindre än grundmellanrummet. */
-export function evenRowGap(
-  availH: number,
-  rows: number,
-  h: number,
-  minGap: number,
-): number {
+export function evenRowGap(availH: number, rows: number, h: number, minGap: number): number {
   if (rows <= 1) return minGap;
   return Math.max(minGap, (availH - rows * h) / (rows - 1));
 }
@@ -280,17 +283,12 @@ export function evenRowGap(
  *  precis som i Excel-mallen ("Slumptal mellan"). Inom en övning förekommer
  *  samma multiplikation (oavsett faktorordning) bara en gång, så länge det
  *  finns tillräckligt många unika kombinationer i talområdet. */
-export function genSnabba(
-  range: [number, number],
-  perSheet = 10,
-  sheets = 4,
-): MulTask[][] {
+export function genSnabba(range: [number, number], perSheet = 10, sheets = 4): MulTask[][] {
   const lo = Math.min(...range);
   const hi = Math.max(...range);
   // Alla unika kombinationer; a·b och b·a räknas som samma multiplikation
   const unique: MulTask[] = [];
-  for (let a = lo; a <= hi; a++)
-    for (let b = a; b <= hi; b++) unique.push({ a, b });
+  for (let a = lo; a <= hi; a++) for (let b = a; b <= hi; b++) unique.push({ a, b });
   return Array.from({ length: sheets }, () => {
     // Blanda och ta unika först; fyll ut med slumpade dubbletter vid behov
     const pool = [...unique];

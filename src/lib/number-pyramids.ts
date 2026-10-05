@@ -19,15 +19,16 @@ export function genNumberPyramids(
   topTotal = DEFAULT_TOP_TOTAL[rowCount],
 ): NumberPyramid[] {
   return Array.from({ length: count }, () => {
-    const bottom = mode === "top"
-      ? createBottomForTotal(rowCount, topTotal)
-      : Array.from({ length: rowCount }, () => Math.floor(Math.random() * 10));
+    const bottom =
+      mode === "top"
+        ? createBottomForTotal(rowCount, topTotal)
+        : Array.from({ length: rowCount }, () => Math.floor(Math.random() * 10));
     const rows = [bottom];
     while (rows.length < rowCount) {
       const below = rows[0]!;
       rows.unshift(below.slice(0, -1).map((value, index) => value + below[index + 1]!));
     }
-    const given = rows.map(row => row.map(() => false));
+    const given = rows.map((row) => row.map(() => false));
     if (mode === "bottom") {
       given[rowCount - 1] = bottom.map(() => true);
     } else {
@@ -42,7 +43,8 @@ function createBottomForTotal(rowCount: 3 | 4 | 5, total: number): number[] {
   const weights = rowCount === 3 ? [1, 2, 1] : rowCount === 4 ? [1, 3, 3, 1] : [1, 4, 6, 4, 1];
   for (let attempt = 0; attempt < 10000; attempt++) {
     const bottom = weights.slice(0, -1).map(() => Math.floor(Math.random() * 10));
-    const remaining = total - bottom.reduce((sum, value, index) => sum + value * weights[index]!, 0);
+    const remaining =
+      total - bottom.reduce((sum, value, index) => sum + value * weights[index]!, 0);
     if (remaining >= 0 && remaining <= 9) return [...bottom, remaining];
   }
   throw new Error(`Kunde inte skapa en ${rowCount}-radig talpyramid med topptalet ${total}.`);

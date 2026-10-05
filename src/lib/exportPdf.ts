@@ -10,9 +10,7 @@ import { jsPDF } from "jspdf";
 export async function buildSheetsPdf(
   orientation: Orientation,
 ): Promise<{ blob: Blob; pages: number; images: string[] } | null> {
-  const pages = Array.from(
-    document.querySelectorAll<HTMLElement>(".print-area .a4-page"),
-  );
+  const pages = Array.from(document.querySelectorAll<HTMLElement>(".print-area .a4-page"));
   if (pages.length === 0) return null;
   const getPageOrientation = (page: HTMLElement): Orientation =>
     page.classList.contains("portrait-page")
@@ -21,7 +19,12 @@ export async function buildSheetsPdf(
         ? "landscape"
         : orientation;
   const firstOrientation = getPageOrientation(pages[0]!);
-  const pdf = new jsPDF({ orientation: firstOrientation, unit: "mm", format: "a4", compress: true });
+  const pdf = new jsPDF({
+    orientation: firstOrientation,
+    unit: "mm",
+    format: "a4",
+    compress: true,
+  });
   const images: string[] = [];
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i]!;
@@ -43,7 +46,10 @@ export async function buildSheetsPdf(
         boxShadow: "none",
         height: `${h}mm`,
         minHeight: `${h}mm`,
-        overflow: "hidden",
+        maxHeight: `${h}mm`,
+        width: `${w}mm`,
+        maxWidth: `${w}mm`,
+        overflow: "visible",
       },
     }).finally(() => {
       page.style.zoom = prevZoom;

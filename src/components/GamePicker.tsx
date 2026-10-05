@@ -3,7 +3,7 @@ import { Anchor, Grid2X2, Check, Search } from "lucide-react";
 
 export function GamePicker({
   current,
-}: { current?: "battleship" | "five" | "bingo" | "word-search" } = {}) {
+}: { current?: "battleship" | "five" | "bingo" | "word-search" | "sudoku" } = {}) {
   const games = [
     {
       id: "battleship",
@@ -32,6 +32,13 @@ export function GamePicker({
       label: "Ordgömma",
       icon: Search,
       color: "bg-amber-700 hover:bg-amber-800",
+    },
+    {
+      id: "sudoku",
+      to: "/sudoku",
+      label: "Sudoku",
+      icon: Grid2X2,
+      color: "bg-red-700 hover:bg-red-800",
     },
   ] as const;
   return (

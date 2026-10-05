@@ -1,7 +1,9 @@
 import { SheetHeader } from "./SheetHeader";
 
 const groups = <T,>(items: T[]) =>
-  Array.from({ length: Math.ceil(items.length / 5) }, (_, index) => items.slice(index * 5, index * 5 + 5));
+  Array.from({ length: Math.ceil(items.length / 5) }, (_, index) =>
+    items.slice(index * 5, index * 5 + 5),
+  );
 
 export type HundredTask = {
   left: string;
@@ -10,12 +12,18 @@ export type HundredTask = {
   answer: string;
 };
 
-export function SheetHundred({ tasks, operation, answers }: {
+export function SheetHundred({
+  tasks,
+  operation,
+  answers,
+}: {
   tasks: HundredTask[];
   operation: string;
   answers: boolean;
 }) {
-  const columns = Array.from({ length: 4 }, (_, index) => tasks.slice(index * 25, (index + 1) * 25));
+  const columns = Array.from({ length: 4 }, (_, index) =>
+    tasks.slice(index * 25, (index + 1) * 25),
+  );
   return (
     <div className="a4-page hundred-tasks-page">
       <SheetHeader
@@ -35,7 +43,9 @@ export function SheetHundred({ tasks, operation, answers }: {
                     <span className="hundred-task-operator">{task.operator}</span>
                     <span className="hundred-task-right">{task.right}</span>
                     <span className="hundred-task-equals">=</span>
-                    <span className="hundred-task-answer">{answers ? <strong>{task.answer}</strong> : "\u00a0"}</span>
+                    <span className="hundred-task-answer">
+                      {answers ? <strong>{task.answer}</strong> : "\u00a0"}
+                    </span>
                   </div>
                 ))}
               </div>

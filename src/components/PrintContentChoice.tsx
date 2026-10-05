@@ -13,7 +13,13 @@ export const pagesLabel = (c: PrintContent) =>
 export const keySuffix = (c: PrintContent) => (c === "key" ? "-facit" : "");
 
 /** Val av vad som skrivs ut / exporteras: elevblad, facit eller båda. */
-export function PrintContentChoice({ value, onChange }: { value: PrintContent; onChange: (v: PrintContent) => void }) {
+export function PrintContentChoice({
+  value,
+  onChange,
+}: {
+  value: PrintContent;
+  onChange: (v: PrintContent) => void;
+}) {
   return (
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium text-foreground">Skriv ut / spara</legend>

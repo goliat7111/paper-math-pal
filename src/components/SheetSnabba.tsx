@@ -2,13 +2,7 @@ import type { MulTask } from "@/lib/worksheets";
 
 /** Snabba tal multiplikation: 4 olika övningar per A4 (2×2),
  *  var och en med namnrad och 10 uppgifter. */
-export function SheetSnabba({
-  exercises,
-  answers,
-}: {
-  exercises: MulTask[][];
-  answers: boolean;
-}) {
+export function SheetSnabba({ exercises, answers }: { exercises: MulTask[][]; answers: boolean }) {
   return (
     <div className="a4-page flex flex-col">
       <h1 className="font-display text-center text-xl font-semibold tracking-wide text-sheet-ink">

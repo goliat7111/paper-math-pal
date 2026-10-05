@@ -7,7 +7,16 @@ describe("Progressionsserie på arbetsblad", () => {
   it("uses the shared low comma position in division cells", () => {
     const markup = renderToStaticMarkup(
       <SheetDivision
-        tasks={[{ dividend: 125, divisor: 5, quotient: 25, remainder: 0, dividendDecimals: 1, quotientDecimals: 1 }]}
+        tasks={[
+          {
+            dividend: 125,
+            divisor: 5,
+            quotient: 25,
+            remainder: 0,
+            dividendDecimals: 1,
+            quotientDecimals: 1,
+          },
+        ]}
         answers
         ownSetup={false}
       />,

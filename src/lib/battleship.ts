@@ -20,7 +20,10 @@ export function randomFleet(): Ship[] {
         const maxCol = horizontal ? 10 - spec.size : 9;
         const row = Math.floor(Math.random() * (maxRow + 1));
         const col = Math.floor(Math.random() * (maxCol + 1));
-        const cells: [number, number][] = Array.from({ length: spec.size }, (_, i) => [row + (horizontal ? 0 : i), col + (horizontal ? i : 0)]);
+        const cells: [number, number][] = Array.from({ length: spec.size }, (_, i) => [
+          row + (horizontal ? 0 : i),
+          col + (horizontal ? i : 0),
+        ]);
         if (cells.every(([r, c]) => !blocked.has(`${r},${c}`))) {
           cells.forEach(([r, c]) => {
             // Reserve the ship and its surrounding cells, including diagonals.

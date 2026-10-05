@@ -43,12 +43,15 @@ export function addCarries(terms: number[]): number[] {
 }
 
 /** Växling i subtraktion per kolumn från ental: fick kolumnen en tia, lånade den ut? */
-export function subBorrows(a: number, b: number): { received: boolean; lent: boolean; digit: number }[] {
+export function subBorrows(
+  a: number,
+  b: number,
+): { received: boolean; lent: boolean; digit: number }[] {
   const n = String(a).length;
   const out: { received: boolean; lent: boolean; digit: number }[] = [];
   let lent: boolean = false; // lånade föregående (lägre) kolumn av denna?
   for (let i = 0; i < n; i++) {
-    const top: number = Math.floor(a / 10 ** i) % 10 - (lent ? 1 : 0);
+    const top: number = (Math.floor(a / 10 ** i) % 10) - (lent ? 1 : 0);
     const bot = Math.floor(b / 10 ** i) % 10;
     const received: boolean = top < bot;
     out.push({ received, lent, digit: top + (received ? 10 : 0) });
@@ -98,7 +101,8 @@ function genNoRegroup(op: AddSubOp, lens: number[], decs: number[]): number[] {
         if (minOf(k) < 0) return;
         const rest = mins.slice(k + 1).reduce((a, b) => a + b, 0);
         const d = rand(mins[k]!, Math.max(mins[k]!, left - rest));
-        ds[k]!.push(d); left -= d;
+        ds[k]!.push(d);
+        left -= d;
       });
     } else {
       const bMin = minOf(1);
@@ -123,9 +127,11 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
       const lens = Array.from({ length: nTerms }, () => rand(lo, hi));
       // Varje term får sitt eget decimalantal, aldrig fler än sifferantalet tillåter.
       const decs = lens.map((k) =>
-        o.dec === "slumpa" ? rand(0, Math.min(3, k - 1))
-          : o.dec === "slumpa-decimaler" ? rand(1, Math.min(3, k - 1))
-          : Math.min(o.dec, k - 1),
+        o.dec === "slumpa"
+          ? rand(0, Math.min(3, k - 1))
+          : o.dec === "slumpa-decimaler"
+            ? rand(1, Math.min(3, k - 1))
+            : Math.min(o.dec, k - 1),
       );
       const m = Math.max(...decs);
       // Termerna lagras alltid med sitt eget sifferantal (aldrig uppskalade).
@@ -134,10 +140,13 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
         : genNoRegroup(o.op, lens, decs).map((v, i) => v / 10 ** (m - decs[i]!));
       if (o.op === "sub") {
         // Sortera fallande på verkligt värde (skalat), så största talet kommer överst.
-        const order = terms.map((v, i) => [v * 10 ** (m - decs[i]!), i] as const).sort((a, b) => b[0] - a[0]);
+        const order = terms
+          .map((v, i) => [v * 10 ** (m - decs[i]!), i] as const)
+          .sort((a, b) => b[0] - a[0]);
         terms = order.map(([, i]) => terms[i]!);
         const sortedDecs = order.map(([, i]) => decs[i]!);
-        decs.length = 0; decs.push(...sortedDecs);
+        decs.length = 0;
+        decs.push(...sortedDecs);
         // Lika verkliga värden ger differensen 0 — försök igen (differensen ska vara positiv).
         if (terms[0]! * 10 ** (m - decs[0]!) === terms[1]! * 10 ** (m - decs[1]!)) continue;
       }
@@ -177,7 +186,9 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   const nCols = w;
   const align = (v: number) => {
     const str = String(v).padStart(m + 1, "0");
-    return Array(nCols - str.length).fill("").concat(str.split(""));
+    return Array(nCols - str.length)
+      .fill("")
+      .concat(str.split(""));
   };
   // Alla termer fylls på med decimalnollor upp till maxDec, så att heltal och
   // decimaltal får lika många siffror och kommatecknen ligger under varandra.
@@ -186,7 +197,9 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
   const struck = Array(nCols).fill(false);
   const marksStruck = Array(nCols).fill(false);
   if (t.op === "add") {
-    addCarries(s).forEach((c, i) => { if (c > 0 && i < nCols) carries[nCols - 1 - i] = String(c); });
+    addCarries(s).forEach((c, i) => {
+      if (c > 0 && i < nCols) carries[nCols - 1 - i] = String(c);
+    });
   } else {
     subBorrows(s[0]!, s[1]!).forEach((c, i) => {
       const col = nCols - 1 - i;

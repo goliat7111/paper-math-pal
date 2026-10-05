@@ -10,7 +10,9 @@ const pyramid: NumberPyramid = {
 
 describe("SheetPyramids", () => {
   it("shows the top number and all but one bottom number on a student sheet", () => {
-    const markup = renderToStaticMarkup(<SheetPyramids pyramids={[pyramid]} rowCount={3} mode="top" topTotal={12} answers={false} />);
+    const markup = renderToStaticMarkup(
+      <SheetPyramids pyramids={[pyramid]} rowCount={3} mode="top" topTotal={12} answers={false} />,
+    );
     expect(markup.match(/class="pyramid-cell is-filled"/g)).toHaveLength(3);
     expect(markup).toContain(">12</div>");
     expect(markup).toContain(">2</div>");
@@ -20,7 +22,9 @@ describe("SheetPyramids", () => {
   });
 
   it("shows every number on the answer sheet", () => {
-    const markup = renderToStaticMarkup(<SheetPyramids pyramids={[pyramid]} rowCount={3} mode="top" topTotal={12} answers />);
+    const markup = renderToStaticMarkup(
+      <SheetPyramids pyramids={[pyramid]} rowCount={3} mode="top" topTotal={12} answers />,
+    );
     expect(markup.match(/class="pyramid-cell is-filled"/g)).toHaveLength(6);
   });
 });

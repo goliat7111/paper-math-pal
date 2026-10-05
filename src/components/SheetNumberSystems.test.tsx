@@ -8,7 +8,9 @@ describe("SheetNumberSystems", () => {
       { value: 255, direction: "to-base" as const },
       { value: 254, direction: "to-decimal" as const },
     ];
-    const sheet = renderToStaticMarkup(<SheetNumberSystems tasks={tasks} base={16} answers={false} />);
+    const sheet = renderToStaticMarkup(
+      <SheetNumberSystems tasks={tasks} base={16} answers={false} />,
+    );
     const key = renderToStaticMarkup(<SheetNumberSystems tasks={tasks} base={16} answers />);
     expect(sheet).toContain("255₁₀");
     expect(sheet).toContain("FE₁₆");

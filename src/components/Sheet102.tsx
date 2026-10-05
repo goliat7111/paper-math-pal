@@ -15,7 +15,6 @@ const blockSizes = (rows: number) => {
 // 102 tal: 3 kolumner × 34 rader med fast radhöjd. 100 tal: 4 kolumner × 25 rader
 // som delar sidhöjden lika (flex-1) med ett litet mellanrum mellan gruppen om 5.
 
-
 export function Sheet102({
   tasks,
   answers,
@@ -31,15 +30,12 @@ export function Sheet102({
   const fill = !landscape; // stående: raderna delar hela sidhöjden så inget klipps i PDF/utskrift
   const cols = landscape ? 6 : count === 100 ? 4 : 3;
   const perCol = Math.ceil(count / cols); // 17 (liggande) / 25 (100 tal) / 34 (102 tal)
-  const columns = Array.from({ length: cols }, (_, c) =>
-    tasks.slice(c * perCol, (c + 1) * perCol),
-  );
+  const columns = Array.from({ length: cols }, (_, c) => tasks.slice(c * perCol, (c + 1) * perCol));
   return (
     <div
       className={`a4-page${landscape ? " landscape" : ""}${fill ? " flex flex-col" : ""}`}
       style={fill ? { height: "297mm" } : undefined}
     >
-
       <SheetHeader
         title={answers ? `${count} tal – Facit` : `${count} tal`}
         subtitle="Multiplikation · 6 minuter"
@@ -47,7 +43,10 @@ export function Sheet102({
       />
       <div
         className={`mt-5 grid${fill ? " flex-1" : ""}`}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: landscape ? "8mm" : "12mm" }}
+        style={{
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          columnGap: landscape ? "8mm" : "12mm",
+        }}
       >
         {columns.map((col, ci) => (
           <div key={ci} className={fill ? "flex flex-col" : ""}>
@@ -60,13 +59,16 @@ export function Sheet102({
                     className={`flex items-end font-mono leading-none tabular-nums ${count === 100 ? "text-[18px]" : "text-[17px]"}`}
                     style={fill ? { flex: "1 1 0" } : { height: "6.4mm" }}
                   >
-
                     <span className="w-6 text-right">{t.a}</span>
                     <span className="w-5 text-center">·</span>
                     <span className="w-6 text-left">{t.b}</span>
                     <span className="w-5 text-center">=</span>
                     <span className="ml-1 flex-1 border-b border-sheet-line pb-[1px] text-left">
-                      {answers ? <span className="font-bold text-sheet-answer">{t.a * t.b}</span> : "\u00a0"}
+                      {answers ? (
+                        <span className="font-bold text-sheet-answer">{t.a * t.b}</span>
+                      ) : (
+                        "\u00a0"
+                      )}
                     </span>
                   </div>
                 ))}

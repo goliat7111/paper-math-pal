@@ -21,6 +21,7 @@ import { Route as MultiplikationRouteImport } from './routes/multiplikation'
 import { Route as OrdgommaRouteImport } from './routes/ordgomma'
 import { Route as SankaSkeppRouteImport } from './routes/sanka-skepp'
 import { Route as SubtraktionRouteImport } from './routes/subtraktion'
+import { Route as SudokuRouteImport } from './routes/sudoku'
 import { Route as TextuppgifterRouteImport } from './routes/textuppgifter'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,6 +84,11 @@ const SubtraktionRoute = SubtraktionRouteImport.update({
   path: '/subtraktion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SudokuRoute = SudokuRouteImport.update({
+  id: '/sudoku',
+  path: '/sudoku',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TextuppgifterRoute = TextuppgifterRouteImport.update({
   id: '/textuppgifter',
   path: '/textuppgifter',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/ordgomma': typeof OrdgommaRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/sudoku': typeof SudokuRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/ordgomma': typeof OrdgommaRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/sudoku': typeof SudokuRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/ordgomma': typeof OrdgommaRoute
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
+  '/sudoku': typeof SudokuRoute
   '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/ordgomma'
     | '/sanka-skepp'
     | '/subtraktion'
+    | '/sudoku'
     | '/textuppgifter'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/ordgomma'
     | '/sanka-skepp'
     | '/subtraktion'
+    | '/sudoku'
     | '/textuppgifter'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/ordgomma'
     | '/sanka-skepp'
     | '/subtraktion'
+    | '/sudoku'
     | '/textuppgifter'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   OrdgommaRoute: typeof OrdgommaRoute
   SankaSkeppRoute: typeof SankaSkeppRoute
   SubtraktionRoute: typeof SubtraktionRoute
+  SudokuRoute: typeof SudokuRoute
   TextuppgifterRoute: typeof TextuppgifterRoute
 }
 
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubtraktionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sudoku': {
+      id: '/sudoku'
+      path: '/sudoku'
+      fullPath: '/sudoku'
+      preLoaderRoute: typeof SudokuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/textuppgifter': {
       id: '/textuppgifter'
       path: '/textuppgifter'
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdgommaRoute: OrdgommaRoute,
   SankaSkeppRoute: SankaSkeppRoute,
   SubtraktionRoute: SubtraktionRoute,
+  SudokuRoute: SudokuRoute,
   TextuppgifterRoute: TextuppgifterRoute,
 }
 export const routeTree = rootRouteImport

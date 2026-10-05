@@ -16,13 +16,21 @@ export function genNumberSystemTasks(
   mode: ConversionMode = "both",
   maxValue = 255,
 ): NumberSystemTask[] {
-  if (!Number.isInteger(count) || count < 1 || count > 40
-    || !Number.isInteger(maxValue) || maxValue < 1 || maxValue > 65535
-    || (mode !== "both" && mode !== "to-base" && mode !== "to-decimal")) {
+  if (
+    !Number.isInteger(count) ||
+    count < 1 ||
+    count > 40 ||
+    !Number.isInteger(maxValue) ||
+    maxValue < 1 ||
+    maxValue > 65535 ||
+    (mode !== "both" && mode !== "to-base" && mode !== "to-decimal")
+  ) {
     throw new Error("Välj 1–40 uppgifter och ett största decimaltal mellan 1 och 65535.");
   }
   if (mode === "both" && count > maxValue * 2) {
-    throw new Error("Det finns inte tillräckligt många olika tal för båda omvandlingsriktningarna.");
+    throw new Error(
+      "Det finns inte tillräckligt många olika tal för båda omvandlingsriktningarna.",
+    );
   }
   if (mode !== "both" && count > maxValue) {
     throw new Error("Det finns inte tillräckligt många olika tal i det valda talområdet.");

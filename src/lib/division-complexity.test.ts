@@ -82,13 +82,7 @@ describe("Division - komplexitetsmatris", () => {
         complexity.zeroInQuotient,
       ];
       expect(task.note).toBe(
-        [
-          "Gruppering",
-          "En växling",
-          "Flera växlingar",
-          "Nolla i dividenden",
-          "Nolla i kvoten",
-        ]
+        ["Gruppering", "En växling", "Flera växlingar", "Nolla i dividenden", "Nolla i kvoten"]
           .filter((_, i) => labels[i])
           .join(" · "),
       );

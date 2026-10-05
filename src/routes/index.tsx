@@ -1,15 +1,31 @@
 // ============= Full file contents =============
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Plus, Minus, Divide, Grid2X2, Shuffle, BookOpenText, Gamepad2 } from "lucide-react";
+import {
+  ArrowRight,
+  Plus,
+  Minus,
+  Divide,
+  Grid2X2,
+  Shuffle,
+  BookOpenText,
+  Gamepad2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Räknebladet – välj räknesätt" },
-      { name: "description", content: "Generera och skriv ut anpassade arbetsblad och diagnoser i matematik på A4, med facit. Välj räknesätt och kom igång." },
+      {
+        name: "description",
+        content:
+          "Generera och skriv ut anpassade arbetsblad och diagnoser i matematik på A4, med facit. Välj räknesätt och kom igång.",
+      },
       { property: "og:title", content: "Räknebladet – arbetsblad i matematik" },
-      { property: "og:description", content: "Slumpade diagnoser och uppställningar, utskriftsklara på A4 med facit." },
+      {
+        property: "og:description",
+        content: "Slumpade diagnoser och uppställningar, utskriftsklara på A4 med facit.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -80,12 +96,31 @@ function StartPage() {
           ))}
         </div>
         <div className="mt-10 border-t border-border pt-8">
-          <h2 className="font-display text-2xl font-semibold text-foreground">Mattespel, mallar och blandade övningar</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">
+            Mattespel, mallar och blandade övningar
+          </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Link to="/mattespel" className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
-              <div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary"><Gamepad2 className="h-5 w-5" /></span><div><h3 className="font-display text-xl font-semibold text-foreground">Mattespel</h3><p className="mt-1 text-sm text-muted-foreground">Sänka skepp · 5-i-rad · Mattebingo · Ordgömma</p></div><ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" /></div>
+            <Link
+              to="/mattespel"
+              className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Gamepad2 className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-foreground">Mattespel</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Sänka skepp · 5-i-rad · Mattebingo · Ordgömma
+                  </p>
+                </div>
+                <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </div>
             </Link>
-            <Link to="/mallar" className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+            <Link
+              to="/mallar"
+              className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Grid2X2 className="h-5 w-5" />
@@ -94,12 +129,17 @@ function StartPage() {
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
-            <Link to="/blandade-mallar" className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+            <Link
+              to="/blandade-mallar"
+              className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Shuffle className="h-5 w-5" />
                 </span>
-                <h3 className="font-display text-xl font-semibold text-foreground">Blandade övningar</h3>
+                <h3 className="font-display text-xl font-semibold text-foreground">
+                  Blandade övningar
+                </h3>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>

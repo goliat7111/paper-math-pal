@@ -1,18 +1,30 @@
 import { expect, it } from "vitest";
-import { makeBingo, makeNumberBingo, normalizeBingoWord, randomBingoWord, type BingoMode } from "./bingo";
+import {
+  makeBingo,
+  makeNumberBingo,
+  normalizeBingoWord,
+  randomBingoWord,
+  type BingoMode,
+} from "./bingo";
 it("generates unique boards with complete, correct, nonduplicated calls", () => {
-  for (const mode of ["addition", "subtraction", "multiplication", "division", "mixed"] as BingoMode[]) {
+  for (const mode of [
+    "addition",
+    "subtraction",
+    "multiplication",
+    "division",
+    "mixed",
+  ] as BingoMode[]) {
     for (const free of [false, true]) {
       const game = makeBingo(mode, 40, free);
       expect(game.boards).toHaveLength(40);
-      expect(new Set(game.boards.map(b => b.join(","))).size).toBe(40);
-      const answers = new Set(game.calls.map(c => c.answer));
+      expect(new Set(game.boards.map((b) => b.join(","))).size).toBe(40);
+      const answers = new Set(game.calls.map((c) => c.answer));
       expect(answers.size).toBe(game.calls.length);
       for (const board of game.boards) {
         expect(board).toHaveLength(25);
-        const values = board.filter(v => v !== null);
+        const values = board.filter((v) => v !== null);
         expect(new Set(values).size).toBe(free ? 24 : 25);
-        expect(values.every(v => answers.has(v!))).toBe(true);
+        expect(values.every((v) => answers.has(v!))).toBe(true);
         if (free) expect(board[12]).toBeNull();
       }
       for (const call of game.calls) {
@@ -21,7 +33,8 @@ it("generates unique boards with complete, correct, nonduplicated calls", () => 
         expect(actual).toBe(call.answer);
         expect(Number.isInteger(actual) && actual >= 0).toBe(true);
       }
-      if (mode === "mixed") expect(new Set(game.calls.map(c => c.question.split(" ")[1]!)).size).toBe(4);
+      if (mode === "mixed")
+        expect(new Set(game.calls.map((c) => c.question.split(" ")[1]!)).size).toBe(4);
     }
   }
 });
@@ -29,21 +42,22 @@ it("generates unique boards with complete, correct, nonduplicated calls", () => 
 it("generates number bingo boards with BINGO column ranges and free centers", () => {
   const game = makeNumberBingo(25, 20, true);
   expect(game.boards).toHaveLength(20);
-  expect(new Set(game.boards.map(board => board.join(","))).size).toBe(20);
-  expect(game.calls.map(call => call.answer).sort((a, b) => a - b))
-    .toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+  expect(new Set(game.boards.map((board) => board.join(","))).size).toBe(20);
+  expect(game.calls.map((call) => call.answer).sort((a, b) => a - b)).toEqual(
+    Array.from({ length: 25 }, (_, i) => i + 1),
+  );
 
   for (const board of game.boards) {
     expect(board).toHaveLength(25);
     expect(board[12]).toBeNull();
-    expect(new Set(board.filter(value => value !== null)).size).toBe(24);
+    expect(new Set(board.filter((value) => value !== null)).size).toBe(24);
     for (let column = 0; column < 5; column++) {
       const first = column * 5 + 1;
       const last = (column + 1) * 5;
       const values = [0, 1, 2, 3, 4]
-        .map(row => board[row * 5 + column])
+        .map((row) => board[row * 5 + column])
         .filter((value): value is number => value !== null);
-      expect(values.every(value => value >= first && value <= last)).toBe(true);
+      expect(values.every((value) => value >= first && value <= last)).toBe(true);
     }
   }
 });
@@ -53,7 +67,7 @@ it("generates three connected 5x5 panels covering 1–75 exactly once", () => {
   const expectedNumbers = Array.from({ length: 75 }, (_, i) => i + 1);
 
   expect(game.boards).toHaveLength(20);
-  expect(new Set(game.boards.map(board => board.join(","))).size).toBe(20);
+  expect(new Set(game.boards.map((board) => board.join(","))).size).toBe(20);
   for (const board of game.boards) {
     expect(board).toHaveLength(75);
     expect([...board].sort((a, b) => (a ?? 0) - (b ?? 0))).toEqual(expectedNumbers);
@@ -62,21 +76,21 @@ it("generates three connected 5x5 panels covering 1–75 exactly once", () => {
       for (let column = 0; column < 5; column++) {
         const first = column * 15 + 1;
         const last = (column + 1) * 15;
-        const values = [0, 1, 2, 3, 4].map(row => board[panel * 25 + row * 5 + column]!);
-        expect(values.every(value => value >= first && value <= last)).toBe(true);
+        const values = [0, 1, 2, 3, 4].map((row) => board[panel * 25 + row * 5 + column]!);
+        expect(values.every((value) => value >= first && value <= last)).toBe(true);
       }
     }
   }
-  expect(game.calls.map(call => call.answer).sort((a, b) => a - b)).toEqual(expectedNumbers);
+  expect(game.calls.map((call) => call.answer).sort((a, b) => a - b)).toEqual(expectedNumbers);
 });
 
 it("places a free center in each 1–75 panel when requested", () => {
   const game = makeNumberBingo(75, 10, true);
   for (const board of game.boards) {
     expect(board).toHaveLength(75);
-    expect([12, 37, 62].map(index => board[index])).toEqual([null, null, null]);
-    expect(board.filter(value => value !== null)).toHaveLength(72);
-    expect(new Set(board.filter(value => value !== null)).size).toBe(72);
+    expect([12, 37, 62].map((index) => board[index])).toEqual([null, null, null]);
+    expect(board.filter((value) => value !== null)).toHaveLength(72);
+    expect(new Set(board.filter((value) => value !== null)).size).toBe(72);
   }
 });
 
@@ -85,7 +99,7 @@ it("generates number bingo boards without a free center when requested", () => {
 
   for (const board of game.boards) {
     expect(board).toHaveLength(25);
-    expect(board.every(value => value !== null)).toBe(true);
+    expect(board.every((value) => value !== null)).toBe(true);
     expect(new Set(board).size).toBe(25);
     expect(board[12]).not.toBeNull();
   }

@@ -17,9 +17,16 @@ export type DivisionTask = {
 
 /** Hur många extra decimaler nämnaren kan ge (största exponenten av 2 och 5). */
 export const extraCapacity = (d: number) => {
-  let two = 0, five = 0;
-  while (d % 2 === 0) { d /= 2; two++; }
-  while (d % 5 === 0) { d /= 5; five++; }
+  let two = 0,
+    five = 0;
+  while (d % 2 === 0) {
+    d /= 2;
+    two++;
+  }
+  while (d % 5 === 0) {
+    d /= 5;
+    five++;
+  }
   return Math.max(two, five);
 };
 
@@ -35,11 +42,29 @@ export function genDivision(
   dividendDecimals = 0,
   extraDecimals = 0,
 ): DivisionTask[] {
-  if (![dividendMin, dividendMax, divisorMin, divisorMax, count, dividendDecimals, extraDecimals].every(Number.isInteger)
-    || dividendMin < 2 || dividendMax > 9999 || dividendMin > dividendMax
-    || divisorMin < 2 || divisorMax > 9 || divisorMin > divisorMax
-    || count < 1 || count > 100
-    || dividendDecimals < -1 || dividendDecimals > 3 || extraDecimals < -1 || extraDecimals > 3) {
+  if (
+    ![
+      dividendMin,
+      dividendMax,
+      divisorMin,
+      divisorMax,
+      count,
+      dividendDecimals,
+      extraDecimals,
+    ].every(Number.isInteger) ||
+    dividendMin < 2 ||
+    dividendMax > 9999 ||
+    dividendMin > dividendMax ||
+    divisorMin < 2 ||
+    divisorMax > 9 ||
+    divisorMin > divisorMax ||
+    count < 1 ||
+    count > 100 ||
+    dividendDecimals < -1 ||
+    dividendDecimals > 3 ||
+    extraDecimals < -1 ||
+    extraDecimals > 3
+  ) {
     throw new Error("Välj täljare mellan 2 och 9999 och nämnare mellan 2 och 9.");
   }
   if (withRemainder && (dividendDecimals !== 0 || extraDecimals !== 0)) {
@@ -63,13 +88,21 @@ export function genDivision(
   }
   const pools = new Map<number, number[]>();
   for (const k of extraDecimals === -1 ? [1, 2, 3] : [extraDecimals]) {
-    pools.set(k, [2, 3, 4, 5, 6, 7, 8, 9].filter(d => d >= divisorMin && d <= divisorMax && extraCapacity(d) >= k));
+    pools.set(
+      k,
+      [2, 3, 4, 5, 6, 7, 8, 9].filter(
+        (d) => d >= divisorMin && d <= divisorMax && extraCapacity(d) >= k,
+      ),
+    );
   }
   const avail = [...pools.entries()].filter(([, p]) => p.length);
   if (!avail.length) {
-    if (extraDecimals === -1) throw new Error("Extra decimaler kräver någon av nämnarna 2, 4, 5, 6 eller 8.");
-    const ok = [2, 3, 4, 5, 6, 7, 8, 9].filter(d => extraCapacity(d) >= extraDecimals).join(", ");
-    throw new Error(`${extraDecimals} extra decimal${extraDecimals > 1 ? "er" : ""} kräver någon av nämnarna ${ok}.`);
+    if (extraDecimals === -1)
+      throw new Error("Extra decimaler kräver någon av nämnarna 2, 4, 5, 6 eller 8.");
+    const ok = [2, 3, 4, 5, 6, 7, 8, 9].filter((d) => extraCapacity(d) >= extraDecimals).join(", ");
+    throw new Error(
+      `${extraDecimals} extra decimal${extraDecimals > 1 ? "er" : ""} kräver någon av nämnarna ${ok}.`,
+    );
   }
   return Array.from({ length: count }, () => {
     for (let tries = 0; tries < 20000; tries++) {
@@ -84,7 +117,14 @@ export function genDivision(
       if (scaled % divisor !== 0) continue;
       const quotient = scaled / divisor;
       if (qDec > 0 && quotient % 10 === 0) continue; // kvoten slutar aldrig på 0
-      return { dividend: scaledDividend, divisor, quotient, remainder: 0, dividendDecimals: dd, quotientDecimals: qDec };
+      return {
+        dividend: scaledDividend,
+        divisor,
+        quotient,
+        remainder: 0,
+        dividendDecimals: dd,
+        quotientDecimals: qDec,
+      };
     }
     throw new Error("Hittade inga passande divisioner. Prova andra inställningar.");
   });
@@ -108,8 +148,13 @@ export function genExtendDivision(count = 8): DivisionTask[] {
     if (seen.has(key)) continue;
     seen.add(key);
     const scale = 10 ** (divisorDec - dividendDec);
-    tasks.push({ dividend: dividend * scale, divisor, quotient: quotient * scale, remainder: 0,
-      shownDecimals: { dividend: dividendDec, divisor: divisorDec, raw: dividend } });
+    tasks.push({
+      dividend: dividend * scale,
+      divisor,
+      quotient: quotient * scale,
+      remainder: 0,
+      shownDecimals: { dividend: dividendDec, divisor: divisorDec, raw: dividend },
+    });
   }
   if (tasks.length < count) throw new Error("Hittade inga passande divisioner.");
   return tasks;
@@ -129,6 +174,13 @@ export function divisionSteps(task: DivisionTask) {
     const value = carry * 10 + Number(digit);
     const quotientDigit = Math.floor(value / task.divisor);
     carry = value % task.divisor;
-    return { digit, incoming, quotientDigit, remainder: carry, comma: dd + extra > 0 && i === intLen - 1, added: i >= base.length };
+    return {
+      digit,
+      incoming,
+      quotientDigit,
+      remainder: carry,
+      comma: dd + extra > 0 && i === intLen - 1,
+      added: i >= base.length,
+    };
   });
 }

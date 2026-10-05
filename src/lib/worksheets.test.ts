@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { digitValue, evenRowGap, fitGridCount, gen102, genSetup, genSnabba, setupLayout, setupValue } from "./worksheets";
+import {
+  digitValue,
+  evenRowGap,
+  fitGridCount,
+  gen102,
+  genSetup,
+  genSnabba,
+  setupLayout,
+  setupValue,
+} from "./worksheets";
 
-const count = <T,>(items: T[]) => {
+const count = <T>(items: T[]) => {
   const m = new Map<T, number>();
   for (const n of items) m.set(n, (m.get(n) ?? 0) + 1);
   return m;
@@ -16,11 +25,26 @@ describe("gen102", () => {
 
   it("tar med alla unika multiplikationer när de ryms inom 102", () => {
     const ranges: [[number, number], [number, number]][] = [
-      [[2, 9], [3, 9]], // 56 unika
-      [[2, 5], [2, 5]], // 16 unika
-      [[2, 9], [2, 9]], // 64 unika
-      [[1, 10], [1, 10]], // 100 unika
-      [[7, 7], [3, 9]], // 7 unika
+      [
+        [2, 9],
+        [3, 9],
+      ], // 56 unika
+      [
+        [2, 5],
+        [2, 5],
+      ], // 16 unika
+      [
+        [2, 9],
+        [2, 9],
+      ], // 64 unika
+      [
+        [1, 10],
+        [1, 10],
+      ], // 100 unika
+      [
+        [7, 7],
+        [3, 9],
+      ], // 7 unika
     ];
     for (const [f1, f2] of ranges) {
       const tasks = gen102(f1, f2);
@@ -47,10 +71,22 @@ describe("gen102", () => {
 
   it("fördelar varje faktor så jämnt som möjligt (skillnad högst 1)", () => {
     const ranges: [[number, number], [number, number]][] = [
-      [[2, 9], [3, 9]],
-      [[2, 5], [2, 5]],
-      [[2, 9], [2, 9]],
-      [[2, 3], [3, 4]], // få unika, många dubbletter
+      [
+        [2, 9],
+        [3, 9],
+      ],
+      [
+        [2, 5],
+        [2, 5],
+      ],
+      [
+        [2, 9],
+        [2, 9],
+      ],
+      [
+        [2, 3],
+        [3, 4],
+      ], // få unika, många dubbletter
     ];
     for (const [f1, f2] of ranges) {
       const tasks = gen102(f1, f2);
@@ -77,9 +113,18 @@ describe("gen102", () => {
 
     it("tar med varje unik multiplikation även när de är mycket få", () => {
       const ranges: [[number, number], [number, number]][] = [
-        [[2, 3], [2, 2]], // 2 unika
-        [[5, 5], [7, 8]], // 2 unika
-        [[3, 3], [4, 6]], // 3 unika
+        [
+          [2, 3],
+          [2, 2],
+        ], // 2 unika
+        [
+          [5, 5],
+          [7, 8],
+        ], // 2 unika
+        [
+          [3, 3],
+          [4, 6],
+        ], // 3 unika
       ];
       for (const [f1, f2] of ranges) {
         const tasks = gen102(f1, f2);
@@ -122,10 +167,22 @@ describe("gen102", () => {
   describe("stora intervall (fler unika än 102)", () => {
     it("ger bara unika uppgifter för flera stora intervall", () => {
       const ranges: [[number, number], [number, number]][] = [
-        [[1, 12], [1, 12]], // 144 unika
-        [[1, 15], [1, 15]], // 225 unika
-        [[1, 20], [1, 20]], // 400 unika
-        [[2, 30], [2, 30]], // 841 unika
+        [
+          [1, 12],
+          [1, 12],
+        ], // 144 unika
+        [
+          [1, 15],
+          [1, 15],
+        ], // 225 unika
+        [
+          [1, 20],
+          [1, 20],
+        ], // 400 unika
+        [
+          [2, 30],
+          [2, 30],
+        ], // 841 unika
       ];
       for (const [f1, f2] of ranges) {
         const tasks = gen102(f1, f2);
@@ -217,7 +274,9 @@ describe("setupLayout", () => {
   it("additionens minnessiffror hamnar i kolumnen de förs över till", () => {
     const L = setupLayout({ digits: [9, 9], m: [9, 9] }); // 8910 + 891 = 9801
     expect(L.additionCarries).toEqual(["", "1", "1", "", ""]);
-    expect(setupLayout({ digits: [4, 8, 3], m: [2] }).additionCarries.every((c) => c === "")).toBe(true);
+    expect(setupLayout({ digits: [4, 8, 3], m: [2] }).additionCarries.every((c) => c === "")).toBe(
+      true,
+    );
   });
 
   it("lik långa tal: ×-tecknet flyttas ett steg vänster om den undre faktorn", () => {
@@ -252,7 +311,9 @@ describe("setupLayout", () => {
     expect(setupLayout({ digits: [5, 7, 3], m: [4] }).carries).toEqual([1, 2, 2]); // 573 × 4
     expect(setupLayout({ digits: [9, 9, 9], m: [9] }).carries).toEqual([8, 8, 8]);
     expect(setupLayout({ digits: [1, 1, 1], m: [2] }).carries).toEqual([]); // inga minnessiffror
-    expect(setupLayout({ digits: [5, 7, 3], m: [2, 4] }).partialRows[1]!.carries).toEqual([1, 2, 2]);
+    expect(setupLayout({ digits: [5, 7, 3], m: [2, 4] }).partialRows[1]!.carries).toEqual([
+      1, 2, 2,
+    ]);
   });
 
   it("additionsdelens vänsterkolumn: bredaste raden styr, + -tecknet ryms till vänster", () => {
@@ -298,14 +359,10 @@ describe("setupLayout", () => {
           L.bottomRow.findIndex((d) => d !== ""),
         );
       } else {
-        expect(L.signCol, `× för ${key}`).toBe(
-          L.bottomRow.findIndex((d) => d !== "") - 1,
-        );
+        expect(L.signCol, `× för ${key}`).toBe(L.bottomRow.findIndex((d) => d !== "") - 1);
       }
       // Den undre faktorn och den övre faktorns sista siffra delar entalskolumn
-      expect(L.topRow[L.nCols - 1], `ental för ${key}`).toBe(
-        String(t.digits[t.digits.length - 1]),
-      );
+      expect(L.topRow[L.nCols - 1], `ental för ${key}`).toBe(String(t.digits[t.digits.length - 1]));
       expect(L.bottomRow[L.nCols - 1], `faktorens ental för ${key}`).toBe(
         String(t.m[t.m.length - 1]),
       );
@@ -404,7 +461,8 @@ describe("genSetup", () => {
     }
     // Blandade intervall: varje ensiffrigt tal (oavsett position) är aldrig 1
     for (const t of genSetup([1, 3], [1, 3], 100)) {
-      if (t.digits.length === 1) expect(t.digits[0], `övre ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
+      if (t.digits.length === 1)
+        expect(t.digits[0], `övre ${t.digits.join("")}`).toBeGreaterThanOrEqual(2);
       if (t.m.length === 1) expect(t.m[0], `undre ${t.m.join("")}`).toBeGreaterThanOrEqual(2);
     }
   });
@@ -456,7 +514,12 @@ describe("genSnabba", () => {
   });
 
   it("alla faktorer ligger inom talområdet", () => {
-    for (const [lo, hi] of [[3, 6], [1, 9], [2, 12], [10, 99]] as const) {
+    for (const [lo, hi] of [
+      [3, 6],
+      [1, 9],
+      [2, 12],
+      [10, 99],
+    ] as const) {
       const sheets = genSnabba([lo, hi]);
       for (const s of sheets)
         for (const t of s) {
@@ -488,7 +551,11 @@ describe("genSnabba – unika multiplikationer", () => {
   const key = (t: { a: number; b: number }) => [Math.min(t.a, t.b), Math.max(t.a, t.b)].join("x");
 
   it("inga dubbletter inom en övning när området räcker (2–9, 3–6, 1–12)", () => {
-    for (const range of [[2, 9], [3, 6], [1, 12]] as [number, number][]) {
+    for (const range of [
+      [2, 9],
+      [3, 6],
+      [1, 12],
+    ] as [number, number][]) {
       for (const s of genSnabba(range)) {
         const keys = s.map(key);
         expect(new Set(keys).size).toBe(keys.length);
@@ -524,7 +591,12 @@ describe("Uppställning med decimaltal", () => {
     expect(fd(12)).toBe("12");
   });
   it("ger faktorer med valda decimaler som aldrig slutar på 0, och kommat i rätt kolumn", () => {
-    for (const [dt, db] of [[1, 0], [2, 1], [0, 2], [2, 2]] as const) {
+    for (const [dt, db] of [
+      [1, 0],
+      [2, 1],
+      [0, 2],
+      [2, 2],
+    ] as const) {
       for (const t of genSetup([1, 3], [1, 2], 40, dt, db)) {
         expect(t.dt ?? 0).toBe(dt);
         expect(t.db ?? 0).toBe(db);

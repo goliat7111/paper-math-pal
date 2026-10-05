@@ -1,7 +1,13 @@
 import { SheetHeader } from "./SheetHeader";
 import type { NumberPyramid, PyramidMode } from "@/lib/number-pyramids";
 
-export function SheetPyramids({ pyramids, rowCount, mode, topTotal, answers }: {
+export function SheetPyramids({
+  pyramids,
+  rowCount,
+  mode,
+  topTotal,
+  answers,
+}: {
   pyramids: NumberPyramid[];
   rowCount: 3 | 4 | 5;
   mode: PyramidMode;
@@ -24,7 +30,10 @@ export function SheetPyramids({ pyramids, rowCount, mode, topTotal, answers }: {
               {pyramid.rows.map((row, rowIndex) => (
                 <div className="pyramid-row" key={rowIndex}>
                   {row.map((value, cellIndex) => (
-                    <div className={`pyramid-cell${answers || pyramid.given[rowIndex]![cellIndex] ? " is-filled" : ""}`} key={cellIndex}>
+                    <div
+                      className={`pyramid-cell${answers || pyramid.given[rowIndex]![cellIndex] ? " is-filled" : ""}`}
+                      key={cellIndex}
+                    >
                       {answers || pyramid.given[rowIndex]![cellIndex] ? value : ""}
                     </div>
                   ))}

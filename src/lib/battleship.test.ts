@@ -7,7 +7,7 @@ describe("randomFleet", () => {
       const ships = randomFleet();
       expect(ships).toHaveLength(FLEET.reduce((sum, spec) => sum + spec.count, 0));
       for (const spec of FLEET) {
-        expect(ships.filter(ship => ship.name === spec.name)).toHaveLength(spec.count);
+        expect(ships.filter((ship) => ship.name === spec.name)).toHaveLength(spec.count);
       }
       for (const [index, ship] of ships.entries()) {
         expect(ship.cells).toHaveLength(ship.size);
@@ -23,7 +23,10 @@ describe("randomFleet", () => {
             }
           }
         });
-        expect(new Set(ship.cells.map(([r]) => r)).size === 1 || new Set(ship.cells.map(([, c]) => c)).size === 1).toBe(true);
+        expect(
+          new Set(ship.cells.map(([r]) => r)).size === 1 ||
+            new Set(ship.cells.map(([, c]) => c)).size === 1,
+        ).toBe(true);
       }
     }
   });

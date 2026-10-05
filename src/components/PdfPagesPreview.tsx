@@ -6,8 +6,14 @@ export function PdfPagesPreview({ images }: { images: string[] }) {
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-4">
         {images.map((src, i) => (
           <figure key={i} className="w-full">
-            <img src={src} alt={`Sida ${i + 1} av ${images.length}`} className="w-full bg-background shadow-md" />
-            <figcaption className="mt-1 text-center text-xs text-muted-foreground">Sida {i + 1} av {images.length}</figcaption>
+            <img
+              src={src}
+              alt={`Sida ${i + 1} av ${images.length}`}
+              className="w-full bg-background shadow-md"
+            />
+            <figcaption className="mt-1 text-center text-xs text-muted-foreground">
+              Sida {i + 1} av {images.length}
+            </figcaption>
           </figure>
         ))}
       </div>

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { addSubLayout, addSubResult, genAddSub, hasRegroup, scaledTerms, subBorrows } from "./addsub";
+import {
+  addSubLayout,
+  addSubResult,
+  genAddSub,
+  hasRegroup,
+  scaledTerms,
+  subBorrows,
+} from "./addsub";
 
 describe("genAddSub", () => {
   for (const op of ["add", "sub"] as const)
@@ -15,24 +22,36 @@ describe("genAddSub", () => {
           }
         });
 
-  it.each(["add", "sub"] as const)("skapar 100 heltalsuppgifter för sexminutersbladet (%s)", op => {
-    const tasks = genAddSub({ op, digits: [1, 2], dec: 0, terms: 2, regroup: true, count: 100 });
-    expect(tasks).toHaveLength(100);
-    for (const task of tasks) {
-      expect(task.op).toBe(op);
-      expect(hasRegroup(task)).toBe(true);
-      if (op === "sub") expect(addSubResult(task)).toBeGreaterThan(0);
-    }
-  });
+  it.each(["add", "sub"] as const)(
+    "skapar 100 heltalsuppgifter för sexminutersbladet (%s)",
+    (op) => {
+      const tasks = genAddSub({ op, digits: [1, 2], dec: 0, terms: 2, regroup: true, count: 100 });
+      expect(tasks).toHaveLength(100);
+      for (const task of tasks) {
+        expect(task.op).toBe(op);
+        expect(hasRegroup(task)).toBe(true);
+        if (op === "sub") expect(addSubResult(task)).toBeGreaterThan(0);
+      }
+    },
+  );
 });
 
 describe("subtraktion: alltid positiv differens", () => {
   it("ingen genererad subtraktion ger negativ eller noll differens", () => {
     for (const regroup of [true, false])
       for (const dec of [0, 1, 2, "slumpa" as const])
-        for (const digits of [[2, 2], [2, 5], [4, 4]] as const) {
+        for (const digits of [
+          [2, 2],
+          [2, 5],
+          [4, 4],
+        ] as const) {
           const tasks = genAddSub({
-            op: "sub", digits: [...digits], dec, terms: 2, regroup, count: 40,
+            op: "sub",
+            digits: [...digits],
+            dec,
+            terms: 2,
+            regroup,
+            count: 40,
           });
           for (const t of tasks) {
             // jämför på verkligt värde (skalat till gemensam decimalantal)
@@ -72,7 +91,14 @@ it("addition: minnessiffror och komma", () => {
 });
 
 it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => {
-  const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 2, regroup: true, count: 60 });
+  const tasks = genAddSub({
+    op: "add",
+    digits: [2, 4],
+    dec: "slumpa",
+    terms: 2,
+    regroup: true,
+    count: 60,
+  });
   expect(tasks).toHaveLength(60);
   for (const t of tasks) {
     expect(t.decs).toHaveLength(t.terms.length);
@@ -94,7 +120,14 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
 });
 
 it("genAddSub slumpa: hela sifferintervallet (inkl. decimaler) används", () => {
-  const tasks = genAddSub({ op: "add", digits: [2, 5], dec: "slumpa", terms: 2, regroup: true, count: 120 });
+  const tasks = genAddSub({
+    op: "add",
+    digits: [2, 5],
+    dec: "slumpa",
+    terms: 2,
+    regroup: true,
+    count: 120,
+  });
   const lens = tasks.flatMap((t) =>
     t.terms.map((v, i) => Math.max(String(v).length, t.decs[i]! + 1)),
   );
@@ -103,7 +136,14 @@ it("genAddSub slumpa: hela sifferintervallet (inkl. decimaler) används", () => 
 });
 
 it("slumpa: heltal fylls på med decimalnollor och kommatecknen ligger under varandra", () => {
-  const tasks = genAddSub({ op: "add", digits: [2, 4], dec: "slumpa", terms: 3, regroup: true, count: 50 });
+  const tasks = genAddSub({
+    op: "add",
+    digits: [2, 4],
+    dec: "slumpa",
+    terms: 3,
+    regroup: true,
+    count: 50,
+  });
   for (const t of tasks) {
     const L = addSubLayout(t);
     const m = Math.max(...t.decs);
@@ -119,7 +159,14 @@ it("slumpa: heltal fylls på med decimalnollor och kommatecknen ligger under var
 });
 
 it("decimaltal: sifferintervallet 2–5 gäller även med fasta decimaler", () => {
-  const tasks = genAddSub({ op: "add", digits: [2, 5], dec: 2, terms: 2, regroup: true, count: 80 });
+  const tasks = genAddSub({
+    op: "add",
+    digits: [2, 5],
+    dec: 2,
+    terms: 2,
+    regroup: true,
+    count: 80,
+  });
   const lens = tasks.flatMap((t) =>
     t.terms.map((v, i) => Math.max(String(v).length, t.decs[i]! + 1)),
   );
