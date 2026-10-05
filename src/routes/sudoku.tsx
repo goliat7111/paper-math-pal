@@ -3,7 +3,13 @@ import { ArrowLeft, Eye, EyeOff, Printer, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GamePicker } from "@/components/GamePicker";
-import { generateSudokuPuzzle, getSudokuDifficultyLabel, type Difficulty } from "@/lib/sudoku";
+import {
+  generateSudokuPuzzle,
+  getSudokuDifficultyLabel,
+  getSudokuDifficultyForClues,
+  SUDOKU_CLUE_RANGES,
+  type Difficulty,
+} from "@/lib/sudoku";
 
 export const Route = createFileRoute("/sudoku")({
   head: () => ({
