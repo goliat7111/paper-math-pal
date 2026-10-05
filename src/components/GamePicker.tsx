@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Anchor, Grid2X2, Check, Search } from "lucide-react";
+import { Anchor, Grid2X2, Search } from "lucide-react";
 
-export function GamePicker({
-  current,
-}: { current?: "battleship" | "five" | "bingo" | "word-search" | "sudoku" } = {}) {
+export function GamePicker() {
   const games = [
     {
       id: "battleship",
@@ -49,23 +47,15 @@ export function GamePicker({
       <h2 className="mb-3 text-base font-semibold text-foreground">Välj spel</h2>
       <div className="flex flex-wrap gap-3">
         {games.map((game) => {
-          const selected = game.id === current;
           const Icon = game.icon;
           return (
             <Link
               key={game.id}
               to={game.to}
-              aria-current={selected ? "page" : undefined}
-              className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${game.color} ${selected ? "ring-2 ring-foreground ring-offset-2 ring-offset-background" : ""}`}
+              className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground ${game.color}`}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />
               {game.label}
-              {selected && (
-                <>
-                  <Check className="h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only">Valt spel</span>
-                </>
-              )}
             </Link>
           );
         })}

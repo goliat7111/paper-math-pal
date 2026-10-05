@@ -33,11 +33,14 @@ export const Route = createFileRoute("/ordgomma")({
 interface SavedPuzzle extends WordSearchPuzzle {
   area: string;
   size: WordSearchSize;
+  omittedWordCount: number;
 }
 
 function WordSearchPage() {
   const [area, setArea] = useState("");
   const [wordInput, setWordInput] = useState("");
+  const [language, setLanguage] = useState<WordSearchLanguage>("sv");
+  const [allDirections, setAllDirections] = useState(false);
   const [size, setSize] = useState<WordSearchSize>(15);
   const [aiWordCount, setAiWordCount] = useState(20);
   const [wordSources, setWordSources] = useState<{ title: string; url: string }[]>([]);
@@ -65,21 +68,32 @@ function WordSearchPage() {
       return;
     }
 
-    const prepared = prepareWordList(wordInput, size);
+    const prepared = prepareWordList(wordInput, size, language);
     if (prepared.error) {
       setError(prepared.error);
       setPuzzle(null);
       return;
     }
 
-    const generated = generateWordSearch(prepared.words, size);
+    const generated = generateWordSearch(
+      prepared.words,
+      size,
+      Math.random,
+      language,
+      allDirections ? "all" : "reading",
+    );
     if (!generated) {
       setError("Orden gick inte att få plats med. Prova färre eller kortare ord.");
       setPuzzle(null);
       return;
     }
 
-    setPuzzle({ ...generated, area: topic, size });
+    setPuzzle({
+      ...generated,
+      area: topic,
+      size,
+      omittedWordCount: prepared.words.length - generated.words.length,
+    });
     setError("");
   }
 
@@ -89,7 +103,7 @@ function WordSearchPage() {
       setError("Skriv ett område eller tema innan du ber AI:n skapa ord.");
       return;
     }
-    const current = prepareWordList(wordInput, size);
+    const current = prepareWordList(wordInput, size, language);
     if (wordInput.trim() && current.error) {
       setError(current.error);
       return;
@@ -112,6 +126,7 @@ function WordSearchPage() {
           count,
           maxLength: size,
           existingWords: current.words,
+          language,
         },
       });
       if ("error" in result) {
@@ -144,6 +159,8 @@ function WordSearchPage() {
   function resetForm() {
     setArea("");
     setWordInput("");
+    setLanguage("sv");
+    setAllDirections(false);
     setSize(15);
     setAiWordCount(20);
     setWordSources([]);
@@ -181,6 +198,36 @@ function WordSearchPage() {
         <aside className="no-print w-full shrink-0 space-y-4 rounded-xl border bg-card p-5 lg:sticky lg:top-6 lg:w-80">
           <h2 className="font-display text-xl font-semibold">Ordgömma</h2>
           <label className="block text-sm font-medium">
+            Språk
+            <select
+              className="mt-2 w-full rounded-md border bg-background p-2"
+              value={language}
+              onChange={(event) =>
+                updateInput(() => setLanguage(event.target.value === "en" ? "en" : "sv"))
+              }
+            >
+              <option value="sv">Svenska (A–Ö)</option>
+              <option value="en">English (A–Z)</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            aria-pressed={allDirections}
+            className={`w-full rounded-lg border px-4 py-2 text-sm font-medium ${
+              allDirections
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200"
+            }`}
+            onClick={() => updateInput(() => setAllDirections((enabled) => !enabled))}
+          >
+            Alla riktningar: {allDirections ? "På" : "Av"}
+          </button>
+          <p className="text-xs text-muted-foreground">
+            {allDirections
+              ? "Orden kan även läsas baklänges och diagonalt åt båda hållen."
+              : "Orden placeras vänster–höger, uppifrån–ner och diagonalt nedåt."}
+          </p>
+          <label className="block text-sm font-medium">
             Område
             <input
               className="mt-2 w-full rounded-md border bg-background p-2"
@@ -213,7 +260,8 @@ function WordSearchPage() {
             {generatingWords ? "Skapar ord med AI…" : "Föreslå ord med AI"}
           </button>
           <p className="text-xs text-muted-foreground">
-            Sökning sker på svenska Wikipedia. AI:n använder träffarnas innehåll som underlag.
+            Sökning sker på {language === "sv" ? "svenska" : "engelska"} Wikipedia. AI:n använder
+            träffarnas innehåll som underlag.
           </p>
           {wordSources.length > 0 && (
             <details className="text-xs text-muted-foreground">
@@ -260,6 +308,11 @@ function WordSearchPage() {
           >
             Skapa ordgömma
           </button>
+          {puzzle && puzzle.omittedWordCount > 0 && (
+            <p role="status" className="rounded-md bg-amber-100 p-3 text-sm text-amber-950">
+              {puzzle.omittedWordCount} ord fick inte plats och har utelämnats från ordlistan.
+            </p>
+          )}
           <button
             className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
             onClick={resetForm}
@@ -291,7 +344,11 @@ function WordSearchPage() {
             <div className="a4-page word-search-page">
               <SheetHeader title="Ordgömma" subtitle={puzzle.area} score="" />
               <div className="word-search-content">
-                <section className="word-search-list" aria-label="Ord att hitta">
+                <section
+                  className="word-search-list"
+                  aria-label="Ord att hitta"
+                  lang={puzzle.language}
+                >
                   <h3>Hitta orden</h3>
                   <ul>
                     {puzzle.words.map((word) => (
@@ -303,6 +360,7 @@ function WordSearchPage() {
                   className="word-search-grid"
                   role="grid"
                   aria-label={`${puzzle.size} gånger ${puzzle.size} bokstäver`}
+                  lang={puzzle.language}
                   style={{
                     width: `${puzzle.size * 9.1}mm`,
                     gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))`,
