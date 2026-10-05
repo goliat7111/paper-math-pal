@@ -27,20 +27,33 @@ export const Route = createFileRoute("/sudoku")({
 });
 
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
+type PerPage = 1 | 2 | 4 | 8 | 15;
+const PER_PAGE: PerPage[] = [1, 2, 4, 8, 15];
+// Spelplanens sida i mm och kolumner per rad för varje antal per A4.
+const LAYOUT: Record<PerPage, { size: number; cols: number; gap: number }> = {
+  1: { size: 176, cols: 1, gap: 0 },
+  2: { size: 125, cols: 2, gap: 14 },
+  4: { size: 86, cols: 2, gap: 8 },
+  8: { size: 62, cols: 4, gap: 6 },
+  15: { size: 50, cols: 5, gap: 6 },
+};
+function makePuzzles(count: number, d: Difficulty, clues: number) {
+  return Array.from({ length: count }, () => generateSudokuPuzzle(d, clues));
+}
 
 function SudokuPage() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [visibleClues, setVisibleClues] = useState(32);
   const [showSolution, setShowSolution] = useState(false);
-  const [puzzleSet, setPuzzleSet] = useState(() => generateSudokuPuzzle("medium", 32));
+  const [perPage, setPerPage] = useState<PerPage>(1);
+  const [puzzles, setPuzzles] = useState(() => makePuzzles(1, "medium", 32));
 
-  const board = useMemo(
-    () => (showSolution ? puzzleSet.solution : puzzleSet.puzzle),
-    [puzzleSet, showSolution],
-  );
-
-  const generateNewPuzzle = (nextDifficulty: Difficulty = difficulty, nextClues = visibleClues) => {
-    setPuzzleSet(generateSudokuPuzzle(nextDifficulty, nextClues));
+  const generateNewPuzzle = (
+    nextDifficulty: Difficulty = difficulty,
+    nextClues = visibleClues,
+    count: PerPage = perPage,
+  ) => {
+    setPuzzles(makePuzzles(count, nextDifficulty, nextClues));
     setShowSolution(false);
   };
 
@@ -52,41 +65,6 @@ function SudokuPage() {
 
   return (
     <>
-      <style>{`
-        @page {
-          size: A4 portrait;
-          margin: 12mm;
-        }
-
-        @media print {
-          body {
-            background: white;
-          }
-
-          .sudoku-print-shell {
-            max-width: none !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          .sudoku-board-wrap {
-            display: flex !important;
-            justify-content: center !important;
-            overflow: visible !important;
-            width: 100% !important;
-          }
-
-          .sudoku-board {
-            width: min(170mm, 100%) !important;
-            max-width: 170mm !important;
-            min-width: 0 !important;
-            overflow: visible !important;
-            border-radius: 0 !important;
-            box-sizing: border-box !important;
-          }
-        }
-      `}</style>
       <div className="min-h-screen bg-background text-foreground sudoku-print-shell">
       <header className="no-print border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-6 py-4">
@@ -108,7 +86,7 @@ function SudokuPage() {
         <GamePicker current="sudoku" />
 
         <div className="no-print mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">
               {DIFFICULTIES.map((level) => (
                 <Button
@@ -123,6 +101,24 @@ function SudokuPage() {
                   }}
                 >
                   {getSudokuDifficultyLabel(level)}
+                </Button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Spelplaner per A4</span>
+              {PER_PAGE.map((n) => (
+                <Button
+                  key={n}
+                  type="button"
+                  size="sm"
+                  variant={perPage === n ? "default" : "outline"}
+                  onClick={() => {
+                    setPerPage(n);
+                    generateNewPuzzle(difficulty, visibleClues, n);
+                  }}
+                >
+                  {n}
                 </Button>
               ))}
             </div>
@@ -165,59 +161,95 @@ function SudokuPage() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-xl border border-border bg-card p-4 shadow-sm print:border-0 print:bg-white print:p-0">
-          <div className="mb-4 flex items-center justify-between gap-4 border-b border-border pb-3 print:hidden">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Sudoku</p>
-              <h2 className="font-display text-2xl font-semibold">
-                {getSudokuDifficultyLabel(difficulty)}
-              </h2>
+        <div
+          className="print-area mt-8 flex justify-center overflow-x-auto"
+          style={{ position: "static", height: "auto" }}
+        >
+          <div
+            className={`a4-page${perPage === 1 ? "" : " landscape"}`}
+            style={{ padding: "10mm", display: "flex", flexDirection: "column" }}
+          >
+            <div className="flex items-end justify-between text-sm" style={{ height: "8mm" }}>
+              <span className="font-semibold">
+                Sudoku – {getSudokuDifficultyLabel(difficulty)}
+                {showSolution ? " (lösning)" : ""}
+              </span>
+              <span>Namn: ______________________</span>
             </div>
-            <div className="rounded-md border border-dashed border-border px-3 py-1 text-sm text-muted-foreground">
-              Namn: ____________________
-            </div>
-          </div>
-
-          <div className="sudoku-board-wrap flex justify-center overflow-x-auto print:overflow-visible">
-            <div className="sudoku-board grid w-full max-w-[min(82vw,560px)] grid-cols-9 overflow-hidden rounded-lg border-[3px] border-slate-900 bg-white print:max-w-[170mm]">
-              {board.map((row, rowIndex) =>
-                row.map((value, colIndex) => {
-                  const isOriginal = puzzleSet.puzzle[rowIndex]![colIndex] !== 0 && !showSolution;
-                  const isBorderRight = (colIndex + 1) % 3 === 0 && colIndex !== 8;
-                  const isBorderBottom = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
-                  const isBorderLeft = colIndex === 0;
-                  const isBorderTop = rowIndex === 0;
-
-                  return (
-                    <div
-                      key={`${rowIndex}-${colIndex}`}
-                      className={[
-                        "flex aspect-square items-center justify-center text-xl font-semibold text-slate-900 sm:text-2xl",
-                        isOriginal ? "bg-slate-100" : "bg-white",
-                        isBorderLeft
-                          ? "border-l-[3px] border-slate-900"
-                          : "border-l border-slate-700",
-                        isBorderTop
-                          ? "border-t-[3px] border-slate-900"
-                          : "border-t border-slate-700",
-                        isBorderRight
-                          ? "border-r-[3px] border-slate-900"
-                          : "border-r border-slate-700",
-                        isBorderBottom
-                          ? "border-b-[3px] border-slate-900"
-                          : "border-b border-slate-700",
-                      ].join(" ")}
-                    >
-                      {value === 0 ? "" : value}
-                    </div>
-                  );
-                }),
-              )}
+            <div
+              className="flex-1"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${LAYOUT[perPage].cols}, ${LAYOUT[perPage].size}mm)`,
+                gap: `${LAYOUT[perPage].gap}mm`,
+                justifyContent: "center",
+                alignContent: "center",
+              }}
+            >
+              {puzzles.map((p, i) => (
+                <SudokuBoard
+                  key={i}
+                  puzzle={p.puzzle}
+                  board={showSolution ? p.solution : p.puzzle}
+                  showSolution={showSolution}
+                  size={LAYOUT[perPage].size}
+                />
+              ))}
             </div>
           </div>
         </div>
       </main>
     </div>
     </>
+  );
+}
+
+function SudokuBoard({
+  puzzle,
+  board,
+  showSolution,
+  size,
+}: {
+  puzzle: number[][];
+  board: number[][];
+  showSolution: boolean;
+  size: number;
+}) {
+  const thick = size >= 100 ? "0.8mm" : "0.6mm";
+  const thin = "0.2mm";
+  return (
+    <div
+      style={{
+        width: `${size}mm`,
+        height: `${size}mm`,
+        display: "grid",
+        gridTemplateColumns: "repeat(9, 1fr)",
+        gridTemplateRows: "repeat(9, 1fr)",
+        border: `${thick} solid currentColor`,
+        boxSizing: "border-box",
+        fontSize: `${(size / 9) * 0.55}mm`,
+      }}
+    >
+      {board.map((row, r) =>
+        row.map((value, c) => {
+          const original = puzzle[r]![c] !== 0;
+          return (
+            <div
+              key={`${r}-${c}`}
+              className="flex items-center justify-center"
+              style={{
+                borderRight: c === 8 ? "none" : `${(c + 1) % 3 === 0 ? thick : thin} solid currentColor`,
+                borderBottom: r === 8 ? "none" : `${(r + 1) % 3 === 0 ? thick : thin} solid currentColor`,
+                fontWeight: original ? 700 : 400,
+                opacity: showSolution && !original ? 0.6 : 1,
+                lineHeight: 1,
+              }}
+            >
+              {value === 0 ? "" : value}
+            </div>
+          );
+        }),
+      )}
+    </div>
   );
 }
