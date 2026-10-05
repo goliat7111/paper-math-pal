@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Eye, EyeOff, Printer, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Eye, EyeOff, Maximize, Minimize, Printer, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
 import { Button } from "@/components/ui/button";
 import { GamePicker } from "@/components/GamePicker";
 import {
@@ -53,6 +54,18 @@ function SudokuPage() {
   const [showSolution, setShowSolution] = useState(false);
   const [perPage, setPerPage] = useState<PerPage>(1);
   const [puzzles, setPuzzles] = useState(() => makePuzzles(1, "medium", 32));
+  const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
+  const viewRef = useRef<HTMLDivElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const onChange = () => setFullscreen(document.fullscreenElement === viewRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void viewRef.current?.requestFullscreen?.();
+  };
 
   const generateNewPuzzle = (
     nextDifficulty: Difficulty = difficulty,
@@ -162,6 +175,10 @@ function SudokuPage() {
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Ny ruta
               </Button>
+              <Button type="button" variant="outline" onClick={toggleFullscreen}>
+                <Maximize className="mr-2 h-4 w-4" />
+                Helskärm
+              </Button>
               <Button type="button" onClick={() => window.print()}>
                 <Printer className="mr-2 h-4 w-4" />
                 Skriv ut
@@ -170,10 +187,28 @@ function SudokuPage() {
           </div>
         </div>
 
+        <div className="mt-6 print:hidden">
+          <ZoomControls zoom={zoom} setZoom={setZoom} zoomStep={zoomStep} />
+        </div>
         <div
-          className="print-area mt-8 flex justify-center overflow-x-auto"
-          style={{ position: "static", height: "auto" }}
+          ref={(el) => {
+            viewRef.current = el;
+            (mainProps.ref as { current: HTMLElement | null }).current = el;
+          }}
+          className={`print-area mt-4 flex justify-center overflow-auto${fullscreen ? " items-center bg-muted p-4" : ""}`}
+          style={{ ...mainProps.style, position: "static", height: fullscreen ? "100vh" : "auto" }}
         >
+          {fullscreen && (
+            <div className="fixed right-4 top-4 z-10 flex items-center gap-2 rounded-lg bg-background p-2 shadow print:hidden">
+              <Button type="button" size="sm" variant="outline" onClick={() => zoomStep(-1)}>−</Button>
+              <span className="w-12 text-center text-xs font-semibold tabular-nums">{Math.round(zoom * 100)} %</span>
+              <Button type="button" size="sm" variant="outline" onClick={() => zoomStep(1)}>+</Button>
+              <Button type="button" size="sm" onClick={toggleFullscreen}>
+                <Minimize className="mr-2 h-4 w-4" />
+                Avsluta helskärm
+              </Button>
+            </div>
+          )}
           <div
             className={`a4-page${perPage === 1 ? "" : " landscape"}`}
             style={{ padding: "10mm", display: "flex", flexDirection: "column" }}
