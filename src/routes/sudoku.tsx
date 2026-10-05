@@ -180,7 +180,8 @@ function SudokuPage() {
           >
             <div className="flex items-end justify-between text-sm" style={{ height: "8mm" }}>
               <span className="font-semibold">
-                Sudoku – {getSudokuDifficultyLabel(difficulty)}
+                Sudoku – {getSudokuDifficultyLabel(difficulty)} ({clueRange.min}–
+                {clueRange.max} siffror)
                 {showSolution ? " (lösning)" : ""}
               </span>
               <span>Namn: ______________________</span>
