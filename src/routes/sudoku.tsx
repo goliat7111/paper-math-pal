@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff, Printer, RotateCcw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GamePicker } from "@/components/GamePicker";
 import { generateSudokuPuzzle, getSudokuDifficultyLabel, type Difficulty } from "@/lib/sudoku";
