@@ -131,6 +131,7 @@ function StartPage() {
             </Link>
             <Link
               to="/blandade-mallar"
+              search={{ worksheet: undefined, protocol: "bottles" }}
               className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center gap-3">

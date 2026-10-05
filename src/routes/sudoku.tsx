@@ -182,7 +182,7 @@ function SudokuPage() {
             <div className="sudoku-board grid w-full max-w-[min(82vw,560px)] grid-cols-9 overflow-hidden rounded-lg border-[3px] border-slate-900 bg-white print:max-w-[170mm]">
               {board.map((row, rowIndex) =>
                 row.map((value, colIndex) => {
-                  const isOriginal = puzzleSet.puzzle[rowIndex][colIndex] !== 0 && !showSolution;
+                  const isOriginal = puzzleSet.puzzle[rowIndex]![colIndex] !== 0 && !showSolution;
                   const isBorderRight = (colIndex + 1) % 3 === 0 && colIndex !== 8;
                   const isBorderBottom = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
                   const isBorderLeft = colIndex === 0;
