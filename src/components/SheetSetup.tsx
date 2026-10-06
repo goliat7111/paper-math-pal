@@ -50,12 +50,14 @@ export function Problem({
   answers,
   digitMm,
   showNumber = true,
+  emptyGrid = false,
 }: {
   n: number;
   t: SetupTask;
   answers: boolean;
   digitMm: number;
   showNumber?: boolean;
+  emptyGrid?: boolean;
 }) {
   const L = setupLayout(t);
   const cellSize =
@@ -84,6 +86,19 @@ export function Problem({
     col: (index % totalCols) + 1,
     row: Math.floor(index / totalCols) + 1,
   }));
+  const gridStyle = {
+    width: "100%",
+    height: "100%",
+    gridTemplateColumns: `repeat(${totalCols}, minmax(5mm, 1fr))`,
+    gridTemplateRows: emptyGrid ? `repeat(${totalRows}, minmax(5mm, 1fr))` : gridRows,
+  };
+  const gridCells = cells.map((cell, i) => (
+    <div
+      key={`grid${i}`}
+      className="border border-sheet-grid"
+      style={{ gridColumn: cell.col, gridRow: cell.row }}
+    />
+  ));
 
   return (
     <div
@@ -96,138 +111,137 @@ export function Problem({
       }}
     >
       {showNumber && <div className="mb-1 text-[15px] font-bold text-sheet-ink">{n})</div>}
-      <div
-        className="grid-sheet multiplication-answer-grid"
-        style={{
-          width: "100%",
-          height: "100%",
-          gridTemplateColumns: `repeat(${totalCols}, minmax(5mm, 1fr))`,
-          gridTemplateRows: gridRows,
-        }}
-      >
-        {cells.map((cell, i) => (
-          <div
-            key={`grid${i}`}
-            className="border border-sheet-grid"
-            style={{ gridColumn: cell.col, gridRow: cell.row }}
-          />
-        ))}
-        {/* Rad 2: övre faktorn */}
-        {L.topRow.map((c, i) => (
-          <Cell
-            key={`t${i}`}
-            v={c}
-            col={operationCol(i + 2)}
-            row={2}
-            fontSize={fontSize}
-            comma={i === L.commas.top}
-          />
-        ))}
-        {/* Rad 3: teckenrad */}
-        {signRow.map((c, i) => (
-          <Cell
-            key={`s${i}`}
-            v={c}
-            col={operationCol(i + 2)}
-            row={3}
-            fontSize={fontSize}
-            comma={i === L.commas.bottom}
-          />
-        ))}
-        {/* Strecket under multiplikationen fortsätter under minnessiffrornas två kolumner. */}
+      {emptyGrid ? (
         <div
-          style={{
-            gridColumn: `${2 + operationOffset} / ${carryColumn}`,
-            gridRow: 3,
-            borderBottom: "2px solid var(--sheet-ink)",
-            position: "relative",
-            zIndex: 1,
-          }}
-        />
-        <div
-          style={{
-            gridColumn: `${carryColumn} / ${totalCols + 1}`,
-            gridRow: 3,
-            borderBottom: "2px solid var(--sheet-ink)",
-            position: "relative",
-            zIndex: 1,
-          }}
-        />
-        {/* Delprodukter */}
-        {L.partialRows.map((p, r) => (
-          <Fragment key={`par${r}`}>
-            {p.cells.map((c, i) => (
-              <Cell
-                key={`p${r}-${i}`}
-                v={answers ? c : ""}
-                col={operationCol(i + 2)}
-                row={partialStartRow + L.partialRows.length - r - 1}
-                fontSize={fontSize}
-                answer={answers}
-              />
-            ))}
-          </Fragment>
-        ))}
-        {/* Plus-tecknet står på sista delproduktraden, vänster om additionsdelen */}
-        {multi && (
-          <Cell
-            v="+"
-            col={operationCol(L.sumLeft + 1)}
-            row={partialStartRow + L.partialRows.length - 1}
-            fontSize={fontSize}
-          />
-        )}
-        {/* Streck mellan delprodukterna och summan. */}
-        {multi && (
+          className="grid-sheet multiplication-answer-grid multiplication-answer-grid--empty"
+          style={gridStyle}
+          aria-hidden="true"
+        >
+          {gridCells}
+        </div>
+      ) : (
+        <div className="grid-sheet multiplication-answer-grid" style={gridStyle}>
+          {gridCells}
+          {/* Rad 2: övre faktorn */}
+          {L.topRow.map((c, i) => (
+            <Cell
+              key={`t${i}`}
+              v={c}
+              col={operationCol(i + 2)}
+              row={2}
+              fontSize={fontSize}
+              comma={i === L.commas.top}
+            />
+          ))}
+          {/* Rad 3: teckenrad */}
+          {signRow.map((c, i) => (
+            <Cell
+              key={`s${i}`}
+              v={c}
+              col={operationCol(i + 2)}
+              row={3}
+              fontSize={fontSize}
+              comma={i === L.commas.bottom}
+            />
+          ))}
+          {/* Strecket under multiplikationen fortsätter under minnessiffrornas två kolumner. */}
           <div
             style={{
-              gridColumn: `${operationCol(L.sumLeft + 1)} / ${carryColumn}`,
-              gridRow: productRowIdx,
-              borderTop: "2px solid var(--sheet-ink)",
+              gridColumn: `${2 + operationOffset} / ${carryColumn}`,
+              gridRow: 3,
+              borderBottom: "2px solid var(--sheet-ink)",
               position: "relative",
               zIndex: 1,
             }}
           />
-        )}
-        {/* Multiplikationens minnessiffror visas i två rutkolumner ovanför strecket. */}
-        {answers &&
-          carryValues.map((value, index) => (
-            <div
-              key={`mul-cr${index}`}
-              className="multiplication-carry-digit flex items-center justify-center font-mono text-[9px] font-bold text-sheet-answer"
-              style={{ gridColumn: carryColumn + (index % 2), gridRow: Math.floor(index / 2) + 1 }}
-            >
-              {value}
-            </div>
-          ))}
-        {/* Minnessiffrorna från additionen av delprodukterna */}
-        {multi &&
-          L.additionCarries.map((c, i) => (
-            <div
-              key={`add-cr${i}`}
-              className="flex items-center justify-center font-mono text-[9px] font-bold text-sheet-answer"
-              style={{
-                gridColumn: operationCol(i + 2),
-                gridRow: additionCarryRowIdx,
-                height: "100%",
-              }}
-            >
-              {answers ? c : ""}
-            </div>
-          ))}
-        {/* Produkten */}
-        {L.productRow.map((c, i) => (
-          <Cell
-            key={`pr${i}`}
-            v={answers ? c : ""}
-            col={operationCol(i + 2)}
-            row={productRowIdx}
-            fontSize={fontSize}
-            answer={answers}
-            comma={answers && i === L.commas.product}
+          <div
+            style={{
+              gridColumn: `${carryColumn} / ${totalCols + 1}`,
+              gridRow: 3,
+              borderBottom: "2px solid var(--sheet-ink)",
+              position: "relative",
+              zIndex: 1,
+            }}
           />
-        ))}
-      </div>
+          {/* Delprodukter */}
+          {L.partialRows.map((p, r) => (
+            <Fragment key={`par${r}`}>
+              {p.cells.map((c, i) => (
+                <Cell
+                  key={`p${r}-${i}`}
+                  v={answers ? c : ""}
+                  col={operationCol(i + 2)}
+                  row={partialStartRow + L.partialRows.length - r - 1}
+                  fontSize={fontSize}
+                  answer={answers}
+                />
+              ))}
+            </Fragment>
+          ))}
+          {/* Plus-tecknet står på sista delproduktraden, vänster om additionsdelen */}
+          {multi && (
+            <Cell
+              v="+"
+              col={operationCol(L.sumLeft + 1)}
+              row={partialStartRow + L.partialRows.length - 1}
+              fontSize={fontSize}
+            />
+          )}
+          {/* Streck mellan delprodukterna och summan. */}
+          {multi && (
+            <div
+              style={{
+                gridColumn: `${operationCol(L.sumLeft + 1)} / ${carryColumn}`,
+                gridRow: productRowIdx,
+                borderTop: "2px solid var(--sheet-ink)",
+                position: "relative",
+                zIndex: 1,
+              }}
+            />
+          )}
+          {/* Multiplikationens minnessiffror visas i två rutkolumner ovanför strecket. */}
+          {answers &&
+            carryValues.map((value, index) => (
+              <div
+                key={`mul-cr${index}`}
+                className="multiplication-carry-digit flex items-center justify-center font-mono text-[9px] font-bold text-sheet-answer"
+                style={{
+                  gridColumn: carryColumn + (index % 2),
+                  gridRow: Math.floor(index / 2) + 1,
+                }}
+              >
+                {value}
+              </div>
+            ))}
+          {/* Minnessiffrorna från additionen av delprodukterna */}
+          {multi &&
+            L.additionCarries.map((c, i) => (
+              <div
+                key={`add-cr${i}`}
+                className="flex items-center justify-center font-mono text-[9px] font-bold text-sheet-answer"
+                style={{
+                  gridColumn: operationCol(i + 2),
+                  gridRow: additionCarryRowIdx,
+                  height: "100%",
+                }}
+              >
+                {answers ? c : ""}
+              </div>
+            ))}
+          {/* Produkten */}
+          {L.productRow.map((c, i) => (
+            <Cell
+              key={`pr${i}`}
+              v={answers ? c : ""}
+              col={operationCol(i + 2)}
+              row={productRowIdx}
+              fontSize={fontSize}
+              answer={answers}
+              comma={answers && i === L.commas.product}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

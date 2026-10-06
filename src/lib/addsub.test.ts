@@ -119,6 +119,23 @@ it("genAddSub med slumpade decimaler håller sig inom sifferintervallet", () => 
   expect(tasks.some((t) => t.decs[0] !== t.decs[1])).toBe(true);
 });
 
+it("slumpade decimaler utan växling lagras som heltal med egen decimalprecision", () => {
+  for (const op of ["add", "sub"] as const) {
+    const tasks = genAddSub({
+      op,
+      digits: [2, 5],
+      dec: "slumpa",
+      terms: 2,
+      regroup: false,
+      count: 120,
+    });
+    for (const task of tasks) {
+      expect(task.terms.every(Number.isInteger)).toBe(true);
+      expect(hasRegroup(task)).toBe(false);
+    }
+  }
+});
+
 it("genAddSub slumpa: hela sifferintervallet (inkl. decimaler) används", () => {
   const tasks = genAddSub({
     op: "add",

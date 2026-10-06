@@ -7,6 +7,8 @@ export type BlockModelObject =
       segmentWidth: number;
       height: number;
       parts: number;
+      divisions: number;
+      extraDividers: number[];
       label: string;
       color: string;
     }
@@ -16,6 +18,8 @@ export type BlockModelObject =
       x: number;
       y: number;
       text: string;
+      blockId?: string;
+      segmentIndex?: number;
     }
   | {
       id: string;
@@ -42,7 +46,7 @@ export type WorkspaceHistory = {
 };
 
 export type WorkspaceAction =
-  | { type: "change"; snapshot: WorkspaceSnapshot }
+  | { type: "change"; snapshot: WorkspaceSnapshot; before?: WorkspaceSnapshot }
   | { type: "preview"; snapshot: WorkspaceSnapshot }
   | { type: "commit"; before: WorkspaceSnapshot }
   | { type: "undo" }
@@ -65,7 +69,7 @@ export function workspaceHistoryReducer(
   switch (action.type) {
     case "change":
       return {
-        past: [...state.past, state.present].slice(-HISTORY_LIMIT),
+        past: [...state.past, action.before ?? state.present].slice(-HISTORY_LIMIT),
         present: action.snapshot,
         future: [],
       };

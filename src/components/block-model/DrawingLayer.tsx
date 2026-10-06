@@ -5,7 +5,7 @@ import type { DrawingStroke } from "./types";
 type DrawingLayerProps = {
   strokes: DrawingStroke[];
   active: boolean;
-  onStrokeComplete: (stroke: DrawingStroke) => void;
+  onStrokeComplete: (stroke: DrawingStroke, viewport: { width: number; height: number }) => void;
 };
 
 function toPath(points: DrawingStroke["points"]) {
@@ -44,10 +44,14 @@ export function DrawingLayer({ strokes, active, onStrokeComplete }: DrawingLayer
   function handlePointerUp(event: PointerEvent<SVGSVGElement>) {
     if (pointerIdRef.current !== event.pointerId) return;
     if (pointsRef.current.length > 1) {
-      onStrokeComplete({
-        id: crypto.randomUUID(),
-        points: pointsRef.current,
-      });
+      const rect = event.currentTarget.getBoundingClientRect();
+      onStrokeComplete(
+        {
+          id: crypto.randomUUID(),
+          points: pointsRef.current,
+        },
+        { width: rect.width, height: rect.height },
+      );
     }
     pointerIdRef.current = null;
     pointsRef.current = [];

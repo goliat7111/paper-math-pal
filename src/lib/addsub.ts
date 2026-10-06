@@ -90,6 +90,7 @@ function genNoRegroup(op: AddSubOp, lens: number[], decs: number[]): number[] {
     const minOf = (k: number) => {
       const len = scaled[k]!;
       if (col >= len) return -1; // saknar siffra här
+      if (col < m - decs[k]!) return 0; // utfyllnadsnolla för gemensam decimalprecision
       if (col === m - decs[k]! && decs[k]! > 0) return 1; // sista decimalen aldrig 0
       if (col === len - 1 && lens[k]! > decs[k]! + 1) return 1; // första siffran aldrig 0
       return 0;
@@ -99,6 +100,10 @@ function genNoRegroup(op: AddSubOp, lens: number[], decs: number[]): number[] {
       const mins = lens.map((_, k) => Math.max(0, minOf(k)));
       lens.forEach((_, k) => {
         if (minOf(k) < 0) return;
+        if (col < m - decs[k]!) {
+          ds[k]!.push(0);
+          return;
+        }
         const rest = mins.slice(k + 1).reduce((a, b) => a + b, 0);
         const d = rand(mins[k]!, Math.max(mins[k]!, left - rest));
         ds[k]!.push(d);
@@ -106,8 +111,10 @@ function genNoRegroup(op: AddSubOp, lens: number[], decs: number[]): number[] {
       });
     } else {
       const bMin = minOf(1);
-      const b = bMin < 0 ? 0 : rand(bMin, Math.max(bMin, 8));
-      const a = rand(Math.max(b, minOf(0)), 9);
+      const b =
+        col < m - decs[1]! || col < m - decs[0]! || bMin < 0 ? 0 : rand(bMin, Math.max(bMin, 8));
+      const aMin = minOf(0);
+      const a = col < m - decs[0]! || aMin < 0 ? 0 : rand(Math.max(b, aMin), 9);
       ds[0]!.push(a);
       if (bMin >= 0) ds[1]!.push(b);
     }

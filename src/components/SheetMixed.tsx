@@ -21,6 +21,8 @@ export function SheetMixed({
 }) {
   const { add, sub, mul, div } = tasks;
   const workClass = `mixed-work${showGrid && !answers ? " mixed-work--grid" : ""}`;
+  const arithmeticWorkClass = `${workClass} mixed-work--arithmetic`;
+  const multiplicationWorkClass = "mixed-work mixed-work--arithmetic";
   const addText = add.terms.map((v, i) => formatDecimal(v, add.decs[i])).join(" + ");
   const subText = sub.terms.map((v, i) => formatDecimal(v, sub.decs[i])).join(" − ");
   const mulText = `${formatDecimal(digitValue(mul.digits), mul.dt)} × ${formatDecimal(digitValue(mul.m), mul.db)}`;
@@ -48,25 +50,38 @@ export function SheetMixed({
         score="av 4"
       />
       <div className="mixed-grid">
-        <section className="mixed-quadrant" aria-label="Uppgift 1 Addition">
+        <section
+          className="mixed-quadrant mixed-quadrant--arithmetic"
+          aria-label="Uppgift 1 Addition"
+        >
           <div className="mixed-expression">
             <strong>1. Addition</strong>
             <span>
               {addText} = {answers ? formatDecimal(addSubResult(add), maxDec(add)) : ""}
             </span>
           </div>
-          <div className={workClass}>{answers && <AddSubSetup t={add} answers fill={FILL} />}</div>
+          <div className={arithmeticWorkClass}>
+            {answers && <AddSubSetup t={add} answers fill={FILL} />}
+          </div>
         </section>
-        <section className="mixed-quadrant" aria-label="Uppgift 2 Subtraktion">
+        <section
+          className="mixed-quadrant mixed-quadrant--arithmetic"
+          aria-label="Uppgift 2 Subtraktion"
+        >
           <div className="mixed-expression">
             <strong>2. Subtraktion</strong>
             <span>
               {subText} = {answers ? formatDecimal(addSubResult(sub), maxDec(sub)) : ""}
             </span>
           </div>
-          <div className={workClass}>{answers && <AddSubSetup t={sub} answers fill={FILL} />}</div>
+          <div className={arithmeticWorkClass}>
+            {answers && <AddSubSetup t={sub} answers fill={FILL} />}
+          </div>
         </section>
-        <section className="mixed-quadrant" aria-label="Uppgift 3 Multiplikation">
+        <section
+          className="mixed-quadrant mixed-quadrant--arithmetic"
+          aria-label="Uppgift 3 Multiplikation"
+        >
           <div className="mixed-expression">
             <strong>3. Multiplikation</strong>
             <span>
@@ -74,8 +89,14 @@ export function SheetMixed({
               {answers ? formatDecimal(setupValue(mul), (mul.dt ?? 0) + (mul.db ?? 0)) : ""}
             </span>
           </div>
-          <div className={workClass}>
-            {answers && <Problem n={3} t={mul} answers digitMm={6.5} showNumber={false} />}
+          <div className={multiplicationWorkClass}>
+            {answers ? (
+              <Problem n={3} t={mul} answers digitMm={6.5} showNumber={false} />
+            ) : (
+              showGrid && (
+                <Problem n={3} t={mul} answers={false} digitMm={6.5} showNumber={false} emptyGrid />
+              )
+            )}
           </div>
         </section>
         <section className="mixed-quadrant" aria-label="Uppgift 4 Division">

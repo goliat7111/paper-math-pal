@@ -1,10 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { genMixed, type MixedLevel } from "./mixed";
 import { addSubResult, hasRegroup, maxDec } from "./addsub";
-import { digitValue, rowCarries, setupValue } from "./worksheets";
+import { digitValue, formatDecimal, rowCarries, setupValue } from "./worksheets";
 import { divisionSteps } from "./division";
 
 describe("blandade övningar", () => {
+  it("visar slumpade decimaler med svensk kommatering, även utan växling", () => {
+    for (let i = 0; i < 100; i++) {
+      const tasks = genMixed(1, true);
+      for (const task of [tasks.add, tasks.sub]) {
+        expect(task.terms.every(Number.isInteger)).toBe(true);
+        const formatted = task.terms.map((value, index) => formatDecimal(value, task.decs[index]!));
+        expect(formatted.join(" ")).not.toMatch(/[.]/);
+        formatted.forEach((value, index) => {
+          if (task.decs[index]! > 0) expect(value).toContain(",");
+        });
+      }
+    }
+  });
+
   it("ger fyra korrekta uppgifter per nivå utan växling på nivå 1", () => {
     for (const level of [1, 2, 3, 4, 5] as MixedLevel[])
       for (let i = 0; i < 30; i++) {

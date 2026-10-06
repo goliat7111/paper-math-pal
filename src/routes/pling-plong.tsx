@@ -351,31 +351,31 @@ function PlingPlongGame({ mode }: { mode: "math" | "subjects" }) {
               <ZoomIn className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <div className="rounded-xl border bg-card p-5">
-            {finished && playing && (
-              <div
-                role="dialog"
-                aria-label="Spelet är slut"
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-              >
-                <div className="w-full max-w-lg space-y-4 rounded-2xl bg-primary p-8 text-center text-primary-foreground shadow-2xl">
-                  <p className="font-display text-3xl font-semibold">Spelet är slut!</p>
-                  <p className="text-lg">Vinnare:</p>
-                  <p className="font-display text-4xl font-semibold">{winners.join(", ")}</p>
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => {
-                      start();
-                      setPlaying(false);
-                    }}
-                  >
-                    Tillbaka till start
-                  </Button>
+          {q && active !== null && (
+            <div className="rounded-xl border bg-card p-5">
+              {finished && playing && (
+                <div
+                  role="dialog"
+                  aria-label="Spelet är slut"
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                >
+                  <div className="w-full max-w-lg space-y-4 rounded-2xl bg-primary p-8 text-center text-primary-foreground shadow-2xl">
+                    <p className="font-display text-3xl font-semibold">Spelet är slut!</p>
+                    <p className="text-lg">Vinnare:</p>
+                    <p className="font-display text-4xl font-semibold">{winners.join(", ")}</p>
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => {
+                        start();
+                        setPlaying(false);
+                      }}
+                    >
+                      Tillbaka till start
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-            {q && active !== null ? (
+              )}
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Ruta {active + 1}</span>
@@ -432,10 +432,8 @@ function PlingPlongGame({ mode }: { mode: "math" | "subjects" }) {
                   </div>
                 )}
               </div>
-            ) : (
-              <p className="text-muted-foreground">Välj en ruta för att vända den.</p>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="rounded-xl border bg-card p-5">
             <h2 className="mb-3 font-semibold">Poäng</h2>

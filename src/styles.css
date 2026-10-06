@@ -847,6 +847,10 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
 }
+.mixed-quadrant--arithmetic .mixed-expression {
+  flex: none;
+  height: auto;
+}
 .mixed-work {
   display: flex;
   flex: 1;
@@ -856,13 +860,19 @@ body {
   min-width: 0;
   min-height: 0;
 }
-.mixed-work--grid {
+.mixed-work--arithmetic {
   margin-top: 4mm;
   padding-top: 0;
+}
+.mixed-work--grid {
   border: 1px solid var(--sheet-grid-strong);
   background-image:
-    repeating-linear-gradient(to right, var(--sheet-line) 0 0.3mm, transparent 0.3mm 7mm),
-    repeating-linear-gradient(to bottom, var(--sheet-line) 0 0.3mm, transparent 0.3mm 7mm);
+    linear-gradient(to right, var(--sheet-line) 0 0.3mm, transparent 0.3mm),
+    linear-gradient(to bottom, var(--sheet-line) 0 0.3mm, transparent 0.3mm);
+  background-size:
+    10% 100%,
+    100% 11.111111%;
+  background-repeat: repeat;
 }
 .mixed-work .addsub-setup {
   font-size: 16px;

@@ -5,12 +5,14 @@ import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent }
 
 import { DrawingLayer } from "./DrawingLayer";
 import { BlockModelToolbar } from "./BlockModelToolbar";
+import { recognizeRectangle } from "./recognizeRectangle";
 import {
   createWorkspaceHistory,
   workspaceHistoryReducer,
   type BlockModelObject,
   type WorkspaceSnapshot,
 } from "./types";
+import { divideAllBlockSegments, divideBlockSegment, getBlockSegmentBoundaries } from "./divisions";
 
 type Tool = "select" | "pen";
 type Gesture = {
@@ -32,6 +34,12 @@ const blockColors = [
   { name: "Lila", value: "#e9ddff" },
 ];
 
+const DEFAULT_BLOCK_WIDTH = 150;
+const DEFAULT_BLOCK_HEIGHT = 64;
+const BLOCK_VISUAL_SCALE = 0.6;
+const MIN_BLOCK_DIVISIONS = 2;
+const MAX_BLOCK_DIVISIONS = 20;
+
 const newId = () => crypto.randomUUID();
 
 export function BlockModelWorkspace() {
@@ -43,9 +51,14 @@ export function BlockModelWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<Tool>("select");
   const [placingText, setPlacingText] = useState(false);
+  const [dividingBlock, setDividingBlock] = useState(false);
+  const [divisionCount, setDivisionCount] = useState("2");
+  const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [unknownSymbol, setUnknownSymbol] = useState("x");
   const [textDraft, setTextDraft] = useState("");
+  const [inlineEditingTextId, setInlineEditingTextId] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const inlineTextInputRef = useRef<HTMLInputElement>(null);
   const gestureRef = useRef<Gesture | null>(null);
   const present = history.present;
   const selectedObject = present.objects.find((object) => object.id === selectedId) ?? null;
@@ -61,6 +74,17 @@ export function BlockModelWorkspace() {
   useEffect(() => {
     setTextDraft(selectedObjectText);
   }, [selectedId, selectedObject?.type, selectedObjectText]);
+
+  useEffect(() => {
+    if (!inlineEditingTextId) return;
+    inlineTextInputRef.current?.focus();
+    inlineTextInputRef.current?.select();
+  }, [inlineEditingTextId]);
+
+  useEffect(() => {
+    setDividingBlock(false);
+    setSelectedSegmentIndex(null);
+  }, [selectedId]);
 
   useEffect(() => {
     function handleKeyboardShortcut(event: KeyboardEvent) {
@@ -96,21 +120,23 @@ export function BlockModelWorkspace() {
   }, [present, selectedId]);
 
   const changeSnapshot = useCallback(
-    (snapshot: WorkspaceSnapshot) => dispatch({ type: "change", snapshot }),
+    (snapshot: WorkspaceSnapshot, before?: WorkspaceSnapshot) =>
+      dispatch({ type: "change", snapshot, before }),
     [],
   );
 
-  function updateObjectText(text: string) {
-    if (!selectedObject) return;
+  function updateObjectText(text: string, objectId = selectedId) {
+    const targetObject = present.objects.find((object) => object.id === objectId);
+    if (!targetObject) return;
     const currentText =
-      selectedObject.type === "block"
-        ? selectedObject.label
-        : selectedObject.type === "text"
-          ? selectedObject.text
-          : selectedObject.symbol;
+      targetObject.type === "block"
+        ? targetObject.label
+        : targetObject.type === "text"
+          ? targetObject.text
+          : targetObject.symbol;
     if (currentText === text) return;
     const objects = present.objects.map((object) => {
-      if (object.id !== selectedObject.id) return object;
+      if (object.id !== targetObject.id) return object;
       if (object.type === "block") return { ...object, label: text };
       if (object.type === "text") return { ...object, text };
       return { ...object, symbol: text };
@@ -125,9 +151,11 @@ export function BlockModelWorkspace() {
       type: "block",
       x: 20 + (blockCount % 3) * 18,
       y: 20 + Math.floor(blockCount / 3) * 14,
-      segmentWidth: 150,
-      height: 64,
+      segmentWidth: DEFAULT_BLOCK_WIDTH,
+      height: DEFAULT_BLOCK_HEIGHT,
       parts: 0,
+      divisions: 1,
+      extraDividers: [],
       label: "",
       color: blockColors[0].value,
     };
@@ -140,10 +168,73 @@ export function BlockModelWorkspace() {
     if (selectedObject?.type !== "block") return;
     const objects = present.objects.map((object) =>
       object.id === selectedObject.id && object.type === "block"
-        ? { ...object, parts: object.parts + 1 }
+        ? {
+            ...object,
+            parts: object.parts + 1,
+            extraDividers: object.extraDividers.map(
+              (position) => (position * (object.parts + 1)) / (object.parts + 2),
+            ),
+          }
         : object,
     );
     changeSnapshot({ ...present, objects });
+    setSelectedSegmentIndex(null);
+  }
+
+  function openDivisionControls() {
+    if (selectedObject?.type !== "block") return;
+    setDivisionCount(String(Math.max(MIN_BLOCK_DIVISIONS, selectedObject.divisions)));
+    setSelectedSegmentIndex(null);
+    setDividingBlock(true);
+  }
+
+  function updateBlockDivisions(mode: "block" | "segment" | "all") {
+    if (selectedObject?.type !== "block") return;
+    const count = Number(divisionCount);
+    if (
+      !Number.isSafeInteger(count) ||
+      count < MIN_BLOCK_DIVISIONS ||
+      count > MAX_BLOCK_DIVISIONS
+    ) {
+      return;
+    }
+    if (mode === "segment" && selectedSegmentIndex === null) return;
+
+    const updatedBlock =
+      mode === "block"
+        ? { ...selectedObject, divisions: count }
+        : mode === "all"
+          ? divideAllBlockSegments(selectedObject, count)
+          : divideBlockSegment(selectedObject, selectedSegmentIndex!, count);
+    const objects = present.objects.map((object) =>
+      object.id === selectedObject.id ? updatedBlock : object,
+    );
+    changeSnapshot({ ...present, objects });
+    setSelectedSegmentIndex(null);
+    setDividingBlock(false);
+  }
+
+  function makeWholeBlock() {
+    if (selectedObject?.type !== "block") return;
+    const isAlreadyWhole =
+      selectedObject.parts === 0 &&
+      selectedObject.divisions === 1 &&
+      selectedObject.extraDividers.length === 0;
+    if (isAlreadyWhole) return;
+
+    const updatedBlock = {
+      ...selectedObject,
+      segmentWidth: selectedObject.segmentWidth * (selectedObject.parts + 1),
+      parts: 0,
+      divisions: 1,
+      extraDividers: [],
+    };
+    const objects = present.objects.map((object) =>
+      object.id === selectedObject.id ? updatedBlock : object,
+    );
+    changeSnapshot({ ...present, objects });
+    setSelectedSegmentIndex(null);
+    setDividingBlock(false);
   }
 
   function updateBlockColor(color: string) {
@@ -159,42 +250,51 @@ export function BlockModelWorkspace() {
     setActiveTool("select");
   }
 
+  function changeTool(tool: Tool) {
+    setActiveTool(tool);
+  }
+
   function placeText(event: ReactMouseEvent<HTMLElement>) {
     if (!placingText) return;
     const rect = stageRef.current?.getBoundingClientRect();
     if (!rect) return;
+    const target = event.target;
+    const segment = target instanceof Element ? target.closest(".bm-block-segment") : null;
+    const blockElement = segment?.closest<HTMLElement>("[data-block-id]");
+    const segmentsElement = segment?.parentElement;
+    const blockId = blockElement?.dataset.blockId;
+    const segmentIndex =
+      segment && segmentsElement ? Array.from(segmentsElement.children).indexOf(segment) : -1;
     const item: BlockModelObject = {
       id: newId(),
       type: "text",
       x: ((event.clientX - rect.left) / rect.width) * 100,
       y: ((event.clientY - rect.top) / rect.height) * 100,
       text: "",
+      ...(blockId && segmentIndex >= 0 ? { blockId, segmentIndex } : {}),
     };
     changeSnapshot({ ...present, objects: [...present.objects, item] });
     setSelectedId(item.id);
+    setInlineEditingTextId(item.id);
     setPlacingText(false);
   }
 
-  function addUnknown() {
+  function addUnknown(symbol: string) {
     const item: BlockModelObject = {
       id: newId(),
       type: "unknown",
       x: 36,
       y: 28,
-      symbol: unknownSymbol,
+      symbol,
     };
     changeSnapshot({ ...present, objects: [...present.objects, item] });
     setSelectedId(item.id);
     setActiveTool("select");
   }
 
-  function changeUnknownSymbol(symbol: string) {
+  function selectUnknownSymbol(symbol: string) {
     setUnknownSymbol(symbol);
-    if (selectedObject?.type !== "unknown" || selectedObject.symbol === symbol) return;
-    const objects = present.objects.map((object) =>
-      object.id === selectedObject.id && object.type === "unknown" ? { ...object, symbol } : object,
-    );
-    changeSnapshot({ ...present, objects });
+    addUnknown(symbol);
   }
 
   function deleteObject(id: string) {
@@ -242,17 +342,46 @@ export function BlockModelWorkspace() {
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = stagePoint(event);
+    const isCopyDrag = kind === "move" && object.type === "block" && event.ctrlKey;
+    const objectBounds = event.currentTarget.getBoundingClientRect();
+    const stageWidth = stageRef.current?.clientWidth ?? 1;
+    const stageHeight = stageRef.current?.clientHeight ?? 1;
+    const positionedObject =
+      object.type === "text"
+        ? {
+            ...object,
+            x:
+              ((objectBounds.left +
+                objectBounds.width / 2 -
+                (stageRef.current?.getBoundingClientRect().left ?? 0)) /
+                stageWidth) *
+              100,
+            y:
+              ((objectBounds.top +
+                objectBounds.height / 2 -
+                (stageRef.current?.getBoundingClientRect().top ?? 0)) /
+                stageHeight) *
+              100,
+          }
+        : object;
+    const gestureObject = isCopyDrag ? { ...positionedObject, id: newId() } : positionedObject;
+    if (isCopyDrag) {
+      dispatch({
+        type: "preview",
+        snapshot: { ...present, objects: [...present.objects, gestureObject] },
+      });
+    }
     gestureRef.current = {
       pointerId: event.pointerId,
-      objectId: object.id,
+      objectId: gestureObject.id,
       startX: point.x,
       startY: point.y,
-      originalObject: object,
+      originalObject: gestureObject,
       before: present,
       kind,
-      changed: false,
+      changed: isCopyDrag,
     };
-    setSelectedId(object.id);
+    setSelectedId(gestureObject.id);
   }
 
   function moveGesture(event: ReactPointerEvent<HTMLDivElement>) {
@@ -271,17 +400,25 @@ export function BlockModelWorkspace() {
         const segmentWidth = Math.max(
           48,
           gesture.originalObject.type === "block"
-            ? gesture.originalObject.segmentWidth + dx / count
+            ? gesture.originalObject.segmentWidth + dx / (count * BLOCK_VISUAL_SCALE)
             : object.segmentWidth,
         );
         return { ...object, segmentWidth };
       }
       return {
         ...object,
+        ...(object.type === "text" ? { blockId: undefined, segmentIndex: undefined } : {}),
         x: Math.max(0, gesture.originalObject.x + (dx / stageWidth) * 100),
         y: Math.max(0, gesture.originalObject.y + (dy / stageHeight) * 100),
       };
     });
+    if (!objects.some((object) => object.id === gesture.objectId)) {
+      objects.push({
+        ...gesture.originalObject,
+        x: Math.max(0, gesture.originalObject.x + (dx / stageWidth) * 100),
+        y: Math.max(0, gesture.originalObject.y + (dy / stageHeight) * 100),
+      });
+    }
     dispatch({ type: "preview", snapshot: { ...history.present, objects } });
   }
 
@@ -292,7 +429,42 @@ export function BlockModelWorkspace() {
     if (gesture.changed) dispatch({ type: "commit", before: gesture.before });
   }
 
-  function addStroke(stroke: { id: string; points: Array<{ x: number; y: number }> }) {
+  function addStroke(
+    stroke: { id: string; points: Array<{ x: number; y: number }> },
+    viewport: { width: number; height: number },
+  ) {
+    const bounds = recognizeRectangle(stroke.points, viewport);
+    if (bounds) {
+      const stageWidth = stageRef.current?.clientWidth ?? viewport.width;
+      const stageHeight = stageRef.current?.clientHeight ?? viewport.height;
+      const block: BlockModelObject = {
+        id: newId(),
+        type: "block",
+        x: Math.max(
+          0,
+          ((bounds.x + bounds.width / 2 - (DEFAULT_BLOCK_WIDTH * BLOCK_VISUAL_SCALE) / 2) /
+            stageWidth) *
+            100,
+        ),
+        y: Math.max(
+          0,
+          ((bounds.y + bounds.height / 2 - (DEFAULT_BLOCK_HEIGHT * BLOCK_VISUAL_SCALE) / 2) /
+            stageHeight) *
+            100,
+        ),
+        segmentWidth: DEFAULT_BLOCK_WIDTH,
+        height: DEFAULT_BLOCK_HEIGHT,
+        parts: 0,
+        divisions: 1,
+        extraDividers: [],
+        label: "",
+        color: blockColors[0].value,
+      };
+      changeSnapshot({ ...history.present, objects: [...history.present.objects, block] });
+      setSelectedId(block.id);
+      setActiveTool("select");
+      return;
+    }
     changeSnapshot({ ...history.present, strokes: [...history.present.strokes, stroke] });
   }
 
@@ -320,24 +492,147 @@ export function BlockModelWorkspace() {
         canRedo={history.future.length > 0}
         hasSelection={Boolean(selectedObject)}
         canAddPart={selectedObject?.type === "block"}
+        canDivideBlock={selectedObject?.type === "block"}
         placingText={placingText}
         unknownSymbol={unknownSymbol}
         onAddBlock={addBlock}
         onAddPart={addPart}
+        onDivideBlock={openDivisionControls}
         onAddText={addText}
-        onAddUnknown={addUnknown}
-        onToolChange={setActiveTool}
+        onToolChange={changeTool}
         onUndo={undo}
         onRedo={redo}
         onDelete={deleteSelected}
         onClear={clearWorkspace}
         onTextChange={setTextDraft}
-        onUnknownSymbolChange={changeUnknownSymbol}
+        onSelectUnknownSymbol={selectUnknownSymbol}
       />
 
       {(selectedObject || placingText) && (
         <div className="bm-edit-bar no-print">
-          {!selectedObject ? (
+          {selectedObject?.type === "block" && dividingBlock ? (
+            <div
+              className="bm-division-controls"
+              role="group"
+              aria-label="Dela blocket i lika delar"
+            >
+              <label htmlFor="bm-division-count">Dela i lika många delar (2–20)</label>
+              <button
+                type="button"
+                className="bm-division-stepper"
+                aria-label="Färre delar"
+                disabled={Number(divisionCount) <= MIN_BLOCK_DIVISIONS}
+                onClick={() =>
+                  setDivisionCount((value) =>
+                    String(
+                      Math.max(
+                        MIN_BLOCK_DIVISIONS,
+                        (Number.isSafeInteger(Number(value))
+                          ? Number(value)
+                          : MIN_BLOCK_DIVISIONS) - 1,
+                      ),
+                    ),
+                  )
+                }
+              >
+                −
+              </button>
+              <input
+                id="bm-division-count"
+                type="number"
+                inputMode="numeric"
+                min={MIN_BLOCK_DIVISIONS}
+                max={MAX_BLOCK_DIVISIONS}
+                step="1"
+                value={divisionCount}
+                onChange={(event) => setDivisionCount(event.target.value)}
+              />
+              <button
+                type="button"
+                className="bm-division-stepper"
+                aria-label="Fler delar"
+                disabled={Number(divisionCount) >= MAX_BLOCK_DIVISIONS}
+                onClick={() =>
+                  setDivisionCount((value) =>
+                    String(
+                      Math.min(
+                        MAX_BLOCK_DIVISIONS,
+                        (Number.isSafeInteger(Number(value))
+                          ? Number(value)
+                          : MIN_BLOCK_DIVISIONS) + 1,
+                      ),
+                    ),
+                  )
+                }
+              >
+                +
+              </button>
+              <span className="bm-division-hint">
+                {selectedSegmentIndex === null
+                  ? "Välj en del i blocket för att dela just den."
+                  : `Del ${selectedSegmentIndex + 1} vald`}
+              </span>
+              <div className="bm-division-actions">
+                <button
+                  type="button"
+                  className="bm-division-apply"
+                  disabled={
+                    !Number.isSafeInteger(Number(divisionCount)) ||
+                    Number(divisionCount) < MIN_BLOCK_DIVISIONS ||
+                    Number(divisionCount) > MAX_BLOCK_DIVISIONS
+                  }
+                  onClick={() => updateBlockDivisions("block")}
+                >
+                  Dela blocket
+                </button>
+                <button
+                  type="button"
+                  className="bm-division-apply"
+                  disabled={
+                    selectedSegmentIndex === null ||
+                    !Number.isSafeInteger(Number(divisionCount)) ||
+                    Number(divisionCount) < MIN_BLOCK_DIVISIONS ||
+                    Number(divisionCount) > MAX_BLOCK_DIVISIONS
+                  }
+                  onClick={() => updateBlockDivisions("segment")}
+                >
+                  Dela delen
+                </button>
+                <button
+                  type="button"
+                  className="bm-division-apply"
+                  disabled={
+                    !Number.isSafeInteger(Number(divisionCount)) ||
+                    Number(divisionCount) < MIN_BLOCK_DIVISIONS ||
+                    Number(divisionCount) > MAX_BLOCK_DIVISIONS
+                  }
+                  onClick={() => updateBlockDivisions("all")}
+                >
+                  Dela alla delar
+                </button>
+                <button
+                  type="button"
+                  className="bm-division-cancel"
+                  disabled={
+                    selectedObject.parts === 0 &&
+                    selectedObject.divisions === 1 &&
+                    selectedObject.extraDividers.length === 0
+                  }
+                  onClick={makeWholeBlock}
+                  title="Ta bort alla delar och indelningar"
+                >
+                  Helt block
+                </button>
+              </div>
+              <button
+                type="button"
+                className="bm-division-cancel"
+                onClick={() => setDividingBlock(false)}
+              >
+                Avbryt
+              </button>
+            </div>
+          ) : !selectedObject ? (
             <>
               <label>Placera text</label>
               <span>Klicka där texten ska ligga</span>
@@ -409,11 +704,16 @@ export function BlockModelWorkspace() {
         {present.objects.map((object) => {
           const selected = object.id === selectedId;
           if (object.type === "block") {
-            const totalWidth = object.segmentWidth * (object.parts + 1);
+            const totalWidth = object.segmentWidth * (object.parts + 1) * BLOCK_VISUAL_SCALE;
+            const segmentStops = getBlockSegmentBoundaries(object);
+            const segmentWidths = segmentStops
+              .slice(1)
+              .map((position, index) => `${(position - segmentStops[index]!) * 100}%`);
             return (
               <div
                 key={object.id}
                 className={`bm-object bm-block-object ${selected ? "bm-object-selected" : ""}`}
+                data-block-id={object.id}
                 style={{ left: `${object.x}%`, top: `${object.y}%`, width: totalWidth }}
                 onPointerDown={(event) => startGesture(event, object, "move")}
                 onDoubleClick={() => setSelectedId(object.id)}
@@ -423,11 +723,40 @@ export function BlockModelWorkspace() {
                 tabIndex={0}
               >
                 <span className="bm-block-label">{object.label}</span>
-                <span className="bm-block-segments" style={{ height: object.height }}>
-                  {Array.from({ length: object.parts + 1 }, (_, index) => (
+                <span
+                  className="bm-block-segments"
+                  style={{
+                    height: object.height * BLOCK_VISUAL_SCALE,
+                    gridTemplateColumns: segmentWidths.join(" "),
+                  }}
+                >
+                  {segmentWidths.map((_, index) => (
                     <span
                       key={index}
-                      className="bm-block-segment"
+                      className={`bm-block-segment ${
+                        dividingBlock && selectedSegmentIndex === index
+                          ? "bm-block-segment-target"
+                          : ""
+                      }`}
+                      onPointerDown={(event) => {
+                        if (!dividingBlock) return;
+                        event.stopPropagation();
+                        setSelectedSegmentIndex(index);
+                      }}
+                      onClick={(event) => {
+                        if (!dividingBlock) return;
+                        event.stopPropagation();
+                        setSelectedSegmentIndex(index);
+                      }}
+                      onKeyDown={(event) => {
+                        if (!dividingBlock || (event.key !== "Enter" && event.key !== " ")) return;
+                        event.preventDefault();
+                        setSelectedSegmentIndex(index);
+                      }}
+                      role={dividingBlock ? "button" : undefined}
+                      aria-label={dividingBlock ? `Välj del ${index + 1} att dela` : undefined}
+                      aria-pressed={dividingBlock ? selectedSegmentIndex === index : undefined}
+                      tabIndex={dividingBlock ? 0 : undefined}
                       style={{ backgroundColor: object.color }}
                     />
                   ))}
@@ -444,18 +773,91 @@ export function BlockModelWorkspace() {
             );
           }
           if (object.type === "text") {
+            const attachedBlock = object.blockId
+              ? present.objects.find(
+                  (candidate) => candidate.id === object.blockId && candidate.type === "block",
+                )
+              : undefined;
+            const attachedBoundaries = attachedBlock
+              ? getBlockSegmentBoundaries(attachedBlock)
+              : null;
+            const attachedSegmentStart =
+              attachedBoundaries && object.segmentIndex !== undefined
+                ? attachedBoundaries[object.segmentIndex]
+                : undefined;
+            const attachedSegmentEnd =
+              attachedBoundaries && object.segmentIndex !== undefined
+                ? attachedBoundaries[object.segmentIndex + 1]
+                : undefined;
+            const attachedStyle =
+              attachedBlock &&
+              attachedSegmentStart !== undefined &&
+              attachedSegmentEnd !== undefined
+                ? {
+                    left: `calc(${attachedBlock.x}% + ${
+                      attachedBlock.segmentWidth *
+                      (attachedBlock.parts + 1) *
+                      BLOCK_VISUAL_SCALE *
+                      ((attachedSegmentStart + attachedSegmentEnd) / 2)
+                    }px)`,
+                    top: `calc(${attachedBlock.y}% + ${
+                      (attachedBlock.height * BLOCK_VISUAL_SCALE) / 2
+                    }px)`,
+                    width: `${
+                      attachedBlock.segmentWidth *
+                      (attachedBlock.parts + 1) *
+                      BLOCK_VISUAL_SCALE *
+                      (attachedSegmentEnd - attachedSegmentStart)
+                    }px`,
+                    height: `${attachedBlock.height * BLOCK_VISUAL_SCALE}px`,
+                  }
+                : null;
+            const inlineEditing = inlineEditingTextId === object.id;
             return (
               <div
                 key={object.id}
-                className={`bm-object bm-text-object ${selected ? "bm-object-selected" : ""}`}
-                style={{ left: `${object.x}%`, top: `${object.y}%` }}
-                onPointerDown={(event) => startGesture(event, object, "move")}
-                onDoubleClick={() => setSelectedId(object.id)}
-                role="button"
-                aria-pressed={selected}
-                tabIndex={0}
+                className={`bm-object bm-text-object ${
+                  attachedStyle ? "bm-text-object--segment" : ""
+                } ${selected ? "bm-object-selected" : ""}`}
+                style={attachedStyle ?? { left: `${object.x}%`, top: `${object.y}%` }}
+                onPointerDown={
+                  inlineEditing ? undefined : (event) => startGesture(event, object, "move")
+                }
+                onDoubleClick={() => {
+                  setSelectedId(object.id);
+                  setTextDraft(object.text);
+                  setInlineEditingTextId(object.id);
+                }}
+                role={inlineEditing ? undefined : "button"}
+                aria-pressed={inlineEditing ? undefined : selected}
+                tabIndex={inlineEditing ? -1 : 0}
               >
-                {object.text || " "}
+                {inlineEditing ? (
+                  <input
+                    ref={inlineTextInputRef}
+                    className="bm-inline-text-input"
+                    aria-label="Skriv text direkt på arbetsytan"
+                    value={textDraft}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={(event) => event.stopPropagation()}
+                    onChange={(event) => setTextDraft(event.target.value)}
+                    onBlur={(event) => {
+                      updateObjectText(event.currentTarget.value, object.id);
+                      setInlineEditingTextId((currentId) =>
+                        currentId === object.id ? null : currentId,
+                      );
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") event.currentTarget.blur();
+                      if (event.key === "Escape") {
+                        setTextDraft(object.text);
+                        event.currentTarget.blur();
+                      }
+                    }}
+                  />
+                ) : (
+                  object.text || " "
+                )}
               </div>
             );
           }
@@ -496,7 +898,10 @@ export function BlockModelWorkspace() {
         />
       </section>
       <footer className="bm-footer no-print">
-        <span>Alla objekt kan flyttas. Markera ett block och välj Del för att bygga vidare.</span>
+        <span>
+          Alla objekt kan flyttas. Ctrl-dra ett block för att kopiera. Markera ett block och välj
+          Del för att bygga vidare.
+        </span>
         <span>Ångra: Ctrl+Z · Gör om: Ctrl+Skift+Z</span>
       </footer>
     </main>
