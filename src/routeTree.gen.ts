@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdditionRouteImport } from './routes/addition'
 import { Route as BlandadeMallarRouteImport } from './routes/blandade-mallar'
+import { Route as BlockmodellenRouteImport } from './routes/blockmodellen'
 import { Route as DivisionRouteImport } from './routes/division'
 import { Route as FemIRadRouteImport } from './routes/fem-i-rad'
 import { Route as MallarRouteImport } from './routes/mallar'
@@ -38,6 +39,11 @@ const AdditionRoute = AdditionRouteImport.update({
 const BlandadeMallarRoute = BlandadeMallarRouteImport.update({
   id: '/blandade-mallar',
   path: '/blandade-mallar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlockmodellenRoute = BlockmodellenRouteImport.update({
+  id: '/blockmodellen',
+  path: '/blockmodellen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DivisionRoute = DivisionRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
+  '/blockmodellen': typeof BlockmodellenRoute
   '/division': typeof DivisionRoute
   '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
+  '/blockmodellen': typeof BlockmodellenRoute
   '/division': typeof DivisionRoute
   '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/addition': typeof AdditionRoute
   '/blandade-mallar': typeof BlandadeMallarRoute
+  '/blockmodellen': typeof BlockmodellenRoute
   '/division': typeof DivisionRoute
   '/fem-i-rad': typeof FemIRadRoute
   '/mallar': typeof MallarRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/addition'
     | '/blandade-mallar'
+    | '/blockmodellen'
     | '/division'
     | '/fem-i-rad'
     | '/mallar'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/addition'
     | '/blandade-mallar'
+    | '/blockmodellen'
     | '/division'
     | '/fem-i-rad'
     | '/mallar'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/addition'
     | '/blandade-mallar'
+    | '/blockmodellen'
     | '/division'
     | '/fem-i-rad'
     | '/mallar'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdditionRoute: typeof AdditionRoute
   BlandadeMallarRoute: typeof BlandadeMallarRoute
+  BlockmodellenRoute: typeof BlockmodellenRoute
   DivisionRoute: typeof DivisionRoute
   FemIRadRoute: typeof FemIRadRoute
   MallarRoute: typeof MallarRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/blandade-mallar'
       fullPath: '/blandade-mallar'
       preLoaderRoute: typeof BlandadeMallarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blockmodellen': {
+      id: '/blockmodellen'
+      path: '/blockmodellen'
+      fullPath: '/blockmodellen'
+      preLoaderRoute: typeof BlockmodellenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/division': {
@@ -339,6 +359,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdditionRoute: AdditionRoute,
   BlandadeMallarRoute: BlandadeMallarRoute,
+  BlockmodellenRoute: BlockmodellenRoute,
   DivisionRoute: DivisionRoute,
   FemIRadRoute: FemIRadRoute,
   MallarRoute: MallarRoute,
