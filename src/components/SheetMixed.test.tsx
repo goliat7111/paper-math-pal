@@ -107,8 +107,8 @@ describe("SheetMixed grid", () => {
       remainder: 0,
       dividendDecimals: 1,
       quotientDecimals: 1,
-      rounded: undefined,
     };
+    delete tasks.div.rounded;
     const decimalQuotientAnswers = renderToStaticMarkup(
       <SheetMixed tasks={tasks} level={1} answers />,
     );

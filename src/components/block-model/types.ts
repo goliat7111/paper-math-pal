@@ -46,7 +46,7 @@ export type WorkspaceHistory = {
 };
 
 export type WorkspaceAction =
-  | { type: "change"; snapshot: WorkspaceSnapshot; before?: WorkspaceSnapshot }
+  | { type: "change"; snapshot: WorkspaceSnapshot; before?: WorkspaceSnapshot | undefined }
   | { type: "preview"; snapshot: WorkspaceSnapshot }
   | { type: "commit"; before: WorkspaceSnapshot }
   | { type: "undo" }

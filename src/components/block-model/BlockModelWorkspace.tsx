@@ -12,7 +12,12 @@ import {
   type BlockModelObject,
   type WorkspaceSnapshot,
 } from "./types";
-import { divideAllBlockSegments, divideBlockSegment, getBlockSegmentBoundaries } from "./divisions";
+import {
+  divideAllBlockSegments,
+  divideBlockSegment,
+  getBlockSegmentBoundaries,
+  type BlockModelBlock,
+} from "./divisions";
 
 type Tool = "select" | "pen";
 type Gesture = {
@@ -34,6 +39,7 @@ const blockColors = [
   { name: "Lila", value: "#e9ddff" },
 ];
 
+const DEFAULT_BLOCK_COLOR = blockColors[0]?.value ?? "#fff2bf";
 const DEFAULT_BLOCK_WIDTH = 150;
 const DEFAULT_BLOCK_HEIGHT = 64;
 const BLOCK_VISUAL_SCALE = 0.6;
@@ -157,7 +163,7 @@ export function BlockModelWorkspace() {
       divisions: 1,
       extraDividers: [],
       label: "",
-      color: blockColors[0].value,
+      color: DEFAULT_BLOCK_COLOR,
     };
     changeSnapshot({ ...present, objects: [...present.objects, block] });
     setSelectedId(block.id);
@@ -262,7 +268,7 @@ export function BlockModelWorkspace() {
     const segment = target instanceof Element ? target.closest(".bm-block-segment") : null;
     const blockElement = segment?.closest<HTMLElement>("[data-block-id]");
     const segmentsElement = segment?.parentElement;
-    const blockId = blockElement?.dataset.blockId;
+    const blockId = blockElement?.dataset["blockId"];
     const segmentIndex =
       segment && segmentsElement ? Array.from(segmentsElement.children).indexOf(segment) : -1;
     const item: BlockModelObject = {
@@ -326,14 +332,14 @@ export function BlockModelWorkspace() {
     setSelectedId(null);
   }
 
-  function stagePoint(event: ReactPointerEvent<HTMLDivElement>) {
+  function stagePoint(event: ReactPointerEvent<HTMLElement>) {
     const rect = stageRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
   function startGesture(
-    event: ReactPointerEvent<HTMLDivElement>,
+    event: ReactPointerEvent<HTMLElement>,
     object: BlockModelObject,
     kind: Gesture["kind"],
   ) {
@@ -393,7 +399,7 @@ export function BlockModelWorkspace() {
     if (dx !== 0 || dy !== 0) gesture.changed = true;
     const stageWidth = stageRef.current?.clientWidth ?? 1;
     const stageHeight = stageRef.current?.clientHeight ?? 1;
-    const objects = history.present.objects.map((object) => {
+    const objects: BlockModelObject[] = history.present.objects.map((object) => {
       if (object.id !== gesture.objectId) return object;
       if (gesture.kind === "resize" && object.type === "block") {
         const count = object.parts + 1;
@@ -405,12 +411,14 @@ export function BlockModelWorkspace() {
         );
         return { ...object, segmentWidth };
       }
-      return {
-        ...object,
-        ...(object.type === "text" ? { blockId: undefined, segmentIndex: undefined } : {}),
-        x: Math.max(0, gesture.originalObject.x + (dx / stageWidth) * 100),
-        y: Math.max(0, gesture.originalObject.y + (dy / stageHeight) * 100),
-      };
+      const moved = { ...object };
+      if (moved.type === "text") {
+        delete moved.blockId;
+        delete moved.segmentIndex;
+      }
+      moved.x = Math.max(0, gesture.originalObject.x + (dx / stageWidth) * 100);
+      moved.y = Math.max(0, gesture.originalObject.y + (dy / stageHeight) * 100);
+      return moved;
     });
     if (!objects.some((object) => object.id === gesture.objectId)) {
       objects.push({
@@ -458,7 +466,7 @@ export function BlockModelWorkspace() {
         divisions: 1,
         extraDividers: [],
         label: "",
-        color: blockColors[0].value,
+        color: DEFAULT_BLOCK_COLOR,
       };
       changeSnapshot({ ...history.present, objects: [...history.present.objects, block] });
       setSelectedId(block.id);
@@ -775,7 +783,8 @@ export function BlockModelWorkspace() {
           if (object.type === "text") {
             const attachedBlock = object.blockId
               ? present.objects.find(
-                  (candidate) => candidate.id === object.blockId && candidate.type === "block",
+                  (candidate): candidate is BlockModelBlock =>
+                    candidate.id === object.blockId && candidate.type === "block",
                 )
               : undefined;
             const attachedBoundaries = attachedBlock

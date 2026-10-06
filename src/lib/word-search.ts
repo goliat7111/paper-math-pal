@@ -13,14 +13,7 @@ const directions = [
   [1, 0],
   [1, 1],
 ] as const;
-const allDirections = [
-  ...directions,
-  [0, -1],
-  [-1, 0],
-  [-1, -1],
-  [1, -1],
-  [-1, 1],
-] as const;
+const allDirections = [...directions, [0, -1], [-1, 0], [-1, -1], [1, -1], [-1, 1]] as const;
 
 const letterSets: Record<WordSearchLanguage, string> = {
   sv: "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ",
@@ -28,7 +21,7 @@ const letterSets: Record<WordSearchLanguage, string> = {
 };
 
 const allowedPatterns: Record<WordSearchLanguage, RegExp> = {
-  sv: /^[A-ZÅÄÖ]+$/,
+  sv: /^[A-ZÅÄÖÉÜ]+$/,
   en: /^[A-Z]+$/,
 };
 
@@ -46,11 +39,7 @@ export function prepareWordList(
   const locale = language === "sv" ? "sv-SE" : "en-US";
 
   for (const [index, line] of input.split(/\r?\n/).entries()) {
-    const word = line
-      .trim()
-      .normalize("NFC")
-      .toLocaleUpperCase(locale)
-      .replace(/[\s-]/g, "");
+    const word = line.trim().normalize("NFC").toLocaleUpperCase(locale).replace(/[\s-]/g, "");
     if (!word) continue;
     if (!allowedPatterns[language].test(word)) {
       return {

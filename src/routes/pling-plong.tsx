@@ -21,7 +21,7 @@ import {
 
 export const Route = createFileRoute("/pling-plong")({
   validateSearch: (search: Record<string, unknown>) => ({
-    mode: search.mode === "subjects" ? ("subjects" as const) : ("math" as const),
+    mode: search["mode"] === "subjects" ? ("subjects" as const) : ("math" as const),
   }),
   head: () => ({
     meta: [

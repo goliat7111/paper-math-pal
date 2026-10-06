@@ -786,10 +786,10 @@ export function generateSubjectPlingPlong(options: {
   plingCount: number;
 }): PlingQuestion[] {
   const source = options.customQuestions ?? COMPLETE_QUESTION_BANK[options.subject];
-  const uniqueQuestions = new Map(
+  const uniqueQuestions = new Map<string, [string, string]>(
     source.map(([text, answer]) => [
       text.replace(/\s+/g, " ").toLocaleLowerCase("sv-SE"),
-      [text, answer],
+      [text, answer] as [string, string],
     ]),
   );
   if (uniqueQuestions.size < options.tiles) {

@@ -52,10 +52,7 @@ function isValidPlacement(board: number[][], row: number, col: number, value: nu
     for (let colIndex = 0; colIndex < 3; colIndex += 1) {
       const currentRow = boxRow + rowIndex;
       const currentCol = boxCol + colIndex;
-      if (
-        board[currentRow]![currentCol] === value &&
-        (currentRow !== row || currentCol !== col)
-      ) {
+      if (board[currentRow]![currentCol] === value && (currentRow !== row || currentCol !== col)) {
         return false;
       }
     }
