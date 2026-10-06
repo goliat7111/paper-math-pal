@@ -744,13 +744,16 @@ body {
 .addsub-box--own {
   border: 1px solid var(--sheet-ink-strong);
 }
-/* Tom ruta med rutnät: nio kolumner även när de slumpade talen blir breda. */
+/* Tom ruta med rutnät: 9 kolumner × 8 rader. */
 .addsub-box--own.addsub-box--grid {
+  border-color: var(--sheet-grid);
   background-image:
     linear-gradient(to right, var(--sheet-grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--sheet-grid) 1px, transparent 1px);
   background-position: 0 0;
-  background-size: calc(100% / 9) 6.5mm;
+  background-size:
+    calc(100% / 9) 100%,
+    100% 12.5%;
 }
 .addsub-setup {
   display: grid;

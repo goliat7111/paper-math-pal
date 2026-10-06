@@ -64,17 +64,24 @@ describe("subtraktion: alltid positiv differens", () => {
 });
 
 describe("växling i subtraktion", () => {
-  it("400 − 7 visar bara snedstreck och små 10:or", () => {
+  it("400 − 7 stryker bara över siffror som faktiskt växlas", () => {
     const L = addSubLayout({ op: "sub", terms: [400, 7], decs: [0, 0] });
     expect(L.marks).toEqual(["", "10", "10"]);
-    expect(L.struck).toEqual([true, true, false]);
+    expect(L.struck).toEqual([true, false, false]);
     expect(L.result).toEqual(["3", "9", "3"]);
+  });
+  it("does not strike through an original zero when it receives and lends a 10", () => {
+    const L = addSubLayout({ op: "sub", terms: [903, 476], decs: [0, 0] });
+    expect(L.marks).toEqual(["", "10", "10"]);
+    expect(L.marksStruck).toEqual([false, true, false]);
+    expect(L.struck).toEqual([true, false, false]);
+    expect(L.result).toEqual(["4", "2", "7"]);
   });
   it("strikes each received 10 that must be lent onward across decimal zeroes", () => {
     const L = addSubLayout({ op: "sub", terms: [922, 388], decs: [0, 2] });
     expect(L.marks).toEqual(["", "", "10", "10", "10"]);
     expect(L.marksStruck).toEqual([false, false, true, true, false]);
-    expect(L.struck).toEqual([false, true, true, true, false]);
+    expect(L.struck).toEqual([false, true, true, false, false]);
     expect(L.result).toEqual(["9", "1", "8", "1", "2"]);
   });
   it("utan lån ingen markering", () => {

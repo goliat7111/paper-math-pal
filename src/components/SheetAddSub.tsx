@@ -3,6 +3,7 @@ import { formatDecimal } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
 const SIGN = { add: "+", sub: "−" } as const;
+const SETUP_GRID = { cols: 9, rows: 8 };
 
 export function AddSubSetup({
   t,
@@ -165,6 +166,7 @@ export function SheetAddSub({
                   t={t}
                   answers={answers}
                   {...(cellMm !== undefined ? { cellMm } : {})}
+                  {...(!ownSetup ? { fill: SETUP_GRID } : {})}
                 />
               )}
             </div>

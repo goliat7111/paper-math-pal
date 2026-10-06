@@ -2,6 +2,21 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+export function calculateSheetFit(
+  width: number,
+  viewportHeight: number,
+  contentTop: number,
+  landscape: boolean,
+) {
+  const pageWidth = landscape ? 297 : 210;
+  const pageHeight = landscape ? 210 : 297;
+  const availableHeight = Math.max(1, viewportHeight - Math.max(0, contentTop) - 32);
+  return Math.max(
+    0.01,
+    Math.min(1, width / ((pageWidth * 96) / 25.4), availableHeight / ((pageHeight * 96) / 25.4)),
+  );
+}
+
 /** Skalning av arbetsbladen på skärmen: --fit anpassar efter både sidans bredd och fönstrets höjd,
  *  --zoom är användarens manuella zoom. Påverkar aldrig utskrift eller PDF. */
 export function useSheetZoom() {
@@ -14,20 +29,13 @@ export function useSheetZoom() {
     const el = mainRef.current;
     if (!el) return;
     const updateFit = () => {
-      const width = el.clientWidth || el.getBoundingClientRect().width;
+      const rect = el.getBoundingClientRect();
+      const width = el.clientWidth || rect.width;
       if (width <= 0) return;
       const page = el.querySelector(".a4-page");
       const landscape = page?.classList.contains("landscape");
-      const pageWidth = landscape ? 297 : 210;
-      const pageHeight = landscape ? 210 : 297;
       const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-      const height = Math.max(1, viewportHeight - 32);
-      setFit(
-        Math.max(
-          0.01,
-          Math.min(1, width / ((pageWidth * 96) / 25.4), height / ((pageHeight * 96) / 25.4)),
-        ),
-      );
+      setFit(calculateSheetFit(width, viewportHeight, rect.top, Boolean(landscape)));
     };
     const ro = new ResizeObserver(updateFit);
     const observer = new MutationObserver(updateFit);

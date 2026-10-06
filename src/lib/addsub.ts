@@ -212,7 +212,8 @@ export function addSubLayout(t: AddSubTask): AddSubLayout {
       const col = nCols - 1 - i;
       // Endast snedstreck på kolumner som växlar bort, och en liten 10:a i
       // varje mottagande kolumn — ingen siffra för vad som blir kvar.
-      if (c.lent) struck[col] = true;
+      const originalDigit = Math.floor(s[0]! / 10 ** i) % 10;
+      if (c.lent && originalDigit > 0) struck[col] = true;
       if (c.received) {
         marks[col] = "10";
         marksStruck[col] = c.lent;

@@ -11,13 +11,11 @@ export function SetupStyleToggle({
       <button
         type="button"
         aria-pressed={ownSetup}
-        aria-label={ownSetup ? "Växla till uppställning" : "Växla till tom ruta"}
+        aria-label={ownSetup ? "Växla till uppställning" : "Växla till Ej uppst."}
         onClick={() => onChange(!ownSetup)}
-        className={`rounded-md px-3 py-1.5 text-sm font-medium text-white ${
-          ownSetup ? "bg-green-700 hover:bg-green-800" : "bg-green-600 hover:bg-green-700"
-        }`}
+        className="rounded-md bg-green-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-800"
       >
-        {ownSetup ? "Uppst." : "Tom ruta"}
+        {ownSetup ? "Uppst." : "Ej uppst."}
       </button>
     </fieldset>
   );

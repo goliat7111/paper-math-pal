@@ -102,19 +102,17 @@ function StartPage() {
           </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Link
-              to="/mattespel"
+              to="/blandade-mallar"
+              search={{ worksheet: undefined, protocol: "bottles" }}
               className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Gamepad2 className="h-5 w-5" />
+                  <Shuffle className="h-5 w-5" />
                 </span>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-foreground">Mattespel</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Sänka skepp · 5-i-rad · Mattebingo · Ordgömma
-                  </p>
-                </div>
+                <h3 className="font-display text-xl font-semibold text-foreground">
+                  Blandade övningar
+                </h3>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
@@ -150,17 +148,19 @@ function StartPage() {
               </div>
             </Link>
             <Link
-              to="/blandade-mallar"
-              search={{ worksheet: undefined, protocol: "bottles" }}
+              to="/mattespel"
               className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Shuffle className="h-5 w-5" />
+                  <Gamepad2 className="h-5 w-5" />
                 </span>
-                <h3 className="font-display text-xl font-semibold text-foreground">
-                  Blandade övningar
-                </h3>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-foreground">Mattespel</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Sänka skepp · 5-i-rad · Mattebingo · Ordgömma
+                  </p>
+                </div>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
