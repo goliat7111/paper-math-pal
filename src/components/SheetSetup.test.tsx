@@ -59,6 +59,31 @@ describe("Problem", () => {
     expect(markup.match(/border border-sheet-grid/g)).toHaveLength(90);
   });
 
+  it("renders clean multiplication tasks without work grids on a headerless continuation page", () => {
+    const markup = renderToStaticMarkup(
+      <SheetSetup
+        tasks={Array.from({ length: 6 }, (_, index) => ({
+          digits: [index + 1, 2],
+          m: [3],
+        }))}
+        answers={false}
+        topDigits={[2, 2]}
+        bottomDigits={[1, 1]}
+        clean
+        showHeader={false}
+        startIndex={6}
+        scoreTotal={12}
+      />,
+    );
+
+    expect(markup.match(/class="own-setup-task"/g)).toHaveLength(6);
+    expect(markup).not.toContain("Multiplikation</h2>");
+    expect(markup).toContain("Uppgift 7");
+    expect(markup).toContain("12 × 3");
+    expect(markup).toContain("Räkna ut uppgifterna i ditt räknehäfte.");
+    expect(markup).not.toContain("exercise-twelve-box");
+  });
+
   it("uses the shared low comma position in multiplication cells", () => {
     const markup = renderToStaticMarkup(
       <Problem

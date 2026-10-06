@@ -28,4 +28,39 @@ describe("SetupStyleToggle", () => {
     expect(blankBox).toContain(buttonClass);
     expect(setup).toContain(buttonClass);
   });
+
+  it("places a Clean toggle beside the setup style button", () => {
+    const markup = renderToStaticMarkup(<SetupStyleToggle ownSetup onChange={() => {}} />);
+    const setupIndex = markup.indexOf(">Uppst.</button>");
+    const cleanIndex = markup.indexOf(">Clean</button>");
+
+    expect(setupIndex).toBeGreaterThan(-1);
+    expect(cleanIndex).toBeGreaterThan(setupIndex);
+    expect(markup).toContain('aria-pressed="false"');
+  });
+
+  it("can show Clean without a setup-style toggle for other twelve-task worksheets", () => {
+    const markup = renderToStaticMarkup(<SetupStyleToggle showSetupStyle={false} showClean />);
+
+    expect(markup).toContain(">Clean</button>");
+    expect(markup).not.toContain(">Uppst.</button>");
+    expect(markup).not.toContain(">Ej uppst.</button>");
+  });
+
+  it("reflects the controlled Clean selection", () => {
+    const markup = renderToStaticMarkup(
+      <SetupStyleToggle showSetupStyle={false} clean onCleanChange={() => {}} />,
+    );
+
+    expect(markup).toContain('aria-pressed="true"');
+  });
+
+  it("can hide Clean when the selected worksheet does not have twelve tasks", () => {
+    const markup = renderToStaticMarkup(
+      <SetupStyleToggle ownSetup onChange={() => {}} showClean={false} />,
+    );
+
+    expect(markup).toContain(">Uppst.</button>");
+    expect(markup).not.toContain(">Clean</button>");
+  });
 });

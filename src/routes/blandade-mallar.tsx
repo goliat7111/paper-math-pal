@@ -29,6 +29,7 @@ import {
   type NumberSystemTask,
 } from "@/lib/number-systems";
 import { SheetNumberSystems } from "@/components/SheetNumberSystems";
+import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 type WorksheetKind = "daily" | "pyramids" | "probability" | "number-systems";
 
@@ -81,6 +82,7 @@ function BlandadeMallarPage() {
   const [pyramids, setPyramids] = useState<NumberPyramid[]>(() =>
     genNumberPyramids(3, "bottom", 12),
   );
+  const [cleanPyramids, setCleanPyramids] = useState(false);
   const [numberBase, setNumberBase] = useState<NumberBase>(2);
   const [numberMode, setNumberMode] = useState<ConversionMode>("both");
   const [numberMax, setNumberMax] = useState(255);
@@ -266,6 +268,14 @@ function BlandadeMallarPage() {
             </>
           ) : worksheet === "pyramids" ? (
             <>
+              {pyramidRows === 3 && (
+                <SetupStyleToggle
+                  showSetupStyle={false}
+                  showClean={pyramids.length === 12}
+                  clean={cleanPyramids}
+                  onCleanChange={setCleanPyramids}
+                />
+              )}
               <label className="block text-sm font-medium">
                 Antal rader
                 <select
@@ -444,15 +454,32 @@ function BlandadeMallarPage() {
           {worksheet === "daily" && tasks && showKey(content) && (
             <SheetMixed tasks={tasks} level={level} showGrid={showGrid} answers />
           )}
-          {worksheet === "pyramids" && showSheet(content) && (
-            <SheetPyramids
-              pyramids={pyramids}
-              rowCount={pyramidRows}
-              mode={pyramidMode}
-              topTotal={topTotal}
-              answers={false}
-            />
-          )}
+          {worksheet === "pyramids" &&
+            showSheet(content) &&
+            (cleanPyramids && pyramidRows === 3 ? (
+              Array.from({ length: Math.ceil(pyramids.length / 6) }, (_, page) => (
+                <SheetPyramids
+                  key={`clean-${page}`}
+                  pyramids={pyramids.slice(page * 6, (page + 1) * 6)}
+                  rowCount={pyramidRows}
+                  mode={pyramidMode}
+                  topTotal={topTotal}
+                  answers={false}
+                  clean
+                  showHeader={page === 0}
+                  startIndex={page * 6}
+                  scoreTotal={pyramids.length}
+                />
+              ))
+            ) : (
+              <SheetPyramids
+                pyramids={pyramids}
+                rowCount={pyramidRows}
+                mode={pyramidMode}
+                topTotal={topTotal}
+                answers={false}
+              />
+            ))}
           {worksheet === "pyramids" && showKey(content) && (
             <SheetPyramids
               pyramids={pyramids}

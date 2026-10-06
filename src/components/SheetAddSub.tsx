@@ -113,11 +113,19 @@ export function SheetAddSub({
   answers,
   ownSetup,
   ownGrid = true,
+  clean = false,
+  showHeader = true,
+  startIndex = 0,
+  scoreTotal = tasks.length,
 }: {
   tasks: AddSubTask[];
   answers: boolean;
   ownSetup: boolean;
   ownGrid?: boolean;
+  clean?: boolean;
+  showHeader?: boolean;
+  startIndex?: number;
+  scoreTotal?: number;
 }) {
   const op = tasks[0]?.op ?? "add";
   const title = op === "add" ? "Addition" : "Subtraktion";
@@ -135,41 +143,49 @@ export function SheetAddSub({
     ? `${Math.round((4.5 + (maxRows + 1) * (cellMm ?? 6.5) + 12) * 10) / 10}mm`
     : undefined;
   return (
-    <div className="a4-page addsub-page">
-      <SheetHeader
-        title={answers ? `${title} – Facit` : title}
-        subtitle={subtitle}
-        score={`av ${tasks.length}`}
-      />
+    <div
+      className={`a4-page addsub-page${clean && !answers ? " clean-worksheet" : ""}${!showHeader ? " clean-page-without-header" : ""}`}
+    >
+      {showHeader && (
+        <SheetHeader
+          title={answers ? `${title} – Facit` : title}
+          subtitle={subtitle}
+          score={`av ${scoreTotal}`}
+        />
+      )}
       <p className="own-setup-instruction">
         {answers
           ? `Facit med uppställning. Små röda siffror visar ${regroup}.`
-          : ownSetup
-            ? "Ställ upp talen i rutan och räkna ut svaret."
-            : "Räkna ut svaret."}
+          : clean
+            ? "Räkna ut uppgifterna i ditt räknehäfte."
+            : ownSetup
+              ? "Ställ upp talen i rutan och räkna ut svaret."
+              : "Räkna ut svaret."}
       </p>
       <div className="own-setup-grid addsub-grid">
         {tasks.map((t, i) => (
-          <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
+          <section key={i} className="own-setup-task" aria-label={`Uppgift ${startIndex + i + 1}`}>
             <div className="own-setup-expression addsub-expression">
-              <span className="own-setup-number">{i + 1})</span>
-              {ownSetup
+              <span className="own-setup-number">{startIndex + i + 1})</span>
+              {ownSetup || (clean && !answers)
                 ? t.terms.map((v, j) => formatDecimal(v, t.decs[j]!)).join(` ${SIGN[t.op]} `)
                 : ""}
             </div>
-            <div
-              className={`own-setup-box addsub-box${ownSetup && !answers ? (ownGrid ? " addsub-box--own addsub-box--grid" : " addsub-box--own") : ""}`}
-              style={boxHeight ? { height: boxHeight } : undefined}
-            >
-              {(answers || !ownSetup) && (
-                <AddSubSetup
-                  t={t}
-                  answers={answers}
-                  {...(cellMm !== undefined ? { cellMm } : {})}
-                  {...(!ownSetup ? { fill: SETUP_GRID } : {})}
-                />
-              )}
-            </div>
+            {!(clean && !answers) && (
+              <div
+                className={`own-setup-box addsub-box${ownSetup && !answers ? (ownGrid ? " addsub-box--own addsub-box--grid" : " addsub-box--own") : ""}`}
+                style={boxHeight ? { height: boxHeight } : undefined}
+              >
+                {(answers || !ownSetup) && (
+                  <AddSubSetup
+                    t={t}
+                    answers={answers}
+                    {...(cellMm !== undefined ? { cellMm } : {})}
+                    {...(!ownSetup ? { fill: SETUP_GRID } : {})}
+                  />
+                )}
+              </div>
+            )}
           </section>
         ))}
       </div>

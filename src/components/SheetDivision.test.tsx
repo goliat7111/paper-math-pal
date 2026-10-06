@@ -4,6 +4,31 @@ import { genDivisionProgression } from "../lib/division-complexity";
 import { SheetDivision } from "./SheetDivision";
 
 describe("Progressionsserie på arbetsblad", () => {
+  it("renders clean continuation pages without repeating the header", () => {
+    const markup = renderToStaticMarkup(
+      <SheetDivision
+        tasks={Array.from({ length: 6 }, (_, index) => ({
+          dividend: index + 26,
+          divisor: 2,
+          quotient: (index + 26) / 2,
+          remainder: 0,
+        }))}
+        answers={false}
+        ownSetup
+        clean
+        showHeader={false}
+        startIndex={6}
+        scoreTotal={12}
+      />,
+    );
+
+    expect(markup.match(/class="own-setup-task"/g)).toHaveLength(6);
+    expect(markup).not.toContain("Division</h2>");
+    expect(markup).toContain("Uppgift 7");
+    expect(markup).toContain("26 / 2");
+    expect(markup).not.toContain("exercise-twelve-box");
+  });
+
   it("uses the shared low comma position in division cells", () => {
     const markup = renderToStaticMarkup(
       <SheetDivision

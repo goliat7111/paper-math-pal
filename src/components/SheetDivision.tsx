@@ -8,12 +8,18 @@ export function SheetDivision({
   ownSetup,
   progression = false,
   startIndex = 0,
+  clean = false,
+  showHeader = true,
+  scoreTotal = tasks.length,
 }: {
   tasks: DivisionTask[];
   answers: boolean;
   ownSetup: boolean;
   progression?: boolean;
   startIndex?: number;
+  clean?: boolean;
+  showHeader?: boolean;
+  scoreTotal?: number;
 }) {
   const withRemainder = tasks.some((task) => task.remainder > 0);
   const challenges = tasks.some((t) => t.note);
@@ -76,64 +82,70 @@ export function SheetDivision({
             </span>
           )}
         </div>
-        <div
-          className={`exercise-twelve-box division-box${ownSetup && !answers ? " division-box--grid" : ""}`}
-        >
-          {(answers || !ownSetup) && (
-            <div
-              className="short-division"
-              aria-label={`${dividendText} delat med ${divisorText}${answers ? ` är ${quotientText}${t.remainder > 0 ? ` rest ${t.remainder}` : ""}` : ""}`}
-            >
-              <div className="division-fraction">
-                <div className="division-numerator">
-                  {extend && !answers ? (
-                    <span className="division-digit">{dividendText}</span>
-                  ) : (
-                    divisionSteps(t).map(
-                      (step, n) =>
-                        (!step.added || answers) && (
-                          <span
-                            className={`division-digit${step.added ? " is-added" : ""}`}
-                            key={n}
-                          >
-                            {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}
-                            {step.digit}
-                            {step.comma && (answers || (t.dividendDecimals ?? 0) > 0) && (
-                              <span className="worksheet-comma">,</span>
-                            )}
-                          </span>
-                        ),
-                    )
+        {!(clean && !answers) && (
+          <div
+            className={`exercise-twelve-box division-box${ownSetup && !answers ? " division-box--grid" : ""}`}
+          >
+            {(answers || !ownSetup) && (
+              <div
+                className="short-division"
+                aria-label={`${dividendText} delat med ${divisorText}${answers ? ` är ${quotientText}${t.remainder > 0 ? ` rest ${t.remainder}` : ""}` : ""}`}
+              >
+                <div className="division-fraction">
+                  <div className="division-numerator">
+                    {extend && !answers ? (
+                      <span className="division-digit">{dividendText}</span>
+                    ) : (
+                      divisionSteps(t).map(
+                        (step, n) =>
+                          (!step.added || answers) && (
+                            <span
+                              className={`division-digit${step.added ? " is-added" : ""}`}
+                              key={n}
+                            >
+                              {answers && step.incoming > 0 && <sup>{step.incoming}</sup>}
+                              {step.digit}
+                              {step.comma && (answers || (t.dividendDecimals ?? 0) > 0) && (
+                                <span className="worksheet-comma">,</span>
+                              )}
+                            </span>
+                          ),
+                      )
+                    )}
+                  </div>
+                  <div className="division-denominator">
+                    {extend && !answers ? divisorText : t.divisor}
+                  </div>
+                </div>
+                <span>=</span>
+                <div className="division-result">
+                  <span className={`division-answer${answers ? " is-answer" : ""}`}>
+                    {answers ? quotientText : ""}
+                  </span>
+                  {t.remainder > 0 && (
+                    <span className="division-remainder">
+                      rest {answers ? t.remainder : "____"}
+                    </span>
                   )}
                 </div>
-                <div className="division-denominator">
-                  {extend && !answers ? divisorText : t.divisor}
-                </div>
               </div>
-              <span>=</span>
-              <div className="division-result">
-                <span className={`division-answer${answers ? " is-answer" : ""}`}>
-                  {answers ? quotientText : ""}
-                </span>
-                {t.remainder > 0 && (
-                  <span className="division-remainder">rest {answers ? t.remainder : "____"}</span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </section>
     );
   });
   return (
     <div
-      className={`a4-page exercise-twelve-page division-twelve-page${progression ? " division-progression-page" : ""}`}
+      className={`a4-page exercise-twelve-page division-twelve-page${progression ? " division-progression-page" : ""}${clean && !answers ? " clean-worksheet" : ""}${!showHeader ? " clean-page-without-header" : ""}`}
     >
-      <SheetHeader
-        title={answers ? "Division – Facit" : "Division"}
-        subtitle={subtitle}
-        score={`av ${tasks.length}`}
-      />
+      {showHeader && (
+        <SheetHeader
+          title={answers ? "Division – Facit" : "Division"}
+          subtitle={subtitle}
+          score={`av ${scoreTotal}`}
+        />
+      )}
       {progression && (
         <p className="own-setup-instruction">
           Division - komplexitetsmatris · Uppgift {startIndex + 1}–{startIndex + tasks.length}.
@@ -149,9 +161,11 @@ export function SheetDivision({
               : `Facit med kort division. Små siffror visar överförda rester.${extra ? " Tillagda nollor i rött." : ""}`
           : extend
             ? "Förläng eller förkorta så att nämnaren blir ett heltal, och räkna sedan i huvudet. Visa gärna hur du tänker."
-            : ownSetup
-              ? `Skriv din egen uppställning i rutan.${task || " Räkna ut svaret."}`
-              : `Räkna med kort division.${task || " Visa dina uträkningar."}`}
+            : clean
+              ? "Räkna ut uppgifterna i ditt räknehäfte."
+              : ownSetup
+                ? `Skriv din egen uppställning i rutan.${task || " Räkna ut svaret."}`
+                : `Räkna med kort division.${task || " Visa dina uträkningar."}`}
       </p>
       <div className="exercise-twelve-grid">{renderedTasks}</div>
     </div>

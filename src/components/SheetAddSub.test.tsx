@@ -79,4 +79,33 @@ describe("AddSubSetup", () => {
       expect(withoutGrid).not.toContain("addsub-box--grid");
     }
   });
+
+  it("renders a six-task clean page with the original worksheet header only when requested", () => {
+    const tasks = Array.from({ length: 6 }, (_, index) => ({
+      op: "add" as const,
+      terms: [index + 1, 10],
+      decs: [0, 0],
+    }));
+    const firstPage = renderToStaticMarkup(
+      <SheetAddSub tasks={tasks} answers={false} ownSetup={false} clean scoreTotal={12} />,
+    );
+    const secondPage = renderToStaticMarkup(
+      <SheetAddSub
+        tasks={tasks.map((task, index) => ({ ...task, terms: [index + 7, 10] }))}
+        answers={false}
+        ownSetup={false}
+        clean
+        showHeader={false}
+        startIndex={6}
+        scoreTotal={12}
+      />,
+    );
+
+    expect(firstPage.match(/class="own-setup-task"/g)).toHaveLength(6);
+    expect(firstPage).toContain("av 12");
+    expect(firstPage).toContain("Räkna ut uppgifterna i ditt räknehäfte.");
+    expect(secondPage).not.toContain("Addition</h2>");
+    expect(secondPage).toContain("Uppgift 7");
+    expect(secondPage).toContain("7 + 10");
+  });
 });

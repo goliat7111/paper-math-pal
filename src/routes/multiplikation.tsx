@@ -47,6 +47,7 @@ function MultiplikationPage() {
   const [tab, setTab] = useState<Tab>("102");
   const [ownSetup, setOwnSetup] = useState(false);
   const [ownGrid, setOwnGrid] = useState(true);
+  const [clean, setClean] = useState(false);
   const [f1, setF1] = useState<[number, number]>([2, 9]);
   const [f2, setF2] = useState<[number, number]>([3, 9]);
   const [sd, setSd] = useState<[number, number]>([3, 3]);
@@ -241,7 +242,12 @@ function MultiplikationPage() {
                   svaret.
                 </p>
               </fieldset>
-              <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
+              <SetupStyleToggle
+                ownSetup={ownSetup}
+                onChange={setOwnSetup}
+                clean={clean}
+                onCleanChange={setClean}
+              />
               {ownSetup && (
                 <p className="text-sm text-muted-foreground">
                   Tolv uppgifter per blad med skrivutrymme. Facit visar uppställningarna.
@@ -302,8 +308,19 @@ function MultiplikationPage() {
             Tips: välj A4, stående och marginaler "Inga" eller "Standard" i utskriftsdialogen.
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-            {tab === "setup" && "12 uppgifter · 4 rader × 3 kolumner. "}
-            PDF: {pagesLabel(content)} ·{" "}
+            {tab === "setup" &&
+              (clean
+                ? "Clean: 2 kolumner, 3 par per sida. "
+                : "12 uppgifter · 4 rader × 3 kolumner. ")}
+            PDF:{" "}
+            {clean && tab === "setup"
+              ? content === "both"
+                ? "3 sidor (2 Clean + facit)"
+                : content === "sheet"
+                  ? "2 Clean-sidor"
+                  : "1 sida (facit)"
+              : pagesLabel(content)}{" "}
+            ·{" "}
             {tab === "102"
               ? 102
               : tab === "100"
@@ -336,9 +353,24 @@ function MultiplikationPage() {
           )}
           {tab === "setup" && tSetup && !ownSetup && (
             <>
-              {showSheet(content) && (
-                <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />
-              )}
+              {showSheet(content) &&
+                (clean ? (
+                  Array.from({ length: Math.ceil(tSetup.length / 6) }, (_, page) => (
+                    <SheetSetup
+                      key={`clean-${page}`}
+                      tasks={tSetup.slice(page * 6, (page + 1) * 6)}
+                      answers={false}
+                      topDigits={sd}
+                      bottomDigits={sb}
+                      clean
+                      showHeader={page === 0}
+                      startIndex={page * 6}
+                      scoreTotal={tSetup.length}
+                    />
+                  ))
+                ) : (
+                  <SheetSetup tasks={tSetup} answers={false} topDigits={sd} bottomDigits={sb} />
+                ))}
               {showKey(content) && (
                 <SheetSetup tasks={tSetup} answers topDigits={sd} bottomDigits={sb} />
               )}
@@ -346,9 +378,23 @@ function MultiplikationPage() {
           )}
           {tab === "setup" && tSetup && ownSetup && (
             <>
-              {showSheet(content) && (
-                <SheetOwnSetup tasks={tSetup} answers={false} ownGrid={ownGrid} />
-              )}
+              {showSheet(content) &&
+                (clean ? (
+                  Array.from({ length: Math.ceil(tSetup.length / 6) }, (_, page) => (
+                    <SheetOwnSetup
+                      key={`clean-${page}`}
+                      tasks={tSetup.slice(page * 6, (page + 1) * 6)}
+                      answers={false}
+                      ownGrid={ownGrid}
+                      clean
+                      showHeader={page === 0}
+                      startIndex={page * 6}
+                      scoreTotal={tSetup.length}
+                    />
+                  ))
+                ) : (
+                  <SheetOwnSetup tasks={tSetup} answers={false} ownGrid={ownGrid} />
+                ))}
               {showKey(content) && <SheetOwnSetup tasks={tSetup} answers ownGrid={ownGrid} />}
             </>
           )}

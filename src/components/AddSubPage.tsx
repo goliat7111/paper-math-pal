@@ -33,6 +33,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [regroup, setRegroup] = useState(true);
   const [ownSetup, setOwnSetup] = useState(false);
   const [ownGrid, setOwnGrid] = useState(true);
+  const [clean, setClean] = useState(false);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<AddSubTask[]>([]);
@@ -337,7 +338,13 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                   </fieldset>
                 )}
               </div>
-              <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
+              <SetupStyleToggle
+                ownSetup={ownSetup}
+                onChange={setOwnSetup}
+                showClean={!speedSheet}
+                clean={clean}
+                onCleanChange={setClean}
+              />
               {ownSetup && (
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium">Rutnät i rutan</legend>
@@ -395,9 +402,17 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {speedSheet
               ? "100 uppgifter · 4 kolumner × 25 tal."
-              : `${SETUP_COUNT} uppgifter · 4 rader × 3 kolumner.`}
+              : `${SETUP_COUNT} uppgifter · ${clean && !speedSheet ? "Clean: 2 kolumner, 3 par per sida." : "4 rader × 3 kolumner."}`}
             <br />
-            PDF: {pagesLabel(content)} · A4 stående.
+            PDF:{" "}
+            {clean && !speedSheet
+              ? content === "both"
+                ? "3 sidor (2 Clean + facit)"
+                : content === "sheet"
+                  ? "2 Clean-sidor"
+                  : "1 sida (facit)"
+              : pagesLabel(content)}{" "}
+            · A4 stående.
           </p>
         </aside>
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
@@ -415,6 +430,20 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                     operation={title}
                     answers={false}
                   />
+                ) : clean ? (
+                  Array.from({ length: Math.ceil(tasks.length / 6) }, (_, page) => (
+                    <SheetAddSub
+                      key={`clean-${page}`}
+                      tasks={tasks.slice(page * 6, (page + 1) * 6)}
+                      answers={false}
+                      ownSetup={ownSetup}
+                      ownGrid={ownGrid}
+                      clean
+                      showHeader={page === 0}
+                      startIndex={page * 6}
+                      scoreTotal={tasks.length}
+                    />
+                  ))
                 ) : (
                   <SheetAddSub
                     tasks={tasks}

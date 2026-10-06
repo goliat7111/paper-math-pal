@@ -27,4 +27,26 @@ describe("SheetPyramids", () => {
     );
     expect(markup.match(/class="pyramid-cell is-filled"/g)).toHaveLength(6);
   });
+
+  it("supports clean continuation pages while keeping the pyramid tasks numbered", () => {
+    const markup = renderToStaticMarkup(
+      <SheetPyramids
+        pyramids={Array.from({ length: 6 }, () => pyramid)}
+        rowCount={3}
+        mode="top"
+        topTotal={12}
+        answers={false}
+        clean
+        showHeader={false}
+        startIndex={6}
+        scoreTotal={12}
+      />,
+    );
+
+    expect(markup).toContain("pyramid-grid--clean");
+    expect(markup).not.toContain("Talpyramider</h2>");
+    expect(markup).toContain("Talpyramid 7");
+    expect(markup).toContain(">12)</strong>");
+    expect(markup.match(/class="pyramid-task"/g)).toHaveLength(6);
+  });
 });

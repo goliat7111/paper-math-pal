@@ -57,6 +57,9 @@ function DivisionPage() {
   const [extra, setExtra] = useState(1);
   const [ownSetup, setOwnSetup] = useState(true);
   const [showComplexityMatrix, setShowComplexityMatrix] = useState(false);
+  const [clean, setClean] = useState(false);
+  const cleanLayout = generatedMode !== "quick100" && clean;
+  const cleanTasksPerPage = cleanLayout ? 6 : tasksPerPage;
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<DivisionTask[]>([]);
@@ -459,7 +462,13 @@ function DivisionPage() {
                 )}
               </div>
             )}
-            <SetupStyleToggle ownSetup={ownSetup} onChange={setOwnSetup} />
+            <SetupStyleToggle
+              ownSetup={ownSetup}
+              onChange={setOwnSetup}
+              showClean={generatedMode !== "quick100"}
+              clean={clean}
+              onCleanChange={setClean}
+            />
           </form>
           <PrintContentChoice value={content} onChange={setContent} />
           {error && (
@@ -499,10 +508,17 @@ function DivisionPage() {
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {tasks.length} uppgifter ·{" "}
-            {generatedMode === "quick100" ? "4 kolumner × 25 tal" : "4 rader × 3 kolumner per sida"}
+            {generatedMode === "quick100"
+              ? "4 kolumner × 25 tal"
+              : cleanLayout
+                ? "Clean: 2 kolumner, 3 par per sida"
+                : "4 rader × 3 kolumner per sida"}
             .<br />
-            PDF: {Math.ceil(tasks.length / tasksPerPage) * (content === "both" ? 2 : 1)}{" "}
-            {tasks.length > tasksPerPage || content === "both" ? "sidor" : "sida"} · A4 stående.
+            PDF:{" "}
+            {(showSheet(content) ? Math.ceil(tasks.length / cleanTasksPerPage) : 0) +
+              (showKey(content) ? Math.ceil(tasks.length / tasksPerPage) : 0)}{" "}
+            {tasks.length > cleanTasksPerPage || content === "both" ? "sidor" : "sida"} · A4
+            stående.
           </p>
         </aside>
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
@@ -538,16 +554,25 @@ function DivisionPage() {
               ) : (
                 <>
                   {showSheet(content) &&
-                    Array.from({ length: Math.ceil(tasks.length / tasksPerPage) }, (_, page) => (
-                      <SheetDivision
-                        key={`sheet-${page}`}
-                        tasks={tasks.slice(page * tasksPerPage, (page + 1) * tasksPerPage)}
-                        answers={false}
-                        ownSetup={ownSetup}
-                        progression={generatedMode === "progression"}
-                        startIndex={page * tasksPerPage}
-                      />
-                    ))}
+                    Array.from(
+                      { length: Math.ceil(tasks.length / cleanTasksPerPage) },
+                      (_, page) => (
+                        <SheetDivision
+                          key={`sheet-${page}`}
+                          tasks={tasks.slice(
+                            page * cleanTasksPerPage,
+                            (page + 1) * cleanTasksPerPage,
+                          )}
+                          answers={false}
+                          ownSetup={ownSetup}
+                          progression={generatedMode === "progression"}
+                          startIndex={page * cleanTasksPerPage}
+                          clean={cleanLayout}
+                          showHeader={!cleanLayout || page === 0}
+                          scoreTotal={tasks.length}
+                        />
+                      ),
+                    )}
                   {showKey(content) &&
                     Array.from({ length: Math.ceil(tasks.length / tasksPerPage) }, (_, page) => (
                       <SheetDivision

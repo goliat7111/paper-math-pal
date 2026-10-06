@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { setupLayout, type SetupTask } from "@/lib/worksheets";
+import { digitValue, formatDecimal, setupLayout, type SetupTask } from "@/lib/worksheets";
 import { SheetHeader } from "./SheetHeader";
 
 // Sifferkolumnernas bredd och rutnätets mellanrum anpassas efter längsta talet
@@ -13,30 +13,59 @@ export function SheetSetup({
   answers,
   topDigits,
   bottomDigits,
+  clean = false,
+  showHeader = true,
+  startIndex = 0,
+  scoreTotal = Math.min(tasks.length, 12),
 }: {
   tasks: SetupTask[];
   answers: boolean;
   topDigits: [number, number];
   bottomDigits: [number, number];
+  clean?: boolean;
+  showHeader?: boolean;
+  startIndex?: number;
+  scoreTotal?: number;
 }) {
   const shown = tasks.slice(0, 12);
 
   return (
-    <div className="a4-page exercise-twelve-page">
-      <SheetHeader
-        title={answers ? "Multiplikation – Facit" : "Multiplikation"}
-        subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}${tasks.some((t) => t.dt || t.db) ? " · decimaltal" : ""}`}
-        score={`av ${shown.length}`}
-      />
+    <div
+      className={`a4-page exercise-twelve-page${clean && !answers ? " clean-worksheet" : ""}${!showHeader ? " clean-page-without-header" : ""}`}
+    >
+      {showHeader && (
+        <SheetHeader
+          title={answers ? "Multiplikation – Facit" : "Multiplikation"}
+          subtitle={`Uppställning · ${digitLabel(topDigits, "siffrigt tal", "siffror")} · ${digitLabel(bottomDigits, "siffrig faktor", "siffror")}${tasks.some((t) => t.dt || t.db) ? " · decimaltal" : ""}`}
+          score={`av ${scoreTotal}`}
+        />
+      )}
+      {clean && !answers && (
+        <p className="own-setup-instruction">Räkna ut uppgifterna i ditt räknehäfte.</p>
+      )}
       <div className="exercise-twelve-grid">
         {shown.map((t, i) => (
-          <section key={i} className="own-setup-task" aria-label={`Uppgift ${i + 1}`}>
+          <section key={i} className="own-setup-task" aria-label={`Uppgift ${startIndex + i + 1}`}>
             <div className="own-setup-expression addsub-expression">
-              <span className="own-setup-number">{i + 1})</span>
+              <span className="own-setup-number">{startIndex + i + 1})</span>
+              {clean && !answers && (
+                <span>
+                  {formatDecimal(digitValue(t.digits), t.dt)} ×{" "}
+                  {formatDecimal(digitValue(t.m), t.db)}
+                </span>
+              )}
             </div>
-            <div className="exercise-twelve-box">
-              <Problem n={i + 1} t={t} answers={answers} digitMm={5.5} showNumber={false} />
-            </div>
+            {!(clean && !answers) && (
+              <div className="exercise-twelve-box">
+                <Problem
+                  n={startIndex + i + 1}
+                  t={t}
+                  answers={answers}
+                  digitMm={5.5}
+                  showNumber={false}
+                />
+              </div>
+            )}
           </section>
         ))}
       </div>
