@@ -131,7 +131,7 @@ function RootComponent() {
  *  Döljs på startsidan själv och vid utskrift/PDF (klassen no-print). */
 function HomeButton() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/blockmodellen") return null;
   return (
     <Link
       to="/"

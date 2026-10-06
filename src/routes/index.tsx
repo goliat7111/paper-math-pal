@@ -9,6 +9,7 @@ import {
   Grid2X2,
   Shuffle,
   BookOpenText,
+  Boxes,
   Gamepad2,
 } from "lucide-react";
 
@@ -126,6 +127,25 @@ function StartPage() {
                   <Grid2X2 className="h-5 w-5" />
                 </span>
                 <h3 className="font-display text-xl font-semibold text-foreground">Mallar</h3>
+                <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </div>
+            </Link>
+            <Link
+              to="/blockmodellen"
+              className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Boxes className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-foreground">
+                    Blockmodellen
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Bygg matematiska modeller tillsammans
+                  </p>
+                </div>
                 <ArrowRight className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
               </div>
             </Link>
