@@ -9,15 +9,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer, Wand2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  PrintContentChoice,
-  keySuffix,
-  showKey,
-  showSheet,
-  type PrintContent,
-} from "@/components/PrintContentChoice";
+import { PrintContentChoice } from "@/components/PrintContentChoice";
+import { keySuffix, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import { SheetHeader } from "@/components/SheetHeader";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { generateTextTasks, type TextTask } from "@/lib/textuppgifter.functions";
 
 export const Route = createFileRoute("/textuppgifter")({

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff, Maximize, Minimize, Printer, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { Button } from "@/components/ui/button";
 import {
   generateSudokuPuzzle,

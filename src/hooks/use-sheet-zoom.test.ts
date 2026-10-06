@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { calculateSheetFit } from "./ZoomControls";
+﻿import { describe, expect, it } from "vitest";
+import { calculateSheetFit } from "./use-sheet-zoom";
 
 describe("calculateSheetFit", () => {
   it("fits the page in the space below the preview area", () => {

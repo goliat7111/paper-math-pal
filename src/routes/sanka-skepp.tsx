@@ -4,7 +4,8 @@ import { Dice5, Eraser, FileDown, Printer } from "lucide-react";
 import { SheetBattleship } from "@/components/SheetBattleship";
 import { randomFleet, type Ship } from "@/lib/battleship";
 import { buildSheetsPdf, saveBlob } from "@/lib/exportPdf";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 
 export const Route = createFileRoute("/sanka-skepp")({

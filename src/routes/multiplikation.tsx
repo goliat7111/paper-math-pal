@@ -2,20 +2,15 @@ import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Printer, RefreshCw, FileDown, ArrowLeft } from "lucide-react";
-import {
-  PrintContentChoice,
-  keySuffix,
-  pagesLabel,
-  showKey,
-  showSheet,
-  type PrintContent,
-} from "@/components/PrintContentChoice";
+import { PrintContentChoice } from "@/components/PrintContentChoice";
+import { keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import { gen102, genSetup, genSnabba, type MulTask, type SetupTask } from "@/lib/worksheets";
 import { Sheet102 } from "@/components/Sheet102";
 import { SheetSetup } from "@/components/SheetSetup";
 import { SheetOwnSetup } from "@/components/SheetOwnSetup";
 import { SheetSnabba } from "@/components/SheetSnabba";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { Button } from "@/components/ui/button";
 import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 

@@ -3,17 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, FileDown, Printer, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
-import {
-  PrintContentChoice,
-  keySuffix,
-  showKey,
-  showSheet,
-  type PrintContent,
-} from "@/components/PrintContentChoice";
+import { PrintContentChoice } from "@/components/PrintContentChoice";
+import { keySuffix, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import { SheetMixed } from "@/components/SheetMixed";
 import { SheetPyramids } from "@/components/SheetPyramids";
 import { SheetProbability, type ProbabilityProtocol } from "@/components/SheetProbability";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { genMixed, type MixedLevel, type MixedTasks } from "@/lib/mixed";
 import {
   DEFAULT_TOP_TOTAL,

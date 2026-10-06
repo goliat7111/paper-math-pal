@@ -1,16 +1,12 @@
-export type PrintContent = "both" | "sheet" | "key";
+import type { PrintContent } from "@/lib/print-content";
+
+export type { PrintContent } from "@/lib/print-content";
 
 const OPTIONS: { value: PrintContent; label: string }[] = [
   { value: "sheet", label: "Bara elevblad" },
   { value: "key", label: "Bara facit" },
   { value: "both", label: "Elevblad + facit" },
 ];
-
-export const showSheet = (c: PrintContent) => c !== "key";
-export const showKey = (c: PrintContent) => c !== "sheet";
-export const pagesLabel = (c: PrintContent) =>
-  c === "both" ? "2 sidor (blad + facit)" : c === "sheet" ? "1 sida (bladet)" : "1 sida (facit)";
-export const keySuffix = (c: PrintContent) => (c === "key" ? "-facit" : "");
 
 /** Val av vad som skrivs ut / exporteras: elevblad, facit eller båda. */
 export function PrintContentChoice({

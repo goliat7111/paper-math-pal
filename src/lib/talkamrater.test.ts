@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { talkamratColumns } from "@/components/SheetTalkamrater";
+import { talkamratColumns } from "@/lib/talkamrater";
 
 describe("talkamratColumns", () => {
   it("upp till 10: oförändrat — ordnade par 1..s-1", () => {

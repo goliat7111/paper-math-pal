@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { SheetHeader } from "@/components/SheetHeader";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { buildSheetsPdf, saveBlob } from "@/lib/exportPdf";
 import { generateThemeWords } from "@/lib/word-search.functions";
 import {

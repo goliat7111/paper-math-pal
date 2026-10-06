@@ -2,13 +2,8 @@ import { PdfPagesPreview } from "@/components/PdfPagesPreview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer, RefreshCw } from "lucide-react";
-import {
-  PrintContentChoice,
-  keySuffix,
-  showKey,
-  showSheet,
-  type PrintContent,
-} from "@/components/PrintContentChoice";
+import { PrintContentChoice } from "@/components/PrintContentChoice";
+import { keySuffix, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import { genDivision, genExtendDivision, type DivisionTask } from "@/lib/division";
 import { formatDecimal } from "@/lib/worksheets";
 import { divisionProgression, genDivisionProgression } from "@/lib/division-complexity";
@@ -16,7 +11,8 @@ import { genChallengeDivision, randomizeSheetDecimals } from "@/lib/mixed-divisi
 import type { MixedLevel } from "@/lib/mixed";
 import { SheetDivision } from "@/components/SheetDivision";
 import { SheetHundred } from "@/components/SheetHundred";
-import { useSheetZoom, ZoomControls } from "@/components/ZoomControls";
+import { ZoomControls } from "@/components/ZoomControls";
+import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 export const Route = createFileRoute("/division")({
