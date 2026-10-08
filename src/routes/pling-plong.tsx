@@ -393,45 +393,63 @@ function PlingPlongGame({ mode }: { mode: "math" | "subjects" }) {
                 <p className="min-h-10 font-display text-3xl font-semibold text-primary">
                   {showAnswer ? `= ${q.answer}` : ""}
                 </p>
-                {resolved[active] ? (
+                {resolved[active] && (
                   <p className="text-sm text-muted-foreground">Frågan är avgjord.</p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <p className="col-span-2 text-[22px] font-medium">{nameOf(turn)} svarar</p>
-                    <p className="col-span-2 text-xs text-muted-foreground">
-                      Välj hur det gick för att kunna gå vidare till nästa ruta.
-                    </p>
-                    <Button
-                      className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
-                      variant="outline"
-                      onClick={() => award("self")}
-                    >
-                      Rätt svar (+{points(q.pling).self} p)
-                    </Button>
-                    <Button
-                      className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
-                      variant="outline"
-                      onClick={() => award("help")}
-                    >
-                      Rätt med gruppens hjälp (+{points(q.pling).help} p)
-                    </Button>
-                    <Button
-                      className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
-                      variant="outline"
-                      onClick={finish}
-                    >
-                      Fel svar – visa rätt svar
-                    </Button>
-                    <Button
-                      className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
-                      variant="outline"
-                      onClick={finish}
-                    >
-                      Ingen kunde svara
-                    </Button>
-                  </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {q && active !== null && playing && !resolved[active] && (
+            <div className="space-y-3">
+              <Button
+                type="button"
+                className="w-full"
+                disabled={showAnswer}
+                onClick={() => setShowAnswer(true)}
+              >
+                {showAnswer ? "Svar kontrollerat" : "Rätta"}
+              </Button>
+              {showAnswer ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <p className="col-span-2 text-[22px] font-medium">{nameOf(turn)} svarar</p>
+                  <p className="col-span-2 text-xs text-muted-foreground">
+                    Välj hur det gick för att kunna gå vidare till nästa ruta.
+                  </p>
+                  <Button
+                    className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
+                    variant="outline"
+                    onClick={() => award("self")}
+                  >
+                    Rätt svar (+{points(q.pling).self} p)
+                  </Button>
+                  <Button
+                    className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
+                    variant="outline"
+                    onClick={() => award("help")}
+                  >
+                    Rätt med gruppens hjälp (+{points(q.pling).help} p)
+                  </Button>
+                  <Button
+                    className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
+                    variant="outline"
+                    onClick={finish}
+                  >
+                    Fel svar
+                  </Button>
+                  <Button
+                    className="w-full whitespace-normal border-green-600 bg-green-600 text-white hover:bg-green-700 hover:text-white"
+                    variant="outline"
+                    onClick={finish}
+                  >
+                    Ingen kunde svara
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-center text-xs text-muted-foreground">
+                  Rätta svaret innan du delar ut poäng.
+                </p>
+              )}
             </div>
           )}
 
