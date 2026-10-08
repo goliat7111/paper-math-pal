@@ -254,10 +254,15 @@ function genFinalChallengePair(random: () => number): DivisionTask[] {
   return tasks;
 }
 
-export function genDivisionProgression(random: () => number = Math.random): DivisionTask[] {
+export function genDivisionProgression(
+  random: () => number = Math.random,
+  allowRest = true,
+): DivisionTask[] {
   progressionPools ??= divisionProgression.map((step) => findDivisionCandidates(step.rules));
-  const tasks = divisionProgression.slice(0, 10).map((step, i) => {
-    const pool = progressionPools![i]!;
+  const steps = divisionProgression
+    .map((step, i) => ({ step, pool: progressionPools![i]! }))
+    .filter(({ step }) => allowRest || !step.rules.withRemainder);
+  const tasks = steps.slice(0, 10).map(({ step, pool }) => {
     if (!pool.length) throw new Error(`Hittade inga divisioner för ${step.label}.`);
     return { ...pool[drawIndex(pool.length, random)]!, note: step.label };
   });
