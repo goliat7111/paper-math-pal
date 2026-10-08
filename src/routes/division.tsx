@@ -78,13 +78,13 @@ function DivisionPage() {
         mode === "quick100"
           ? genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 100)
           : mode === "progression"
-            ? genDivisionProgression()
+            ? genDivisionProgression(Math.random, includeRest)
             : mode === "extend"
               ? genExtendDivision(12)
               : mode === "challenges"
                 ? (challengeDec
-                    ? randomizeSheetDecimals(genChallengeDivision(level, 12))
-                    : genChallengeDivision(level, 12)
+                    ? randomizeSheetDecimals(genChallengeDivision(level, 12, includeRest))
+                    : genChallengeDivision(level, 12, includeRest)
                   ).map((t) => {
                     const { shown, ...rest } = t;
                     if (!shown) return rest;
@@ -113,20 +113,20 @@ function DivisionPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Kontrollera inställningarna.");
     }
-  }, [challengeDec, dec, divMax, divMin, extra, level, max, min, mode, withRemainder]);
+  }, [challengeDec, dec, divMax, divMin, extra, includeRest, level, max, min, mode, withRemainder]);
   const generate = () => {
     try {
       const result =
         mode === "quick100"
           ? genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 100)
           : mode === "progression"
-            ? genDivisionProgression()
+            ? genDivisionProgression(Math.random, includeRest)
             : mode === "extend"
               ? genExtendDivision(12)
               : mode === "challenges"
                 ? (challengeDec
-                    ? randomizeSheetDecimals(genChallengeDivision(level, 12))
-                    : genChallengeDivision(level, 12)
+                    ? randomizeSheetDecimals(genChallengeDivision(level, 12, includeRest))
+                    : genChallengeDivision(level, 12, includeRest)
                   ).map((t) => {
                     const { shown, ...rest } = t;
                     if (!shown) return rest;
