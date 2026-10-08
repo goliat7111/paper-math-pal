@@ -411,6 +411,16 @@ function DivisionPage() {
                 Slumpade decimaler
               </label>
             )}
+            {(mode === "challenges" || mode === "progression") && (
+              <label className="ml-6 flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={includeRest}
+                  onChange={(e) => setIncludeRest(e.target.checked)}
+                />
+                Inkludera uppgifter med rest
+              </label>
+            )}
             <p className="text-sm text-muted-foreground">
               {mode === "quick100"
                 ? "100 huvudräkningsuppgifter. Alla divisioner går jämnt ut; täljare och nämnare väljs från talområdena ovan."
@@ -450,7 +460,10 @@ function DivisionPage() {
                   <div className="rounded-md border border-border bg-muted/30 p-3">
                     <p className="font-medium text-foreground">Division - komplexitetsmatris</p>
                     <ol className="mt-2 list-decimal space-y-1 pl-5">
-                      {divisionProgression.slice(0, 10).map((step) => (
+                      {divisionProgression
+                        .filter((step) => includeRest || !step.rules.withRemainder)
+                        .slice(0, 10)
+                        .map((step) => (
                         <li key={step.label}>{step.label}</li>
                       ))}
                       <li>Slumpade kombinationer av gruppering, växlingar, nollor och rest</li>
