@@ -69,6 +69,7 @@ function DivisionPage() {
   } | null>(null);
   const [fileName, setFileName] = useState("");
   const [challengeDec, setChallengeDec] = useState(false);
+  const [includeRest, setIncludeRest] = useState(true);
   const previewUrl = useRef<string | null>(null);
 
   useEffect(() => {
