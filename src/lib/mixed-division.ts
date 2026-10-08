@@ -238,8 +238,14 @@ export function genMixedDivision(level: MixedLevel): MixedDivision {
 }
 
 /** Flera unika utmaningsuppgifter på en nivå (för divisionssidan). */
-export function genChallengeDivision(level: MixedLevel, count = 8): MixedDivision[] {
-  const pool = LEVEL_CHALLENGES[level];
+export function genChallengeDivision(
+  level: MixedLevel,
+  count = 8,
+  allowRest = true,
+): MixedDivision[] {
+  const pool = allowRest
+    ? LEVEL_CHALLENGES[level]
+    : LEVEL_CHALLENGES[level].filter((c) => c !== 8 && c !== 9);
   const seen = new Set<string>();
   const tasks: MixedDivision[] = [];
   for (let i = 0; i < 5000 && tasks.length < count; i++) {
