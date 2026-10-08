@@ -268,12 +268,3 @@ export function genDivisionProgression(
   });
   return [...tasks, ...genFinalChallengePair(random)];
 }
-
-function _unused() {
-  const tasks = [].map(() => {
-    const pool: never[] = [];
-    if (!pool.length) throw new Error(`Hittade inga divisioner för ${step.label}.`);
-    return { ...pool[drawIndex(pool.length, random)]!, note: step.label };
-  });
-  return [...tasks, ...genFinalChallengePair(random)];
-}
