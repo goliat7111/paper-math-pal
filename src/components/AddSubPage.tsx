@@ -4,7 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, FileDown, Printer, RefreshCw } from "lucide-react";
 import { PrintContentChoice } from "@/components/PrintContentChoice";
 import { keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/lib/print-content";
-import { addSubResult, genAddSub, maxDec, type AddSubOp, type AddSubTask } from "@/lib/addsub";
+import {
+  addSubResult,
+  genAddSub,
+  genAddSubInRange,
+  genTenAddFriends,
+  genTenSubFriends,
+  maxDec,
+  type AddSubOp,
+  type AddSubTask,
+} from "@/lib/addsub";
 import { SheetAddSub } from "./SheetAddSub";
 import { SheetHundred } from "./SheetHundred";
 import { formatDecimal } from "@/lib/worksheets";
@@ -13,12 +22,26 @@ import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 const SETUP_COUNT = 12;
+const TEN_ADD_FRIEND_COUNT = 80;
+const QUICK_RANGES = [
+  [1, 10],
+  [1, 20],
+  [10, 20],
+  [10, 100],
+] as const;
 const btn = (on: boolean) =>
   `rounded-md border px-3 py-1.5 text-sm font-medium ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent"}`;
+const formatTaskTerm = (value: number, decimals: number, isSubtrahend = false) => {
+  const formatted = formatDecimal(value, decimals);
+  return isSubtrahend && value < 0 ? `(${formatted})` : formatted;
+};
 
 export function AddSubPage({ op }: { op: AddSubOp }) {
   const title = op === "add" ? "Addition" : "Subtraktion";
   const [speedSheet, setSpeedSheet] = useState(false);
+  const [quickRange, setQuickRange] = useState<readonly [number, number] | null>(null);
+  const [tenSubFriends, setTenSubFriends] = useState(false);
+  const [tenAddFriends, setTenAddFriends] = useState(false);
   const [lo, setLo] = useState(3);
   const [hi, setHi] = useState(3);
   const [speedLo, setSpeedLo] = useState(1);
@@ -44,14 +67,20 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const previewUrl = useRef<string | null>(null);
 
   const createTasks = (speed = speedSheet) =>
-    genAddSub({
-      op,
-      digits: speed ? [speedLo, speedHi] : [lo, Math.max(hi, lo)],
-      dec: speed ? 0 : dec,
-      terms: speed ? 2 : terms,
-      regroup,
-      count: speed ? 100 : SETUP_COUNT,
-    });
+    speed && tenAddFriends
+      ? genTenAddFriends(TEN_ADD_FRIEND_COUNT)
+      : speed && tenSubFriends
+        ? genTenSubFriends(100)
+        : speed && quickRange
+          ? genAddSubInRange(...quickRange, 100, regroup, op)
+          : genAddSub({
+              op,
+              digits: speed ? [speedLo, speedHi] : [lo, Math.max(hi, lo)],
+              dec: speed ? 0 : dec,
+              terms: speed ? 2 : terms,
+              regroup,
+              count: speed ? 100 : SETUP_COUNT,
+            });
 
   useEffect(() => {
     const l = lo,
@@ -60,7 +89,20 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     if (h !== hi) setHi(h);
     setTasks(createTasks());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [op, lo, hi, dec, terms, regroup, speedSheet, speedLo, speedHi]);
+  }, [
+    op,
+    lo,
+    hi,
+    dec,
+    terms,
+    regroup,
+    speedSheet,
+    speedLo,
+    speedHi,
+    quickRange,
+    tenSubFriends,
+    tenAddFriends,
+  ]);
   useEffect(
     () => () => {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
@@ -86,7 +128,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       previewUrl.current = url;
       setPreview({ ...result, url });
       setFileName(
-        `${op === "add" ? "addition" : "subtraktion"}-${speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
+        `${op === "add" ? "addition" : "subtraktion"}-${speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${quickRange ? `-talomrade-${quickRange[0]}-${quickRange[1]}` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
       );
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut.");
@@ -125,9 +167,14 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           <div className="flex gap-2">
             <button
               type="button"
-              className={btn(!speedSheet)}
-              aria-pressed={!speedSheet}
-              onClick={() => setSpeedSheet(false)}
+              className={btn(!speedSheet && !quickRange)}
+              aria-pressed={!speedSheet && !quickRange}
+              onClick={() => {
+                setQuickRange(null);
+                setTenSubFriends(false);
+                setTenAddFriends(false);
+                setSpeedSheet(false);
+              }}
             >
               Uppställning
             </button>
@@ -135,59 +182,143 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
               type="button"
               className={btn(speedSheet)}
               aria-pressed={speedSheet}
-              onClick={() => setSpeedSheet(true)}
+              onClick={() => {
+                if (speedSheet) return;
+                setQuickRange(QUICK_RANGES[1]);
+                setTenSubFriends(false);
+                setTenAddFriends(false);
+                setSpeedSheet(true);
+              }}
             >
               100 tal (6 min)
             </button>
           </div>
-          {speedSheet ? (
-            <fieldset className="space-y-3">
-              <legend className="mb-2 text-sm font-medium">Talområde (heltal)</legend>
-              <div className="flex items-end gap-2">
-                <label className="text-sm">
-                  Från
-                  <select
-                    aria-label="100 tal, siffror från"
-                    className={sel}
-                    value={speedLo}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-                      setSpeedLo(value);
-                      if (value > speedHi) setSpeedHi(value);
+          {speedSheet && (
+            <fieldset>
+              <legend className="mb-2 text-sm font-medium">Talområde</legend>
+              <div className="flex flex-nowrap gap-1">
+                {QUICK_RANGES.map((range) => (
+                  <button
+                    key={`${range[0]}-${range[1]}`}
+                    type="button"
+                    className={`${btn(quickRange?.[0] === range[0] && quickRange?.[1] === range[1])} px-2`}
+                    aria-pressed={quickRange?.[0] === range[0] && quickRange?.[1] === range[1]}
+                    onClick={() => {
+                      setQuickRange(range);
+                      setTenSubFriends(false);
+                      setTenAddFriends(false);
                     }}
                   >
-                    {[1, 2, 3, 4].map((n) => (
-                      <option key={n} value={n}>
-                        {n} siffra{n > 1 ? "r" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm">
-                  Till
-                  <select
-                    aria-label="100 tal, siffror till"
-                    className={sel}
-                    value={speedHi}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-                      setSpeedHi(value);
-                      if (value < speedLo) setSpeedLo(value);
-                    }}
-                  >
-                    {[1, 2, 3, 4].map((n) => (
-                      <option key={n} value={n}>
-                        {n} siffra{n > 1 ? "r" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    {range[0]}-{range[1]}
+                  </button>
+                ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                100 uppgifter med två tal. Addition och subtraktion använder samma val för växling
-                som uppställningsbladet.
-              </p>
+              {op === "sub" && (
+                <button
+                  type="button"
+                  className={`${btn(quickRange?.[0] === -20 && quickRange?.[1] === 20)} mt-2`}
+                  aria-pressed={quickRange?.[0] === -20 && quickRange?.[1] === 20}
+                  onClick={() => {
+                    setQuickRange([-20, 20]);
+                    setTenSubFriends(false);
+                    setTenAddFriends(false);
+                  }}
+                >
+                  -20 - 20 - inkl. negativa tal
+                </button>
+              )}
+              {op === "sub" && (
+                <button
+                  type="button"
+                  className={`${btn(tenSubFriends)} mt-2 ml-2`}
+                  aria-pressed={tenSubFriends}
+                  onClick={() => {
+                    setQuickRange(null);
+                    setTenSubFriends(true);
+                    setTenAddFriends(false);
+                  }}
+                >
+                  10-kamrater (sub.)
+                </button>
+              )}
+              {op === "add" && (
+                <button
+                  type="button"
+                  className={`${btn(tenAddFriends)} mt-2`}
+                  aria-pressed={tenAddFriends}
+                  onClick={() => {
+                    setQuickRange(null);
+                    setTenSubFriends(false);
+                    setTenAddFriends(true);
+                  }}
+                >
+                  10-kamrater (add.)
+                </button>
+              )}
             </fieldset>
+          )}
+          {speedSheet ? (
+            quickRange || tenSubFriends || tenAddFriends ? (
+              <>
+                <p className="text-xs text-muted-foreground">
+                  {tenAddFriends
+                    ? `${TEN_ADD_FRIEND_COUNT} uppgifter med summan 10. Varje unik addition och plats för den saknade termen förekommer jämnt.`
+                    : tenSubFriends
+                      ? "100 uppgifter med minuend 10 och subtrahender jämnt fördelade från 0 till 10."
+                      : op === "sub"
+                        ? "100 uppgifter med differenser inom valt område, blandade med och utan växling."
+                        : "100 uppgifter med summor inom valt område."}
+                </p>
+              </>
+            ) : (
+              <fieldset className="space-y-3">
+                <legend className="mb-2 text-sm font-medium">Talområde (heltal)</legend>
+                <div className="flex items-end gap-2">
+                  <label className="text-sm">
+                    Från
+                    <select
+                      aria-label="100 tal, siffror från"
+                      className={sel}
+                      value={speedLo}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setSpeedLo(value);
+                        if (value > speedHi) setSpeedHi(value);
+                      }}
+                    >
+                      {[1, 2, 3, 4].map((n) => (
+                        <option key={n} value={n}>
+                          {n} siffra{n > 1 ? "r" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm">
+                    Till
+                    <select
+                      aria-label="100 tal, siffror till"
+                      className={sel}
+                      value={speedHi}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setSpeedHi(value);
+                        if (value < speedLo) setSpeedLo(value);
+                      }}
+                    >
+                      {[1, 2, 3, 4].map((n) => (
+                        <option key={n} value={n}>
+                          {n} siffra{n > 1 ? "r" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  100 uppgifter med två tal. Addition och subtraktion använder samma val för växling
+                  som uppställningsbladet.
+                </p>
+              </fieldset>
+            )
           ) : (
             <>
               <fieldset>
@@ -201,138 +332,144 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                   </button>
                 </div>
               </fieldset>
-              <fieldset>
-                <legend className="mb-2 text-sm font-medium">Tal</legend>
-                <div className="flex gap-2">
-                  <button type="button" className={btn(dec === 0)} onClick={() => setDec(0)}>
-                    Heltal
-                  </button>
-                  <button
-                    type="button"
-                    className={btn(
-                      (typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler",
+              {!quickRange && (
+                <>
+                  <fieldset>
+                    <legend className="mb-2 text-sm font-medium">Tal</legend>
+                    <div className="flex gap-2">
+                      <button type="button" className={btn(dec === 0)} onClick={() => setDec(0)}>
+                        Heltal
+                      </button>
+                      <button
+                        type="button"
+                        className={btn(
+                          (typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler",
+                        )}
+                        onClick={() =>
+                          setDec(
+                            typeof dec === "number" && dec > 0
+                              ? dec
+                              : dec === "slumpa-decimaler"
+                                ? dec
+                                : 1,
+                          )
+                        }
+                      >
+                        Decimaltal
+                      </button>
+                      <button
+                        type="button"
+                        className={btn(dec === "slumpa")}
+                        onClick={() => setDec("slumpa")}
+                      >
+                        Slumpa
+                      </button>
+                    </div>
+                    {(typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler" ? (
+                      <label className="mt-2 block text-sm">
+                        Antal decimaler
+                        <select
+                          className={sel}
+                          value={dec === "slumpa-decimaler" ? "slumpa-decimaler" : dec}
+                          onChange={(e) =>
+                            setDec(
+                              e.target.value === "slumpa-decimaler"
+                                ? "slumpa-decimaler"
+                                : Number(e.target.value),
+                            )
+                          }
+                        >
+                          {[1, 2, 3].map((n) => (
+                            <option key={n} value={n}>
+                              {n} decimal{n > 1 ? "er" : ""}
+                            </option>
+                          ))}
+                          <option value="slumpa-decimaler">Slumpa decimaler</option>
+                        </select>
+                      </label>
+                    ) : null}
+                    {dec === "slumpa-decimaler" && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Varje term får ett slumpat antal decimaler (1–3).
+                      </p>
                     )}
-                    onClick={() =>
-                      setDec(
-                        typeof dec === "number" && dec > 0
-                          ? dec
-                          : dec === "slumpa-decimaler"
-                            ? dec
-                            : 1,
-                      )
+                    {dec === "slumpa" && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.
+                      </p>
+                    )}
+                  </fieldset>
+                  <div
+                    className={
+                      op === "add" ? "flex flex-wrap items-start gap-x-3 gap-y-3" : undefined
                     }
                   >
-                    Decimaltal
-                  </button>
-                  <button
-                    type="button"
-                    className={btn(dec === "slumpa")}
-                    onClick={() => setDec("slumpa")}
-                  >
-                    Slumpa
-                  </button>
-                </div>
-                {(typeof dec === "number" && dec > 0) || dec === "slumpa-decimaler" ? (
-                  <label className="mt-2 block text-sm">
-                    Antal decimaler
-                    <select
-                      className={sel}
-                      value={dec === "slumpa-decimaler" ? "slumpa-decimaler" : dec}
-                      onChange={(e) =>
-                        setDec(
-                          e.target.value === "slumpa-decimaler"
-                            ? "slumpa-decimaler"
-                            : Number(e.target.value),
-                        )
-                      }
-                    >
-                      {[1, 2, 3].map((n) => (
-                        <option key={n} value={n}>
-                          {n} decimal{n > 1 ? "er" : ""}
-                        </option>
-                      ))}
-                      <option value="slumpa-decimaler">Slumpa decimaler</option>
-                    </select>
-                  </label>
-                ) : null}
-                {dec === "slumpa-decimaler" && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Varje term får ett slumpat antal decimaler (1–3).
-                  </p>
-                )}
-                {dec === "slumpa" && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Varje term får ett slumpat antal decimaler utifrån sitt sifferantal.
-                  </p>
-                )}
-              </fieldset>
-              <div
-                className={op === "add" ? "flex flex-wrap items-start gap-x-3 gap-y-3" : undefined}
-              >
-                <fieldset className={op === "add" ? "min-w-0" : undefined}>
-                  <legend className="mb-0.5 text-sm font-medium">Antal siffror per tal</legend>
-                  {dec !== 0 && (
-                    <p className="mb-2 text-xs text-muted-foreground">(inkl. decimaler)</p>
-                  )}
-                  <div className="flex items-end gap-2">
-                    <label className="text-sm">
-                      Från
-                      <select
-                        aria-label="Siffror från"
-                        className={sel}
-                        value={lo}
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          setLo(v);
-                          if (v > hi) setHi(v);
-                        }}
-                      >
-                        {[2, 3, 4, 5].map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="text-sm">
-                      Till
-                      <select
-                        aria-label="Siffror till"
-                        className={sel}
-                        value={hi}
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          setHi(v);
-                          if (v < lo) setLo(v);
-                        }}
-                      >
-                        {[2, 3, 4, 5].map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <fieldset className={op === "add" ? "min-w-0" : undefined}>
+                      <legend className="mb-0.5 text-sm font-medium">Antal siffror per tal</legend>
+                      {dec !== 0 && (
+                        <p className="mb-2 text-xs text-muted-foreground">(inkl. decimaler)</p>
+                      )}
+                      <div className="flex items-end gap-2">
+                        <label className="text-sm">
+                          Från
+                          <select
+                            aria-label="Siffror från"
+                            className={sel}
+                            value={lo}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              setLo(v);
+                              if (v > hi) setHi(v);
+                            }}
+                          >
+                            {[2, 3, 4, 5].map((n) => (
+                              <option key={n} value={n}>
+                                {n}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="text-sm">
+                          Till
+                          <select
+                            aria-label="Siffror till"
+                            className={sel}
+                            value={hi}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              setHi(v);
+                              if (v < lo) setLo(v);
+                            }}
+                          >
+                            {[2, 3, 4, 5].map((n) => (
+                              <option key={n} value={n}>
+                                {n}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+                    </fieldset>
+                    {op === "add" && (
+                      <fieldset>
+                        <legend className="mb-2 text-sm font-medium">Antal termer</legend>
+                        <div className="flex gap-2">
+                          {[2, 3].map((n) => (
+                            <button
+                              key={n}
+                              type="button"
+                              className={btn(terms === n)}
+                              onClick={() => setTerms(n)}
+                            >
+                              {n} tal
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+                    )}
                   </div>
-                </fieldset>
-                {op === "add" && (
-                  <fieldset>
-                    <legend className="mb-2 text-sm font-medium">Antal termer</legend>
-                    <div className="flex gap-2">
-                      {[2, 3].map((n) => (
-                        <button
-                          key={n}
-                          type="button"
-                          className={btn(terms === n)}
-                          onClick={() => setTerms(n)}
-                        >
-                          {n} tal
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
-                )}
-              </div>
+                </>
+              )}
               <SetupStyleToggle
                 ownSetup={ownSetup}
                 onChange={setOwnSetup}
@@ -396,7 +533,9 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {speedSheet
-              ? "100 uppgifter · 4 kolumner × 25 tal."
+              ? tenAddFriends
+                ? `${TEN_ADD_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
+                : "100 uppgifter · 4 kolumner × 25 tal."
               : `${SETUP_COUNT} uppgifter · ${clean && !speedSheet ? "Clean: 2 kolumner, 3 par per sida." : "4 rader × 3 kolumner."}`}
             <br />
             PDF:{" "}
@@ -417,12 +556,21 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                 (speedSheet ? (
                   <SheetHundred
                     tasks={tasks.map((task) => ({
-                      left: formatDecimal(task.terms[0]!, task.decs[0]!),
+                      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
                       operator: op === "add" ? "+" : "−",
-                      right: formatDecimal(task.terms[1]!, task.decs[1]!),
-                      answer: formatDecimal(addSubResult(task), maxDec(task)),
+                      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
+                      answer: tenAddFriends
+                        ? formatDecimal(task.terms[task.blankTerm]!, 0)
+                        : formatDecimal(addSubResult(task), maxDec(task)),
+                      ...(tenAddFriends
+                        ? {
+                            blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
+                            result: "10",
+                          }
+                        : {}),
                     }))}
                     operation={title}
+                    sheetTitle={tenAddFriends ? "10-kamrater (addition)" : undefined}
                     answers={false}
                   />
                 ) : clean ? (
@@ -451,12 +599,21 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                 (speedSheet ? (
                   <SheetHundred
                     tasks={tasks.map((task) => ({
-                      left: formatDecimal(task.terms[0]!, task.decs[0]!),
+                      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
                       operator: op === "add" ? "+" : "−",
-                      right: formatDecimal(task.terms[1]!, task.decs[1]!),
-                      answer: formatDecimal(addSubResult(task), maxDec(task)),
+                      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
+                      answer: tenAddFriends
+                        ? formatDecimal(task.terms[task.blankTerm]!, 0)
+                        : formatDecimal(addSubResult(task), maxDec(task)),
+                      ...(tenAddFriends
+                        ? {
+                            blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
+                            result: "10",
+                          }
+                        : {}),
                     }))}
                     operation={title}
+                    sheetTitle={tenAddFriends ? "10-kamrater (addition)" : undefined}
                     answers
                   />
                 ) : (

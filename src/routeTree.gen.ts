@@ -24,7 +24,6 @@ import { Route as PlingPlongRouteImport } from './routes/pling-plong'
 import { Route as SankaSkeppRouteImport } from './routes/sanka-skepp'
 import { Route as SubtraktionRouteImport } from './routes/subtraktion'
 import { Route as SudokuRouteImport } from './routes/sudoku'
-import { Route as TextuppgifterRouteImport } from './routes/textuppgifter'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -101,11 +100,6 @@ const SudokuRoute = SudokuRouteImport.update({
   path: '/sudoku',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TextuppgifterRoute = TextuppgifterRouteImport.update({
-  id: '/textuppgifter',
-  path: '/textuppgifter',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,7 +117,6 @@ export interface FileRoutesByFullPath {
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
-  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -141,7 +134,6 @@ export interface FileRoutesByTo {
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
-  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,7 +152,6 @@ export interface FileRoutesById {
   '/sanka-skepp': typeof SankaSkeppRoute
   '/subtraktion': typeof SubtraktionRoute
   '/sudoku': typeof SudokuRoute
-  '/textuppgifter': typeof TextuppgifterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,7 +171,6 @@ export interface FileRouteTypes {
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
-    | '/textuppgifter'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -198,7 +188,6 @@ export interface FileRouteTypes {
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
-    | '/textuppgifter'
   id:
     | '__root__'
     | '/'
@@ -216,7 +205,6 @@ export interface FileRouteTypes {
     | '/sanka-skepp'
     | '/subtraktion'
     | '/sudoku'
-    | '/textuppgifter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,7 +223,6 @@ export interface RootRouteChildren {
   SankaSkeppRoute: typeof SankaSkeppRoute
   SubtraktionRoute: typeof SubtraktionRoute
   SudokuRoute: typeof SudokuRoute
-  TextuppgifterRoute: typeof TextuppgifterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,13 +332,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SudokuRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/textuppgifter': {
-      id: '/textuppgifter'
-      path: '/textuppgifter'
-      fullPath: '/textuppgifter'
-      preLoaderRoute: typeof TextuppgifterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -371,7 +351,6 @@ const rootRouteChildren: RootRouteChildren = {
   SankaSkeppRoute: SankaSkeppRoute,
   SubtraktionRoute: SubtraktionRoute,
   SudokuRoute: SudokuRoute,
-  TextuppgifterRoute: TextuppgifterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

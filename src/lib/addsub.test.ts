@@ -3,6 +3,9 @@ import {
   addSubLayout,
   addSubResult,
   genAddSub,
+  genAddSubInRange,
+  genTenAddFriends,
+  genTenSubFriends,
   hasRegroup,
   scaledTerms,
   subBorrows,
@@ -14,6 +17,7 @@ describe("genAddSub", () => {
       for (const dec of [0, 2])
         it(`${op} regroup=${regroup} dec=${dec}`, () => {
           const tasks = genAddSub({ op, digits: [dec + 2, 5], dec, terms: 3, regroup, count: 50 });
+
           for (const t of tasks) {
             expect(hasRegroup(t)).toBe(regroup);
             expect(t.terms.length).toBe(op === "sub" ? 2 : 3);
@@ -34,6 +38,185 @@ describe("genAddSub", () => {
       }
     },
   );
+});
+
+describe("genAddSubInRange", () => {
+  it.each([
+    [1, 10],
+    [1, 20],
+    [10, 20],
+    [10, 100],
+  ])("skapar additionsuppgifter med summor inom intervallet %i-%i", (min, max) => {
+    for (const regroup of [true, false]) {
+      const tasks = genAddSubInRange(min, max, 50, regroup);
+      expect(tasks).toHaveLength(50);
+      for (const task of tasks) {
+        expect(task.op).toBe("add");
+        expect(task.terms).toHaveLength(2);
+        const sum = addSubResult(task);
+        expect(sum).toBeGreaterThanOrEqual(min);
+        expect(sum).toBeLessThanOrEqual(max);
+        if (min === 10) expect(task.terms.some((term) => term >= min)).toBe(true);
+        expect(hasRegroup(task)).toBe(regroup);
+      }
+    }
+  });
+
+  it("varierar additionerna för samma summa", () => {
+    const sumEight = genAddSubInRange(8, 8, 5, false);
+    expect(new Set(sumEight.map((task) => task.terms.join("+"))).size).toBe(4);
+  });
+
+  it("sprider 1-20 jämnt över alla möjliga additionskombinationer", () => {
+    const tasks = genAddSubInRange(1, 20, 250, true);
+    const expected = new Set<string>();
+    for (let left = 1; left <= 20; left++) {
+      for (let right = left; right <= 20; right++) {
+        const candidate = { op: "add" as const, terms: [left, right], decs: [0, 0] };
+        const sum = addSubResult(candidate);
+        if (sum >= 1 && sum <= 20 && hasRegroup(candidate)) {
+          expected.add(candidate.terms.join("+"));
+        }
+      }
+    }
+    const combinations = new Map<string, number>();
+    for (const task of tasks) {
+      const key = [...task.terms].sort((a, b) => a - b).join("+");
+      combinations.set(key, (combinations.get(key) ?? 0) + 1);
+    }
+    const counts = [...combinations.values()];
+    expect(new Set(combinations.keys())).toEqual(expected);
+    expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
+  });
+
+  it("placerar tvåsiffriga termer jämnt till vänster och höger i 10-20", () => {
+    const tasks = genAddSubInRange(10, 20, 200, true);
+    let twoDigitLeft = 0;
+    let twoDigitRight = 0;
+    for (const task of tasks) {
+      const [left, right] = task.terms;
+      const leftIsTwoDigit = left! >= 10 && left! < 100;
+      const rightIsTwoDigit = right! >= 10 && right! < 100;
+      if (leftIsTwoDigit === rightIsTwoDigit) continue;
+      if (leftIsTwoDigit) twoDigitLeft++;
+      else twoDigitRight++;
+    }
+    expect(Math.abs(twoDigitLeft - twoDigitRight)).toBeLessThanOrEqual(1);
+  });
+
+  it.each([
+    [1, 10],
+    [1, 20],
+    [10, 20],
+    [10, 100],
+  ])("skapar jämnt fördelade subtraktioner med differenser %i-%i", (min, max) => {
+    const tasks = genAddSubInRange(min, max, 200, true, "sub");
+    const expected = new Set<string>();
+    for (let minuend = 1; minuend <= max; minuend++) {
+      for (let subtrahend = 1; subtrahend <= minuend; subtrahend++) {
+        const candidate = { op: "sub" as const, terms: [minuend, subtrahend], decs: [0, 0] };
+        const difference = addSubResult(candidate);
+        if (difference <= max && (difference >= min || (min === 1 && difference === 0))) {
+          expected.add(candidate.terms.join("-"));
+        }
+      }
+    }
+    const counts = new Map<string, number>();
+    for (const task of tasks) {
+      expect(task.op).toBe("sub");
+      const difference = addSubResult(task);
+      if (min === 1) expect(difference).toBeGreaterThanOrEqual(0);
+      else expect(difference).toBeGreaterThanOrEqual(min);
+      expect(difference).toBeLessThanOrEqual(max);
+      expect(Math.max(...task.terms)).toBeLessThanOrEqual(max);
+      expect(task.terms[0]).toBeGreaterThanOrEqual(task.terms[1]!);
+      const key = task.terms.join("-");
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    const frequencies = [...counts.values()];
+    if (expected.size <= tasks.length) {
+      expect(new Set(counts.keys())).toEqual(expected);
+      expect(Math.max(...frequencies) - Math.min(...frequencies)).toBeLessThanOrEqual(1);
+    } else {
+      expect(counts.size).toBe(tasks.length);
+      expect([...counts.keys()].every((key) => expected.has(key))).toBe(true);
+    }
+    expect(new Set(tasks.map((task) => task.terms[0])).size).toBeGreaterThan(1);
+  });
+
+  it("tar med alla 55 icke-negativa subtraktioner från 1-1 till 10-10", () => {
+    const tasks = genAddSubInRange(1, 10, 55, true, "sub");
+    const combinations = new Set(tasks.map((task) => task.terms.join("-")));
+    const expected = new Set<string>();
+    for (let minuend = 1; minuend <= 10; minuend++) {
+      for (let subtrahend = 1; subtrahend <= minuend; subtrahend++) {
+        expected.add(`${minuend}-${subtrahend}`);
+      }
+    }
+    expect(combinations).toEqual(expected);
+    expect(combinations.has("1-1")).toBe(true);
+    expect(tasks.every((task) => Math.max(...task.terms) <= 10)).toBe(true);
+  });
+
+  it("fördelar 10-kamrater jämnt mellan subtrahenderna 0-10", () => {
+    const tasks = genTenSubFriends(100);
+    const counts = new Map<number, number>();
+    for (const task of tasks) {
+      expect(task.op).toBe("sub");
+      expect(task.terms[0]).toBe(10);
+      expect(addSubResult(task)).toBeGreaterThanOrEqual(0);
+      expect(addSubResult(task)).toBeLessThanOrEqual(10);
+      const subtrahend = task.terms[1]!;
+      counts.set(subtrahend, (counts.get(subtrahend) ?? 0) + 1);
+    }
+    expect(counts.size).toBe(11);
+    expect(Math.max(...counts.values()) - Math.min(...counts.values())).toBeLessThanOrEqual(1);
+  });
+
+  it("fördelar 10-kamrater jämnt mellan ordnade additioner som blir 10", () => {
+    const tasks = genTenAddFriends(100);
+    const counts = new Map<string, number>();
+    let leftBlank = 0;
+    let rightBlank = 0;
+    for (const task of tasks) {
+      expect(task.op).toBe("add");
+      expect(addSubResult(task)).toBe(10);
+      const key = task.terms.join("+");
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+      if (task.blankTerm === 0) leftBlank++;
+      else rightBlank++;
+    }
+    expect(counts.size).toBe(11);
+    expect(counts.get("3+7")).toBeGreaterThan(0);
+    expect(counts.get("7+3")).toBeGreaterThan(0);
+    expect(Math.max(...counts.values()) - Math.min(...counts.values())).toBeLessThanOrEqual(1);
+    expect(Math.abs(leftBlank - rightBlank)).toBeLessThanOrEqual(1);
+  });
+
+  it("tar med alla 610 subtraktioner med positiva subtrahender och differens mellan -20 och 20", () => {
+    const tasks = genAddSubInRange(-20, 20, 610, true, "sub");
+    const combinations = new Set(tasks.map((task) => task.terms.join("-")));
+    const expected = new Set<string>();
+    for (let minuend = -20; minuend <= 20; minuend++) {
+      for (let subtrahend = 1; subtrahend <= 20; subtrahend++) {
+        const difference = minuend - subtrahend;
+        if (difference >= -20 && difference <= 20) {
+          expected.add(`${minuend}-${subtrahend}`);
+        }
+      }
+    }
+    expect(combinations).toEqual(expected);
+    for (const task of tasks) {
+      const [minuend, subtrahend] = task.terms;
+      const difference = addSubResult(task);
+      expect(minuend).toBeGreaterThanOrEqual(-20);
+      expect(minuend).toBeLessThanOrEqual(20);
+      expect(subtrahend).toBeGreaterThan(0);
+      expect(subtrahend).toBeLessThanOrEqual(20);
+      expect(difference).toBeGreaterThanOrEqual(-20);
+      expect(difference).toBeLessThanOrEqual(20);
+    }
+  });
 });
 
 describe("subtraktion: alltid positiv differens", () => {

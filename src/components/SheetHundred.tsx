@@ -10,24 +10,32 @@ export type HundredTask = {
   operator: string;
   right: string;
   answer: string;
+  blank?: "left" | "right";
+  result?: string;
 };
 
 export function SheetHundred({
   tasks,
   operation,
   answers,
+  sheetTitle = "100 tal",
 }: {
   tasks: HundredTask[];
   operation: string;
   answers: boolean;
+  sheetTitle?: string;
 }) {
+  const columnSize = Math.ceil(tasks.length / 4);
   const columns = Array.from({ length: 4 }, (_, index) =>
-    tasks.slice(index * 25, (index + 1) * 25),
+    tasks.slice(index * columnSize, (index + 1) * columnSize),
   );
+  const hasFillInTasks = tasks.some((task) => task.blank);
   return (
-    <div className="a4-page hundred-tasks-page">
+    <div
+      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}`}
+    >
       <SheetHeader
-        title={answers ? "100 tal – Facit" : "100 tal"}
+        title={answers ? `${sheetTitle} – Facit` : sheetTitle}
         subtitle={`${operation} · 6 minuter`}
         score={`av ${tasks.length}`}
         compact
@@ -36,15 +44,46 @@ export function SheetHundred({
         {columns.map((column, columnIndex) => (
           <div className="hundred-tasks-column" key={columnIndex}>
             {groups(column).map((group, groupIndex) => (
-              <div className="hundred-tasks-group" key={groupIndex}>
+              <div
+                className={`hundred-tasks-group${group.some((task) => task.blank) ? " hundred-tasks-group--fill-in" : ""}${groupIndex > 0 && group.some((task) => task.blank) ? " hundred-tasks-group--fill-in-divider" : ""}`}
+                key={groupIndex}
+                data-task-count={group.length}
+              >
                 {group.map((task, rowIndex) => (
-                  <div className="hundred-task" key={rowIndex}>
-                    <span className="hundred-task-left">{task.left}</span>
+                  <div
+                    className={`hundred-task${task.blank ? " hundred-task-fill-in" : ""}`}
+                    key={rowIndex}
+                  >
+                    <span
+                      className={`hundred-task-left${task.blank === "left" ? " hundred-task-blank" : ""}`}
+                    >
+                      {task.blank === "left" && !answers
+                        ? "\u00a0"
+                        : task.blank === "left" && answers
+                          ? task.answer
+                          : task.left}
+                    </span>
                     <span className="hundred-task-operator">{task.operator}</span>
-                    <span className="hundred-task-right">{task.right}</span>
+                    <span
+                      className={`hundred-task-right${task.blank === "right" ? " hundred-task-blank" : ""}`}
+                    >
+                      {task.blank === "right" && !answers
+                        ? "\u00a0"
+                        : task.blank === "right" && answers
+                          ? task.answer
+                          : task.right}
+                    </span>
                     <span className="hundred-task-equals">=</span>
-                    <span className="hundred-task-answer">
-                      {answers ? <strong>{task.answer}</strong> : "\u00a0"}
+                    <span
+                      className={`hundred-task-answer${task.result ? " hundred-task-result" : ""}${task.blank ? " hundred-task-fixed-result" : ""}`}
+                    >
+                      {task.result !== undefined ? (
+                        task.result
+                      ) : answers ? (
+                        <strong>{task.answer}</strong>
+                      ) : (
+                        "\u00a0"
+                      )}
                     </span>
                   </div>
                 ))}

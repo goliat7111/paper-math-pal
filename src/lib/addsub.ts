@@ -7,6 +7,7 @@ export type AddSubOp = "add" | "sub";
  * termernas heltalsvärden tolkas med `decs[i]` decimaler.
  */
 export type AddSubTask = { op: AddSubOp; terms: number[]; decs: number[] };
+export type TenAddFriendTask = AddSubTask & { blankTerm: 0 | 1 };
 
 export type AddSubOptions = {
   op: AddSubOp;
@@ -70,6 +71,15 @@ export const addSubResult = (t: AddSubTask) => {
   const s = scaledTerms(t);
   return t.op === "add" ? s.reduce((a, b) => a + b, 0) : s[0]! - s[1]!;
 };
+
+function shuffle<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = rand(0, i);
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
+  }
+  return shuffled;
+}
 
 function genNumber(k: number, dec: number): number {
   const len = Math.max(k, dec + 1);
@@ -165,6 +175,114 @@ export function genAddSub(o: AddSubOptions): AddSubTask[] {
     out.push(best!);
   }
   return out;
+}
+
+export function genAddSubInRange(
+  min: number,
+  max: number,
+  count: number,
+  regroup: boolean,
+  op: AddSubOp = "add",
+): AddSubTask[] {
+  const candidates: AddSubTask[] = [];
+  if (op === "add") {
+    for (let left = 1; left <= max; left++) {
+      for (let right = left; right <= max; right++) {
+        const task: AddSubTask = { op, terms: [left, right], decs: [0, 0] };
+        const sum = addSubResult(task);
+        const hasTermInRange = min < 10 || left >= min || right >= min;
+        if (sum >= min && sum <= max && hasTermInRange && hasRegroup(task) === regroup) {
+          candidates.push(task);
+        }
+      }
+    }
+  } else if (op === "sub" && min === -20 && max === 20) {
+    for (let left = -20; left <= 20; left++) {
+      for (let right = 1; right <= 20; right++) {
+        const task: AddSubTask = { op, terms: [left, right], decs: [0, 0] };
+        const difference = addSubResult(task);
+        if (difference >= min && difference <= max) candidates.push(task);
+      }
+    }
+  } else {
+    for (let left = 1; left <= max; left++) {
+      for (let right = 1; right <= left; right++) {
+        const task: AddSubTask = { op, terms: [left, right], decs: [0, 0] };
+        const difference = addSubResult(task);
+        const inRange = difference >= min || (min === 1 && difference === 0);
+        if (inRange && difference <= max) candidates.push(task);
+      }
+    }
+  }
+  if (!candidates.length) {
+    throw new Error(
+      `No ${op === "add" ? "addition tasks" : "subtraction tasks"} with results in range ${min}-${max} match regroup=${regroup}`,
+    );
+  }
+  let deck = shuffle(candidates);
+  if (op === "sub") {
+    return Array.from({ length: count }, (_, i) => {
+      if (i > 0 && i % deck.length === 0) deck = shuffle(candidates);
+      return deck[i % deck.length]!;
+    });
+  }
+  let twoDigitLeft = 0;
+  let twoDigitRight = 0;
+  const tasks: AddSubTask[] = [];
+  for (let i = 0; i < count; i++) {
+    if (i > 0 && i % deck.length === 0) {
+      deck = shuffle(candidates);
+    }
+    const task = deck[i % deck.length]!;
+    const [left, right] = task.terms;
+    const leftIsTwoDigit = left! >= 10 && left! < 100;
+    const rightIsTwoDigit = right! >= 10 && right! < 100;
+    if (leftIsTwoDigit !== rightIsTwoDigit) {
+      const putTwoDigitOnLeft =
+        twoDigitLeft === twoDigitRight ? rand(0, 1) === 1 : twoDigitLeft < twoDigitRight;
+      if (putTwoDigitOnLeft) twoDigitLeft++;
+      else twoDigitRight++;
+      tasks.push({
+        ...task,
+        terms: putTwoDigitOnLeft ? [right!, left!] : [left!, right!],
+      });
+    } else {
+      tasks.push(task);
+    }
+  }
+  return tasks;
+}
+
+export function genTenSubFriends(count: number): AddSubTask[] {
+  const candidates = Array.from({ length: 11 }, (_, subtrahend) => ({
+    op: "sub" as const,
+    terms: [10, subtrahend],
+    decs: [0, 0],
+  }));
+  let deck = shuffle(candidates);
+  return Array.from({ length: count }, (_, index) => {
+    if (index > 0 && index % deck.length === 0) {
+      deck = shuffle(candidates);
+    }
+    return deck[index % deck.length]!;
+  });
+}
+
+export function genTenAddFriends(count: number): TenAddFriendTask[] {
+  const candidates = Array.from({ length: 11 }, (_, left) => ({
+    op: "add" as const,
+    terms: [left, 10 - left],
+    decs: [0, 0],
+  }));
+  let deck = shuffle(candidates);
+  const blankTerms = shuffle([
+    ...Array<0>(Math.ceil(count / 2)).fill(0),
+    ...Array<1>(Math.floor(count / 2)).fill(1),
+  ]);
+  return Array.from({ length: count }, (_, index) => {
+    if (index > 0 && index % deck.length === 0) deck = shuffle(candidates);
+    return { ...deck[index % deck.length]!, blankTerm: blankTerms[index]! };
+  });
 }
 
 export type AddSubLayout = {
