@@ -14,6 +14,12 @@ import { SheetHundred } from "@/components/SheetHundred";
 import { ZoomControls } from "@/components/ZoomControls";
 import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { SetupStyleToggle } from "@/components/SetupStyleToggle";
+import {
+  genReverseDivision,
+  REVERSE_DIVISION_COUNT,
+  type ReverseDivisionTask,
+} from "@/lib/reverse-division";
+import { SheetReverseDivision } from "@/components/SheetReverseDivision";
 
 export const Route = createFileRoute("/division")({
   head: () => ({
@@ -43,10 +49,11 @@ function DivisionPage() {
   const [min, setMin] = useState("2");
   const [max, setMax] = useState("9");
   const [mode, setMode] = useState<
-    "even" | "rest" | "extra" | "extend" | "challenges" | "progression" | "quick100"
+    "even" | "rest" | "extra" | "extend" | "challenges" | "progression" | "quick100" | "reverse"
   >("even");
   const [generatedMode, setGeneratedMode] = useState(mode);
-  const tasksPerPage = generatedMode === "quick100" ? 100 : 12;
+  const tasksPerPage =
+    generatedMode === "reverse" ? REVERSE_DIVISION_COUNT : generatedMode === "quick100" ? 100 : 12;
   const [level, setLevel] = useState<MixedLevel>(3);
   const withRemainder = mode === "rest";
   const [dec, setDec] = useState(0);
@@ -54,11 +61,12 @@ function DivisionPage() {
   const [ownSetup, setOwnSetup] = useState(true);
   const [showComplexityMatrix, setShowComplexityMatrix] = useState(false);
   const [clean, setClean] = useState(false);
-  const cleanLayout = generatedMode !== "quick100" && clean;
+  const cleanLayout = generatedMode !== "quick100" && generatedMode !== "reverse" && clean;
   const cleanTasksPerPage = cleanLayout ? 6 : tasksPerPage;
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
   const [tasks, setTasks] = useState<DivisionTask[]>([]);
+  const [reverseTasks, setReverseTasks] = useState<ReverseDivisionTask[]>([]);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
   const [preview, setPreview] = useState<{
@@ -74,6 +82,14 @@ function DivisionPage() {
 
   useEffect(() => {
     try {
+      if (mode === "reverse") {
+        const result = genReverseDivision();
+        setReverseTasks(result);
+        setTasks(result);
+        setGeneratedMode(mode);
+        setError("");
+        return;
+      }
       const result =
         mode === "quick100"
           ? genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 100)
@@ -116,6 +132,14 @@ function DivisionPage() {
   }, [challengeDec, dec, divMax, divMin, extra, includeRest, level, max, min, mode, withRemainder]);
   const generate = () => {
     try {
+      if (mode === "reverse") {
+        const result = genReverseDivision();
+        setReverseTasks(result);
+        setTasks(result);
+        setGeneratedMode(mode);
+        setError("");
+        return;
+      }
       const result =
         mode === "quick100"
           ? genDivision(Number(divMin), Number(divMax), Number(min), Number(max), 100)
@@ -173,7 +197,7 @@ function DivisionPage() {
       previewUrl.current = url;
       setPreview({ ...result, url });
       setFileName(
-        `division-${generatedMode === "quick100" ? "100-tal-6-min" : `${ownSetup ? "egen-uppstallning" : "kort-division"}-${generatedMode === "progression" ? "progressionsserie" : mode === "extend" ? "forlanga-forkorta" : mode === "challenges" ? `utmaningar-niva-${level}${challengeDec ? "-slumpade-decimaler" : ""}` : tasks.some((t) => t.remainder > 0) ? "med-rest" : mode === "extra" ? (extra === -1 ? "slumpade-extra-decimaler" : `${extra}-extra-decimaler`) : "utan-rest"}${generatedMode === "progression" ? "" : dec === -1 ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
+        `division-${generatedMode === "reverse" ? "omvand-multiplikation-6-min" : generatedMode === "quick100" ? "100-tal-6-min" : `${ownSetup ? "egen-uppstallning" : "kort-division"}-${generatedMode === "progression" ? "progressionsserie" : mode === "extend" ? "forlanga-forkorta" : mode === "challenges" ? `utmaningar-niva-${level}${challengeDec ? "-slumpade-decimaler" : ""}` : tasks.some((t) => t.remainder > 0) ? "med-rest" : mode === "extra" ? (extra === -1 ? "slumpade-extra-decimaler" : `${extra}-extra-decimaler`) : "utan-rest"}${generatedMode === "progression" ? "" : dec === -1 ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
       );
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut.");
@@ -201,7 +225,11 @@ function DivisionPage() {
           </Link>
           <h1 className="font-display text-2xl font-semibold">Division</h1>
           <p className="text-sm text-muted-foreground">
-            {mode === "quick100" ? "100 tal · 6 minuter" : "Kort division · A4"}
+            {mode === "reverse"
+              ? "Omvänd multiplikation · 6 minuter"
+              : mode === "quick100"
+                ? "100 tal · 6 minuter"
+                : "Kort division · A4"}
           </p>
         </div>
       </header>
@@ -215,7 +243,7 @@ function DivisionPage() {
             }}
             className="space-y-5"
           >
-            {mode !== "progression" && (
+            {mode !== "progression" && mode !== "reverse" && (
               <>
                 <fieldset>
                   <legend className="mb-2 text-sm font-medium">Täljare mellan</legend>
@@ -373,6 +401,15 @@ function DivisionPage() {
                 />
                 100 tal (6 min)
               </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="remainder"
+                  checked={mode === "reverse"}
+                  onChange={() => setMode("reverse")}
+                />
+                {REVERSE_DIVISION_COUNT} tal (6 min)
+              </label>
               {mode === "challenges" && (
                 <select
                   aria-label="Svårighetsgrad"
@@ -422,25 +459,27 @@ function DivisionPage() {
               </label>
             )}
             <p className="text-sm text-muted-foreground">
-              {mode === "quick100"
-                ? "100 huvudräkningsuppgifter. Alla divisioner går jämnt ut; täljare och nämnare väljs från talområdena ovan."
-                : mode === "progression"
-                  ? "Tolv heltalsuppgifter: de tio momenten i fast progression följs av två slumpade tresiffriga uppgifter som går jämnt ut. Uppgift 10–12 kombinerar så många utmaningar som möjligt utan rest. Facit visar vilka utmaningar varje uppgift tränar."
-                  : mode === "challenges"
-                    ? `Uppgifter med olika utmaningar på nivå ${level}, t.ex. växling, nollor, rest och decimaler. Facit visar vilken utmaning varje uppgift tränar. Talområdena ovan används inte i det här läget.`
-                    : mode === "extend"
-                      ? "Nämnaren är ett decimaltal (t.ex. 0,6 eller 0,06). Eleven förlänger eller förkortar så att nämnaren blir ett heltal och räknar sedan i huvudet. Talområdena ovan används inte i det här läget."
-                      : dec === -1
-                        ? "Varje uppgift får ett slumpat antal decimaler (0–3) i täljaren. Alla uppgifter går jämnt ut."
-                        : mode === "rest"
-                          ? "Alla uppgifter får en rest."
-                          : mode === "extra"
-                            ? extra === -1
-                              ? "Varje uppgift får ett slumpat antal extra decimaler (1–3) i svaret, t.ex. 4 / 8 = 0,5 eller 1 / 8 = 0,125. Nämnare som inte räcker till för en uppgift hoppas över."
-                              : `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}`
-                            : dec > 0
-                              ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2."
-                              : "Alla uppgifter går jämnt ut."}
+              {mode === "reverse"
+                ? "Alla faktapar i tabellerna 2–9 ingår. Omvända faktorer används för att fylla bladet. Fyll i den saknade nämnaren eller kvoten."
+                : mode === "quick100"
+                  ? "100 huvudräkningsuppgifter. Alla divisioner går jämnt ut; täljare och nämnare väljs från talområdena ovan."
+                  : mode === "progression"
+                    ? "Tolv heltalsuppgifter: de tio momenten i fast progression följs av två slumpade tresiffriga uppgifter som går jämnt ut. Uppgift 10–12 kombinerar så många utmaningar som möjligt utan rest. Facit visar vilka utmaningar varje uppgift tränar."
+                    : mode === "challenges"
+                      ? `Uppgifter med olika utmaningar på nivå ${level}, t.ex. växling, nollor, rest och decimaler. Facit visar vilken utmaning varje uppgift tränar. Talområdena ovan används inte i det här läget.`
+                      : mode === "extend"
+                        ? "Nämnaren är ett decimaltal (t.ex. 0,6 eller 0,06). Eleven förlänger eller förkortar så att nämnaren blir ett heltal och räknar sedan i huvudet. Talområdena ovan används inte i det här läget."
+                        : dec === -1
+                          ? "Varje uppgift får ett slumpat antal decimaler (0–3) i täljaren. Alla uppgifter går jämnt ut."
+                          : mode === "rest"
+                            ? "Alla uppgifter får en rest."
+                            : mode === "extra"
+                              ? extra === -1
+                                ? "Varje uppgift får ett slumpat antal extra decimaler (1–3) i svaret, t.ex. 4 / 8 = 0,5 eller 1 / 8 = 0,125. Nämnare som inte räcker till för en uppgift hoppas över."
+                                : `Svaret får ${extra} decimal${extra > 1 ? "er" : ""} mer än täljaren, t.ex. ${extra === 1 ? "4 / 8 = 0,5" : extra === 2 ? "0,8 / 5 = 0,16" : "1 / 8 = 0,125"}. ${extra === 3 ? "Kräver nämnaren 8." : extra === 2 ? "Kräver nämnaren 4 eller 8." : "Nämnare 3, 7 och 9 hoppas över."}`
+                              : dec > 0
+                                ? "Alla uppgifter går jämnt ut, t.ex. 4,8 / 4 = 1,2."
+                                : "Alla uppgifter går jämnt ut."}
             </p>
             {mode === "progression" && (
               <div className="space-y-2 text-sm text-muted-foreground">
@@ -464,21 +503,23 @@ function DivisionPage() {
                         .filter((step) => includeRest || !step.rules.withRemainder)
                         .slice(0, 10)
                         .map((step) => (
-                        <li key={step.label}>{step.label}</li>
-                      ))}
+                          <li key={step.label}>{step.label}</li>
+                        ))}
                       <li>Slumpade kombinationer av gruppering, växlingar, nollor och rest</li>
                     </ol>
                   </div>
                 )}
               </div>
             )}
-            <SetupStyleToggle
-              ownSetup={ownSetup}
-              onChange={setOwnSetup}
-              showClean={generatedMode !== "quick100"}
-              clean={clean}
-              onCleanChange={setClean}
-            />
+            {mode !== "reverse" && (
+              <SetupStyleToggle
+                ownSetup={ownSetup}
+                onChange={setOwnSetup}
+                showClean={generatedMode !== "quick100"}
+                clean={clean}
+                onCleanChange={setClean}
+              />
+            )}
           </form>
           <PrintContentChoice value={content} onChange={setContent} />
           {error && (
@@ -518,11 +559,13 @@ function DivisionPage() {
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {tasks.length} uppgifter ·{" "}
-            {generatedMode === "quick100"
-              ? "4 kolumner × 25 tal"
-              : cleanLayout
-                ? "Clean: 2 kolumner, 3 par per sida"
-                : "4 rader × 3 kolumner per sida"}
+            {generatedMode === "reverse"
+              ? "4 kolumner × 15 tal"
+              : generatedMode === "quick100"
+                ? "4 kolumner × 25 tal"
+                : cleanLayout
+                  ? "Clean: 2 kolumner, 3 par per sida"
+                  : "4 rader × 3 kolumner per sida"}
             .<br />
             PDF:{" "}
             {(showSheet(content) ? Math.ceil(tasks.length / cleanTasksPerPage) : 0) +
@@ -534,7 +577,14 @@ function DivisionPage() {
         <main {...mainProps} className="print-area flex min-w-0 flex-1 flex-col items-center gap-8">
           {tasks.length > 0 && (
             <>
-              {generatedMode === "quick100" ? (
+              {generatedMode === "reverse" ? (
+                <>
+                  {showSheet(content) && (
+                    <SheetReverseDivision tasks={reverseTasks} answers={false} />
+                  )}
+                  {showKey(content) && <SheetReverseDivision tasks={reverseTasks} answers />}
+                </>
+              ) : generatedMode === "quick100" ? (
                 <>
                   {showSheet(content) && (
                     <SheetHundred
@@ -545,6 +595,7 @@ function DivisionPage() {
                         answer: formatDecimal(task.quotient, task.quotientDecimals ?? 0),
                       }))}
                       operation="Division"
+                      divisionQuick
                       answers={false}
                     />
                   )}
@@ -557,6 +608,7 @@ function DivisionPage() {
                         answer: formatDecimal(task.quotient, task.quotientDecimals ?? 0),
                       }))}
                       operation="Division"
+                      divisionQuick
                       answers
                     />
                   )}

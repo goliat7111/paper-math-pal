@@ -22,6 +22,7 @@ export function SheetHundred({
   alignUnits = false,
   alignOperands = false,
   tenFriendsLayout = false,
+  divisionQuick = false,
 }: {
   tasks: HundredTask[];
   operation: string;
@@ -30,6 +31,7 @@ export function SheetHundred({
   alignUnits?: boolean;
   alignOperands?: boolean;
   tenFriendsLayout?: boolean;
+  divisionQuick?: boolean;
 }) {
   const columnSize = Math.ceil(tasks.length / 4);
   const columns = Array.from({ length: 4 }, (_, index) =>
@@ -38,7 +40,7 @@ export function SheetHundred({
   const hasFillInTasks = tasks.some((task) => task.blank);
   return (
     <div
-      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}${alignUnits ? " hundred-tasks-page--align-units" : ""}${alignOperands ? " hundred-tasks-page--align-operands" : ""}${tenFriendsLayout ? " hundred-tasks-page--ten-friends-layout" : ""}`}
+      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}${alignUnits ? " hundred-tasks-page--align-units" : ""}${alignOperands ? " hundred-tasks-page--align-operands" : ""}${tenFriendsLayout ? " hundred-tasks-page--ten-friends-layout" : ""}${divisionQuick ? " hundred-tasks-page--division-quick" : ""}`}
     >
       <SheetHeader
         title={answers ? `${sheetTitle} – Facit` : sheetTitle}

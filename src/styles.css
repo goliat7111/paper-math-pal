@@ -1126,6 +1126,64 @@ body {
   }
 }
 
+.reverse-division-page {
+  display: flex;
+  flex-direction: column;
+  height: 297mm;
+}
+.reverse-division-grid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 3mm;
+  border-top: 0.2mm solid #b5b5b5;
+  border-left: 0.2mm solid #b5b5b5;
+}
+.reverse-division-column {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+.reverse-division-task,
+.reverse-division-empty {
+  border-right: 0.2mm solid #b5b5b5;
+  border-bottom: 0.2mm solid #b5b5b5;
+}
+.reverse-division-task {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2mm;
+  font-size: 12pt;
+  line-height: 1;
+}
+.reverse-division-fraction {
+  display: flex;
+  width: 12mm;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.reverse-division-numerator {
+  width: 100%;
+  border-bottom: 0.3mm solid currentColor;
+  padding-bottom: 0.5mm;
+}
+.reverse-division-denominator {
+  padding-top: 0.5mm;
+}
+.reverse-division-quotient {
+  width: 8mm;
+  text-align: center;
+}
+.reverse-division-blank {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 8mm;
+  border-bottom: 0.3mm solid currentColor;
+  text-align: center;
+}
 .hundred-tasks-page {
   display: flex;
   flex-direction: column;
@@ -1381,6 +1439,13 @@ body {
 .hundred-task-equals {
   width: 3mm;
   text-align: center;
+}
+.hundred-tasks-page--division-quick .hundred-task-right {
+  flex: 0 0 8mm;
+}
+.hundred-tasks-page--division-quick .hundred-task-equals {
+  flex: 0 0 3mm;
+  transform: translateX(calc((1ch - 8mm) / 2));
 }
 .hundred-tasks-page--align-operands .hundred-task-equals {
   margin-left: 2mm;

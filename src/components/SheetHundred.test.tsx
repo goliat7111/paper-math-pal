@@ -34,6 +34,17 @@ describe("SheetHundred", () => {
     expect(markup.match(/hundred-tasks-group--spaced-divider/g)).toHaveLength(16);
   });
 
+  it("can scope division quick-sheet spacing without affecting other sheets", () => {
+    const markup = renderToStaticMarkup(
+      <SheetHundred tasks={tasks} operation="Division" answers={false} divisionQuick />,
+    );
+    expect(markup).toContain("hundred-tasks-page--division-quick");
+    const other = renderToStaticMarkup(
+      <SheetHundred tasks={tasks} operation="Addition" answers={false} />,
+    );
+    expect(other).not.toContain("hundred-tasks-page--division-quick");
+  });
+
   it("shows a fixed sum with a blank addend, then fills that addend in the key", () => {
     const tasks = [
       {
