@@ -55,11 +55,6 @@ const operations = [
     to: "/division",
     icon: <Divide className="h-5 w-5" />,
   },
-  {
-    title: "Textuppgifter",
-    to: "/textuppgifter",
-    icon: <BookOpenText className="h-5 w-5" />,
-  },
 ] as const;
 
 function StartPage() {
