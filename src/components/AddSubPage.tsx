@@ -23,6 +23,7 @@ import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 
 const SETUP_COUNT = 12;
 const TEN_ADD_FRIEND_COUNT = 80;
+const TEN_SUB_FRIEND_COUNT = 80;
 const QUICK_RANGES = [
   [1, 10],
   [1, 20],
@@ -70,7 +71,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     speed && tenAddFriends
       ? genTenAddFriends(TEN_ADD_FRIEND_COUNT)
       : speed && tenSubFriends
-        ? genTenSubFriends(100)
+        ? genTenSubFriends(TEN_SUB_FRIEND_COUNT)
         : speed && quickRange
           ? genAddSubInRange(...quickRange, 100, regroup, op)
           : genAddSub({
@@ -264,7 +265,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                   {tenAddFriends
                     ? `${TEN_ADD_FRIEND_COUNT} uppgifter med summan 10. Varje unik addition och plats för den saknade termen förekommer jämnt.`
                     : tenSubFriends
-                      ? "100 uppgifter med minuend 10 och subtrahender jämnt fördelade från 0 till 10."
+                      ? `${TEN_SUB_FRIEND_COUNT} uppgifter med minuend 10 och subtrahender jämnt fördelade från 0 till 10.`
                       : op === "sub"
                         ? "100 uppgifter med differenser inom valt område, blandade med och utan växling."
                         : "100 uppgifter med summor inom valt område."}
@@ -535,7 +536,9 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
             {speedSheet
               ? tenAddFriends
                 ? `${TEN_ADD_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
-                : "100 uppgifter · 4 kolumner × 25 tal."
+                : tenSubFriends
+                  ? `${TEN_SUB_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
+                  : "100 uppgifter · 4 kolumner × 25 tal."
               : `${SETUP_COUNT} uppgifter · ${clean && !speedSheet ? "Clean: 2 kolumner, 3 par per sida." : "4 rader × 3 kolumner."}`}
             <br />
             PDF:{" "}
@@ -561,16 +564,32 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                       right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
                       answer: tenAddFriends
                         ? formatDecimal(task.terms[task.blankTerm]!, 0)
-                        : formatDecimal(addSubResult(task), maxDec(task)),
+                        : tenSubFriends && task.blankPart === "subtrahend"
+                          ? formatDecimal(task.terms[1]!, 0)
+                          : formatDecimal(addSubResult(task), maxDec(task)),
                       ...(tenAddFriends
                         ? {
                             blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
                             result: "10",
                           }
-                        : {}),
+                        : tenSubFriends && task.blankPart === "subtrahend"
+                          ? {
+                              blank: "right" as const,
+                              result: formatDecimal(addSubResult(task), 0),
+                            }
+                          : {}),
                     }))}
                     operation={title}
-                    sheetTitle={tenAddFriends ? "10-kamrater (addition)" : undefined}
+                    sheetTitle={
+                      tenAddFriends
+                        ? "10-kamrater (addition)"
+                        : tenSubFriends
+                          ? "10-kamrater (subtraktion)"
+                          : undefined
+                    }
+                    alignUnits={quickRange !== null}
+                    alignOperands={quickRange !== null || tenSubFriends}
+                    tenFriendsLayout={tenAddFriends || tenSubFriends}
                     answers={false}
                   />
                 ) : clean ? (
@@ -604,16 +623,32 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                       right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
                       answer: tenAddFriends
                         ? formatDecimal(task.terms[task.blankTerm]!, 0)
-                        : formatDecimal(addSubResult(task), maxDec(task)),
+                        : tenSubFriends && task.blankPart === "subtrahend"
+                          ? formatDecimal(task.terms[1]!, 0)
+                          : formatDecimal(addSubResult(task), maxDec(task)),
                       ...(tenAddFriends
                         ? {
                             blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
                             result: "10",
                           }
-                        : {}),
+                        : tenSubFriends && task.blankPart === "subtrahend"
+                          ? {
+                              blank: "right" as const,
+                              result: formatDecimal(addSubResult(task), 0),
+                            }
+                          : {}),
                     }))}
                     operation={title}
-                    sheetTitle={tenAddFriends ? "10-kamrater (addition)" : undefined}
+                    sheetTitle={
+                      tenAddFriends
+                        ? "10-kamrater (addition)"
+                        : tenSubFriends
+                          ? "10-kamrater (subtraktion)"
+                          : undefined
+                    }
+                    alignUnits={quickRange !== null}
+                    alignOperands={quickRange !== null || tenSubFriends}
+                    tenFriendsLayout={tenAddFriends || tenSubFriends}
                     answers
                   />
                 ) : (

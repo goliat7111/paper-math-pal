@@ -159,19 +159,56 @@ describe("genAddSubInRange", () => {
   });
 
   it("fördelar 10-kamrater jämnt mellan subtrahenderna 0-10", () => {
-    const tasks = genTenSubFriends(100);
+    const tasks = genTenSubFriends(80);
     const counts = new Map<number, number>();
+    const blankCounts = { subtrahend: 0, difference: 0 };
+    const countsByPart = Array.from({ length: 11 }, () => ({
+      subtrahend: 0,
+      difference: 0,
+    }));
     for (const task of tasks) {
       expect(task.op).toBe("sub");
       expect(task.terms[0]).toBe(10);
       expect(addSubResult(task)).toBeGreaterThanOrEqual(0);
       expect(addSubResult(task)).toBeLessThanOrEqual(10);
+      blankCounts[task.blankPart]++;
       const subtrahend = task.terms[1]!;
       counts.set(subtrahend, (counts.get(subtrahend) ?? 0) + 1);
+      countsByPart[subtrahend]![task.blankPart]++;
     }
     expect(counts.size).toBe(11);
     expect(Math.max(...counts.values()) - Math.min(...counts.values())).toBeLessThanOrEqual(1);
+    expect(tasks).toHaveLength(80);
+    expect(blankCounts).toEqual({ subtrahend: 40, difference: 40 });
+    for (const counts of countsByPart) {
+      expect(counts.subtrahend).toBeGreaterThanOrEqual(3);
+      expect(counts.subtrahend).toBeLessThanOrEqual(4);
+      expect(counts.difference).toBeGreaterThanOrEqual(3);
+      expect(counts.difference).toBeLessThanOrEqual(4);
+      expect(Math.abs(counts.subtrahend - counts.difference)).toBeLessThanOrEqual(1);
+    }
   });
+
+  it.each([0, 1, 10, 11, 21, 22, 23, 79, 80, 81, 100])(
+    "fördelar %i subtraktioner jämnt både totalt och per saknat värde",
+    (count) => {
+      const tasks = genTenSubFriends(count);
+      const combinations = Array.from({ length: 11 }, () => ({
+        subtrahend: 0,
+        difference: 0,
+      }));
+      for (const task of tasks) combinations[task.terms[1]!]![task.blankPart]++;
+
+      const totals = combinations.map((entry) => entry.subtrahend + entry.difference);
+      const subtrahendBlanks = combinations.reduce((sum, entry) => sum + entry.subtrahend, 0);
+      expect(tasks).toHaveLength(count);
+      expect(Math.max(...totals) - Math.min(...totals)).toBeLessThanOrEqual(1);
+      expect(Math.abs(subtrahendBlanks - (count - subtrahendBlanks))).toBeLessThanOrEqual(1);
+      for (const entry of combinations) {
+        expect(Math.abs(entry.subtrahend - entry.difference)).toBeLessThanOrEqual(1);
+      }
+    },
+  );
 
   it("fördelar 10-kamrater jämnt mellan ordnade additioner som blir 10", () => {
     const tasks = genTenAddFriends(100);

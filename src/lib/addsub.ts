@@ -8,6 +8,9 @@ export type AddSubOp = "add" | "sub";
  */
 export type AddSubTask = { op: AddSubOp; terms: number[]; decs: number[] };
 export type TenAddFriendTask = AddSubTask & { blankTerm: 0 | 1 };
+export type TenSubFriendTask = AddSubTask & {
+  blankPart: "subtrahend" | "difference";
+};
 
 export type AddSubOptions = {
   op: AddSubOp;
@@ -253,19 +256,29 @@ export function genAddSubInRange(
   return tasks;
 }
 
-export function genTenSubFriends(count: number): AddSubTask[] {
-  const candidates = Array.from({ length: 11 }, (_, subtrahend) => ({
-    op: "sub" as const,
-    terms: [10, subtrahend],
-    decs: [0, 0],
-  }));
-  let deck = shuffle(candidates);
-  return Array.from({ length: count }, (_, index) => {
-    if (index > 0 && index % deck.length === 0) {
-      deck = shuffle(candidates);
+export function genTenSubFriends(count: number): TenSubFriendTask[] {
+  const candidates = shuffle(
+    Array.from({ length: 11 }, (_, subtrahend) => ({
+      op: "sub" as const,
+      terms: [10, subtrahend],
+      decs: [0, 0],
+    })),
+  );
+  const tasks: TenSubFriendTask[] = [];
+  let extraBlank: TenSubFriendTask["blankPart"] = rand(0, 1) === 0 ? "subtrahend" : "difference";
+  for (const [index, candidate] of candidates.entries()) {
+    const occurrences =
+      Math.floor(count / candidates.length) + (index < count % candidates.length ? 1 : 0);
+    for (let i = 0; i < Math.floor(occurrences / 2); i++) {
+      tasks.push({ ...candidate, blankPart: "subtrahend" });
+      tasks.push({ ...candidate, blankPart: "difference" });
     }
-    return deck[index % deck.length]!;
-  });
+    if (occurrences % 2 !== 0) {
+      tasks.push({ ...candidate, blankPart: extraBlank });
+      extraBlank = extraBlank === "subtrahend" ? "difference" : "subtrahend";
+    }
+  }
+  return shuffle(tasks);
 }
 
 export function genTenAddFriends(count: number): TenAddFriendTask[] {

@@ -19,11 +19,17 @@ export function SheetHundred({
   operation,
   answers,
   sheetTitle = "100 tal",
+  alignUnits = false,
+  alignOperands = false,
+  tenFriendsLayout = false,
 }: {
   tasks: HundredTask[];
   operation: string;
   answers: boolean;
   sheetTitle?: string;
+  alignUnits?: boolean;
+  alignOperands?: boolean;
+  tenFriendsLayout?: boolean;
 }) {
   const columnSize = Math.ceil(tasks.length / 4);
   const columns = Array.from({ length: 4 }, (_, index) =>
@@ -32,7 +38,7 @@ export function SheetHundred({
   const hasFillInTasks = tasks.some((task) => task.blank);
   return (
     <div
-      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}`}
+      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}${alignUnits ? " hundred-tasks-page--align-units" : ""}${alignOperands ? " hundred-tasks-page--align-operands" : ""}${tenFriendsLayout ? " hundred-tasks-page--ten-friends-layout" : ""}`}
     >
       <SheetHeader
         title={answers ? `${sheetTitle} – Facit` : sheetTitle}
@@ -45,7 +51,7 @@ export function SheetHundred({
           <div className="hundred-tasks-column" key={columnIndex}>
             {groups(column).map((group, groupIndex) => (
               <div
-                className={`hundred-tasks-group${group.some((task) => task.blank) ? " hundred-tasks-group--fill-in" : ""}${groupIndex > 0 && group.some((task) => task.blank) ? " hundred-tasks-group--fill-in-divider" : ""}`}
+                className={`hundred-tasks-group${group.some((task) => task.blank) ? " hundred-tasks-group--fill-in" : ""}${groupIndex > 0 && group.some((task) => task.blank) && !tenFriendsLayout ? " hundred-tasks-group--fill-in-divider" : ""}${alignUnits ? " hundred-tasks-group--spaced" : ""}${alignUnits && groupIndex > 0 ? " hundred-tasks-group--spaced-divider" : ""}${tenFriendsLayout ? " hundred-tasks-group--ten-friends" : ""}${tenFriendsLayout && groupIndex > 0 ? " hundred-tasks-group--ten-friends-divider" : ""}`}
                 key={groupIndex}
                 data-task-count={group.length}
               >
@@ -91,6 +97,16 @@ export function SheetHundred({
             ))}
           </div>
         ))}
+        {tenFriendsLayout && (
+          <div className="hundred-tasks-full-dividers" aria-hidden="true">
+            {[1, 2, 3].map((divider) => (
+              <span
+                className={`hundred-tasks-full-divider hundred-tasks-full-divider--${divider}`}
+                key={divider}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

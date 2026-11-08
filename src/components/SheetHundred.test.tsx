@@ -22,6 +22,18 @@ describe("SheetHundred", () => {
     expect(key.match(/class="hundred-task"/g)).toHaveLength(100);
   });
 
+  it("supports aligning operand units for the four quick-range sheets", () => {
+    const markup = renderToStaticMarkup(
+      <SheetHundred tasks={tasks} operation="Addition" answers={false} alignUnits />,
+    );
+
+    expect(markup).toContain("hundred-tasks-page--align-units");
+    expect(
+      markup.match(/hundred-tasks-group--spaced(?: hundred-tasks-group--spaced-divider)?"/g),
+    ).toHaveLength(20);
+    expect(markup.match(/hundred-tasks-group--spaced-divider/g)).toHaveLength(16);
+  });
+
   it("shows a fixed sum with a blank addend, then fills that addend in the key", () => {
     const tasks = [
       {
@@ -68,6 +80,7 @@ describe("SheetHundred", () => {
         operation="Addition"
         answers={false}
         sheetTitle="10-kamrater (addition)"
+        tenFriendsLayout
       />,
     );
     expect(markup).toContain("10-kamrater (addition)");
@@ -75,12 +88,74 @@ describe("SheetHundred", () => {
     expect(markup.match(/class="hundred-tasks-column"/g)).toHaveLength(4);
     expect(
       markup.match(
-        /class="hundred-tasks-group hundred-tasks-group--fill-in(?: hundred-tasks-group--fill-in-divider)?"/g,
+        /class="hundred-tasks-group hundred-tasks-group--fill-in(?: hundred-tasks-group--fill-in-divider)? hundred-tasks-group--ten-friends(?: hundred-tasks-group--ten-friends-divider)?"/g,
       ),
     ).toHaveLength(16);
-    expect(markup.match(/hundred-tasks-group--fill-in-divider/g)).toHaveLength(12);
+    expect(markup.match(/hundred-tasks-group--ten-friends-divider/g)).toHaveLength(12);
     expect(markup.match(/data-task-count="5"/g)).toHaveLength(16);
     expect(markup.match(/class="hundred-task(?: hundred-task-fill-in)?"/g)).toHaveLength(80);
     expect(markup.match(/hundred-task-fill-in/g)).toHaveLength(80);
+  });
+
+  it("uses the ten-friends layout for 80 subtraction tasks", () => {
+    const subTasks = Array.from({ length: 80 }, (_, index) => ({
+      left: "10",
+      operator: "−",
+      right: String(index % 11),
+      answer: String(10 - (index % 11)),
+    }));
+    const markup = renderToStaticMarkup(
+      <SheetHundred
+        tasks={subTasks}
+        operation="Subtraktion"
+        answers={false}
+        sheetTitle="10-kamrater (subtraktion)"
+        alignOperands
+        tenFriendsLayout
+      />,
+    );
+
+    expect(markup).toContain("10-kamrater (subtraktion)");
+    expect(markup).toContain("av 80");
+    expect(markup).toContain("hundred-tasks-page--ten-friends-layout");
+    expect(markup).toContain("hundred-tasks-page--align-operands");
+    expect(markup.match(/hundred-tasks-full-divider hundred-tasks-full-divider--/g)).toHaveLength(
+      3,
+    );
+    expect(markup.match(/class="hundred-tasks-column"/g)).toHaveLength(4);
+    expect(markup.match(/hundred-tasks-group--ten-friends-divider/g)).toHaveLength(12);
+    expect(markup.match(/data-task-count="5"/g)).toHaveLength(16);
+  });
+
+  it("shows a missing subtrahend with the difference fixed, or a missing difference", () => {
+    const tasks = [
+      {
+        left: "10",
+        operator: "−",
+        right: "4",
+        answer: "4",
+        blank: "right" as const,
+        result: "6",
+      },
+      {
+        left: "10",
+        operator: "−",
+        right: "4",
+        answer: "6",
+      },
+    ];
+    const student = renderToStaticMarkup(
+      <SheetHundred tasks={tasks} operation="Subtraktion" answers={false} tenFriendsLayout />,
+    );
+    const key = renderToStaticMarkup(
+      <SheetHundred tasks={tasks} operation="Subtraktion" answers tenFriendsLayout />,
+    );
+
+    expect(student.match(/hundred-task-blank/g)).toHaveLength(1);
+    expect(student).toContain(
+      'class="hundred-task-answer hundred-task-result hundred-task-fixed-result">6</span>',
+    );
+    expect(key).toContain('>4</span><span class="hundred-task-equals">=</span>');
+    expect(key).toContain("<strong>6</strong>");
   });
 });
