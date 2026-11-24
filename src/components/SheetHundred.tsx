@@ -9,8 +9,9 @@ export type HundredTask = {
   left: string;
   operator: string;
   right: string;
+  third?: string;
   answer: string;
-  blank?: "left" | "right";
+  blank?: "left" | "right" | "third";
   result?: string;
 };
 
@@ -23,6 +24,8 @@ export function SheetHundred({
   alignOperands = false,
   tenFriendsLayout = false,
   divisionQuick = false,
+  friendsLayout = false,
+  subtitle,
 }: {
   tasks: HundredTask[];
   operation: string;
@@ -32,25 +35,52 @@ export function SheetHundred({
   alignOperands?: boolean;
   tenFriendsLayout?: boolean;
   divisionQuick?: boolean;
+  friendsLayout?: boolean;
+  subtitle?: string;
 }) {
-  const columnSize = Math.ceil(tasks.length / 4);
-  const columns = Array.from({ length: 4 }, (_, index) =>
-    tasks.slice(index * columnSize, (index + 1) * columnSize),
-  );
+  const threeTermFriends = friendsLayout && tasks.some((task) => task.third !== undefined);
+  const columnCount = friendsLayout ? (threeTermFriends ? 2 : 3) : 4;
+  const columnSize = Math.ceil(tasks.length / columnCount);
+  const columns = Array.from({ length: columnCount }, (_, index) => {
+    if (!friendsLayout) return tasks.slice(index * columnSize, (index + 1) * columnSize);
+    const base = Math.floor(tasks.length / columnCount);
+    const extra = tasks.length % columnCount;
+    const start = index * base + Math.min(index, extra);
+    return tasks.slice(start, start + base + (index < extra ? 1 : 0));
+  });
   const hasFillInTasks = tasks.some((task) => task.blank);
   return (
     <div
-      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}${alignUnits ? " hundred-tasks-page--align-units" : ""}${alignOperands ? " hundred-tasks-page--align-operands" : ""}${tenFriendsLayout ? " hundred-tasks-page--ten-friends-layout" : ""}${divisionQuick ? " hundred-tasks-page--division-quick" : ""}`}
+      className={`a4-page hundred-tasks-page${hasFillInTasks ? " hundred-tasks-page--fill-in" : ""}${alignUnits ? " hundred-tasks-page--align-units" : ""}${alignOperands ? " hundred-tasks-page--align-operands" : ""}${tenFriendsLayout ? " hundred-tasks-page--ten-friends-layout" : ""}${divisionQuick ? " hundred-tasks-page--division-quick" : ""}${friendsLayout ? " hundred-tasks-page--friends" : ""}`}
+      data-friends-size={
+        friendsLayout
+          ? tasks.length <= 36
+            ? "large"
+            : tasks.length <= 42
+              ? "medium"
+              : "small"
+          : undefined
+      }
+      data-friends-columns={friendsLayout ? columnCount : undefined}
+      data-friends-three-terms={threeTermFriends ? "true" : undefined}
     >
       <SheetHeader
         title={answers ? `${sheetTitle} – Facit` : sheetTitle}
-        subtitle={`${operation} · 6 minuter`}
+        subtitle={subtitle ?? `${operation} · 6 minuter`}
         score={`av ${tasks.length}`}
         compact
       />
       <div className="hundred-tasks-grid">
         {columns.map((column, columnIndex) => (
-          <div className="hundred-tasks-column" key={columnIndex}>
+          <div
+            className="hundred-tasks-column"
+            key={columnIndex}
+            style={
+              friendsLayout
+                ? { gridTemplateRows: `repeat(${columnSize}, minmax(0, 1fr))` }
+                : undefined
+            }
+          >
             {groups(column).map((group, groupIndex) => (
               <div
                 className={`hundred-tasks-group${group.some((task) => task.blank) ? " hundred-tasks-group--fill-in" : ""}${groupIndex > 0 && group.some((task) => task.blank) && !tenFriendsLayout ? " hundred-tasks-group--fill-in-divider" : ""}${alignUnits ? " hundred-tasks-group--spaced" : ""}${alignUnits && groupIndex > 0 ? " hundred-tasks-group--spaced-divider" : ""}${tenFriendsLayout ? " hundred-tasks-group--ten-friends" : ""}${tenFriendsLayout && groupIndex > 0 ? " hundred-tasks-group--ten-friends-divider" : ""}`}
@@ -81,6 +111,20 @@ export function SheetHundred({
                           ? task.answer
                           : task.right}
                     </span>
+                    {task.third !== undefined && (
+                      <>
+                        <span className="hundred-task-operator">{task.operator}</span>
+                        <span
+                          className={`hundred-task-third${task.blank === "third" ? " hundred-task-blank" : ""}`}
+                        >
+                          {task.blank === "third" && !answers
+                            ? "\u00a0"
+                            : task.blank === "third" && answers
+                              ? task.answer
+                              : task.third}
+                        </span>
+                      </>
+                    )}
                     <span className="hundred-task-equals">=</span>
                     <span
                       className={`hundred-task-answer${task.result ? " hundred-task-result" : ""}${task.blank ? " hundred-task-fixed-result" : ""}`}

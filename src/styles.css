@@ -1469,6 +1469,77 @@ body {
   border-bottom: 0;
   padding-bottom: 0;
 }
+.hundred-tasks-page--friends {
+  padding-right: 14mm;
+}
+.hundred-tasks-page--friends > div:first-child h2 {
+  transform: none;
+}
+.hundred-tasks-page--friends .hundred-tasks-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding-top: 5mm;
+  transform: none;
+}
+.hundred-tasks-page--friends[data-friends-columns="2"] .hundred-tasks-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.hundred-tasks-page--friends .hundred-tasks-column {
+  display: grid;
+  padding: 0 3mm;
+}
+.hundred-tasks-page--friends .hundred-tasks-column:not(:last-child) {
+  padding-right: 3mm;
+}
+.hundred-tasks-page--friends .hundred-tasks-group {
+  display: contents;
+}
+.hundred-tasks-page--friends .hundred-tasks-group--fill-in-divider::before {
+  content: none;
+}
+.hundred-tasks-page--friends .hundred-task {
+  justify-self: center;
+  padding-left: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.hundred-tasks-page--friends[data-friends-size="medium"] .hundred-task {
+  font-size: 19px;
+}
+.hundred-tasks-page--friends[data-friends-size="large"] .hundred-task {
+  font-size: 22px;
+}
+.hundred-tasks-page--friends[data-friends-three-terms="true"] .hundred-task {
+  font-size: 16px;
+}
+.hundred-tasks-page--friends[data-friends-three-terms="true"][data-friends-size="medium"]
+  .hundred-task {
+  font-size: 17px;
+}
+.hundred-tasks-page--friends[data-friends-three-terms="true"][data-friends-size="large"]
+  .hundred-task {
+  font-size: 20px;
+}
+.hundred-tasks-page--friends .hundred-task-left,
+.hundred-tasks-page--friends .hundred-task-right,
+.hundred-tasks-page--friends .hundred-task-third {
+  flex: 0 0 10mm;
+  width: 10mm;
+  text-align: center;
+}
+.hundred-tasks-page--friends .hundred-task-blank {
+  flex-basis: 15mm;
+  width: 15mm;
+}
+.hundred-tasks-page--friends .hundred-task-operator {
+  flex: 0 0 6mm;
+}
+.hundred-tasks-page--friends .hundred-task-equals {
+  flex: 0 0 4mm;
+}
+.hundred-tasks-page--friends .hundred-task-answer.hundred-task-result {
+  flex: 0 0 10mm;
+}
 .hundred-tasks-page--ten-friends-layout.hundred-tasks-page--align-operands .hundred-task-answer {
   text-align: right;
 }

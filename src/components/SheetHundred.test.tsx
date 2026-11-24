@@ -10,6 +10,98 @@ const tasks = Array.from({ length: 100 }, (_, index) => ({
 }));
 
 describe("SheetHundred", () => {
+  it("renders 30 three-term friend tasks and fills the missing term only in the key", () => {
+    const friends = Array.from({ length: 30 }, () => ({
+      left: "12",
+      operator: "+",
+      right: "3",
+      third: "84",
+      answer: "84",
+      blank: "third" as const,
+      result: "99",
+    }));
+    const props = {
+      tasks: friends,
+      operation: "Addition",
+      sheetTitle: "99-kamrater",
+      subtitle: "Addition · 3 termer",
+      friendsLayout: true,
+    };
+    const student = renderToStaticMarkup(<SheetHundred {...props} answers={false} />);
+    const key = renderToStaticMarkup(<SheetHundred {...props} answers />);
+    expect(student.match(/class="hundred-task hundred-task-fill-in"/g)).toHaveLength(30);
+    expect(student.match(/class="hundred-tasks-column"/g)).toHaveLength(2);
+    expect(student).toContain('data-friends-three-terms="true"');
+    expect(student).toContain("av 30");
+    expect(student).toContain("Addition · 3 termer");
+    expect(student).not.toContain("6 minuter");
+    expect(student).not.toContain(">84</span>");
+    expect(key.match(/>84<\/span>/g)).toHaveLength(30);
+    expect(key.match(/>99<\/span>/g)).toHaveLength(30);
+  });
+
+  it.each(Array.from({ length: 49 }, (_, index) => index + 12))(
+    "distributes %i friend tasks across balanced columns on both sheets",
+    (count) => {
+      const friends = Array.from({ length: count }, () => ({
+        left: "99",
+        operator: "+",
+        right: "0",
+        answer: "0",
+        blank: "right" as const,
+        result: "99",
+      }));
+      for (const answers of [false, true]) {
+        const columnCount = 3;
+        const markup = renderToStaticMarkup(
+          <SheetHundred tasks={friends} operation="Addition" friendsLayout answers={answers} />,
+        );
+        const columns = markup.split('class="hundred-tasks-column"').slice(1);
+        const sizes = columns.map((column) => column.match(/class="hundred-task /g)?.length ?? 0);
+        expect(sizes).toHaveLength(columnCount);
+        expect(sizes.reduce((total, size) => total + size, 0)).toBe(count);
+        expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+        expect(markup).toContain(`av ${count}`);
+        expect(markup).toContain(`repeat(${Math.ceil(count / columnCount)}, minmax(0, 1fr))`);
+        expect(markup).toContain(`data-friends-columns="${columnCount}"`);
+        expect(markup).not.toContain("data-friends-three-terms");
+        expect(markup).toContain(
+          `data-friends-size="${count <= 36 ? "large" : count <= 42 ? "medium" : "small"}"`,
+        );
+      }
+    },
+  );
+
+  it.each([12, 14, 16, 18, 20, 22, 24, 26, 28, 30])(
+    "uses the three-term size and correct column count for %i tasks",
+    (count) => {
+      const friends = Array.from({ length: count }, () => ({
+        left: "10",
+        operator: "+",
+        right: "20",
+        third: "69",
+        answer: "69",
+        blank: "third" as const,
+        result: "99",
+      }));
+      for (const answers of [false, true]) {
+        const markup = renderToStaticMarkup(
+          <SheetHundred tasks={friends} operation="Addition" friendsLayout answers={answers} />,
+        );
+        expect(markup).toContain('data-friends-three-terms="true"');
+        expect(markup).toContain('data-friends-columns="2"');
+        const columns = markup.split('class="hundred-tasks-column"').slice(1);
+        expect(columns).toHaveLength(2);
+        for (const column of columns) {
+          expect(column.match(/class="hundred-task hundred-task-fill-in"/g)).toHaveLength(
+            count / 2,
+          );
+        }
+        expect(markup.match(/class="hundred-task hundred-task-fill-in"/g)).toHaveLength(count);
+      }
+    },
+  );
+
   it("lays out 100 tasks and reveals answers only on the answer sheet", () => {
     const student = renderToStaticMarkup(
       <SheetHundred tasks={tasks} operation="Addition" answers={false} />,

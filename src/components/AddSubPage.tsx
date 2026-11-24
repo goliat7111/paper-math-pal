@@ -6,16 +6,21 @@ import { PrintContentChoice } from "@/components/PrintContentChoice";
 import { keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import {
   addSubResult,
+  addFriendCounts,
+  addFriendCountForTerms,
   genAddSub,
   genAddSubInRange,
+  genAddFriends,
   genTenAddFriends,
   genTenSubFriends,
   maxDec,
   type AddSubOp,
   type AddSubTask,
+  type AddFriendTask,
+  type TenSubFriendTask,
 } from "@/lib/addsub";
 import { SheetAddSub } from "./SheetAddSub";
-import { SheetHundred } from "./SheetHundred";
+import { SheetHundred, type HundredTask } from "./SheetHundred";
 import { formatDecimal } from "@/lib/worksheets";
 import { ZoomControls } from "@/components/ZoomControls";
 import { useSheetZoom } from "@/hooks/use-sheet-zoom";
@@ -24,6 +29,7 @@ import { SetupStyleToggle } from "@/components/SetupStyleToggle";
 const SETUP_COUNT = 12;
 const TEN_ADD_FRIEND_COUNT = 80;
 const TEN_SUB_FRIEND_COUNT = 80;
+const DEFAULT_ADD_FRIEND_COUNT = 39;
 const QUICK_RANGES = [
   [1, 10],
   [1, 20],
@@ -43,6 +49,11 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [quickRange, setQuickRange] = useState<readonly [number, number] | null>(null);
   const [tenSubFriends, setTenSubFriends] = useState(false);
   const [tenAddFriends, setTenAddFriends] = useState(false);
+  const [addFriends, setAddFriends] = useState(false);
+  const [friendSum, setFriendSum] = useState(10);
+  const [friendTerms, setFriendTerms] = useState<2 | 3>(2);
+  const [friendCount, setFriendCount] = useState(DEFAULT_ADD_FRIEND_COUNT);
+  const [friendIncludeZero, setFriendIncludeZero] = useState(false);
   const [lo, setLo] = useState(3);
   const [hi, setHi] = useState(3);
   const [speedLo, setSpeedLo] = useState(1);
@@ -55,7 +66,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [clean, setClean] = useState(false);
   const [content, setContent] = useState<PrintContent>("sheet");
   const { mainProps, zoom, setZoom, zoomStep } = useSheetZoom();
-  const [tasks, setTasks] = useState<AddSubTask[]>([]);
+  const [tasks, setTasks] = useState<(AddSubTask | AddFriendTask | TenSubFriendTask)[]>([]);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [preview, setPreview] = useState<{
@@ -68,20 +79,22 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const previewUrl = useRef<string | null>(null);
 
   const createTasks = (speed = speedSheet) =>
-    speed && tenAddFriends
-      ? genTenAddFriends(TEN_ADD_FRIEND_COUNT)
-      : speed && tenSubFriends
-        ? genTenSubFriends(TEN_SUB_FRIEND_COUNT)
-        : speed && quickRange
-          ? genAddSubInRange(...quickRange, 100, regroup, op)
-          : genAddSub({
-              op,
-              digits: speed ? [speedLo, speedHi] : [lo, Math.max(hi, lo)],
-              dec: speed ? 0 : dec,
-              terms: speed ? 2 : terms,
-              regroup,
-              count: speed ? 100 : SETUP_COUNT,
-            });
+    speed && addFriends
+      ? genAddFriends(friendSum, friendTerms, friendCount, friendIncludeZero)
+      : speed && tenAddFriends
+        ? genTenAddFriends(TEN_ADD_FRIEND_COUNT)
+        : speed && tenSubFriends
+          ? genTenSubFriends(TEN_SUB_FRIEND_COUNT)
+          : speed && quickRange
+            ? genAddSubInRange(...quickRange, 100, regroup, op)
+            : genAddSub({
+                op,
+                digits: speed ? [speedLo, speedHi] : [lo, Math.max(hi, lo)],
+                dec: speed ? 0 : dec,
+                terms: speed ? 2 : terms,
+                regroup,
+                count: speed ? 100 : SETUP_COUNT,
+              });
 
   useEffect(() => {
     const l = lo,
@@ -103,6 +116,11 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     quickRange,
     tenSubFriends,
     tenAddFriends,
+    addFriends,
+    friendSum,
+    friendTerms,
+    friendCount,
+    friendIncludeZero,
   ]);
   useEffect(
     () => () => {
@@ -129,7 +147,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       previewUrl.current = url;
       setPreview({ ...result, url });
       setFileName(
-        `${op === "add" ? "addition" : "subtraktion"}-${speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${quickRange ? `-talomrade-${quickRange[0]}-${quickRange[1]}` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
+        `${op === "add" ? "addition" : "subtraktion"}-${addFriends ? `talkamrater-${friendSum}-${friendTerms}-termer${friendIncludeZero ? "" : "-utan-noll"}` : speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${quickRange ? `-talomrade-${quickRange[0]}-${quickRange[1]}` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
       );
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut.");
@@ -144,6 +162,30 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     closePreview();
   };
   const sel = "mt-1 block w-auto rounded-md border border-input bg-background px-2 py-1.5 text-sm";
+  const hundredTasks: HundredTask[] = tasks.map((task) => {
+    const blankTerm = "blankTerm" in task ? task.blankTerm : undefined;
+    const blankSubtrahend = "blankPart" in task && task.blankPart === "subtrahend";
+    return {
+      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
+      operator: op === "add" ? "+" : "−",
+      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
+      ...(task.terms.length === 3 ? { third: formatTaskTerm(task.terms[2]!, task.decs[2]!) } : {}),
+      answer:
+        blankTerm !== undefined
+          ? formatDecimal(task.terms[blankTerm]!, 0)
+          : blankSubtrahend
+            ? formatDecimal(task.terms[1]!, 0)
+            : formatDecimal(addSubResult(task), maxDec(task)),
+      ...(blankTerm !== undefined
+        ? {
+            blank: (["left", "right", "third"] as const)[blankTerm],
+            result: formatDecimal(addSubResult(task), 0),
+          }
+        : blankSubtrahend
+          ? { blank: "right" as const, result: formatDecimal(addSubResult(task), 0) }
+          : {}),
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,43 +200,67 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           </Link>
           <h1 className="font-display text-2xl font-semibold">{title}</h1>
           <p className="text-sm text-muted-foreground">
-            {speedSheet ? "100 tal · 6 minuter" : "Uppställning · A4"}
+            {addFriends
+              ? `Talkamrater · ${friendCount} tal`
+              : speedSheet
+                ? "100 tal · 6 minuter"
+                : "Uppställning · A4"}
           </p>
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 lg:flex-row lg:items-start">
         <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
           <h2 className="font-display text-lg font-semibold">Inställningar</h2>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className={btn(!speedSheet && !quickRange)}
-              aria-pressed={!speedSheet && !quickRange}
-              onClick={() => {
-                setQuickRange(null);
-                setTenSubFriends(false);
-                setTenAddFriends(false);
-                setSpeedSheet(false);
-              }}
-            >
-              Uppställning
-            </button>
-            <button
-              type="button"
-              className={btn(speedSheet)}
-              aria-pressed={speedSheet}
-              onClick={() => {
-                if (speedSheet) return;
-                setQuickRange(QUICK_RANGES[1]);
-                setTenSubFriends(false);
-                setTenAddFriends(false);
-                setSpeedSheet(true);
-              }}
-            >
-              100 tal (6 min)
-            </button>
+          <div className="space-y-2">
+            {op === "add" && (
+              <button
+                type="button"
+                className={btn(addFriends)}
+                aria-pressed={addFriends}
+                onClick={() => {
+                  setQuickRange(null);
+                  setTenSubFriends(false);
+                  setTenAddFriends(false);
+                  setAddFriends(true);
+                  setSpeedSheet(true);
+                }}
+              >
+                Talkamrater
+              </button>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className={btn(!speedSheet && !quickRange)}
+                aria-pressed={!speedSheet && !quickRange}
+                onClick={() => {
+                  setQuickRange(null);
+                  setTenSubFriends(false);
+                  setTenAddFriends(false);
+                  setAddFriends(false);
+                  setSpeedSheet(false);
+                }}
+              >
+                Uppställning
+              </button>
+              <button
+                type="button"
+                className={btn(speedSheet && !addFriends)}
+                aria-pressed={speedSheet && !addFriends}
+                onClick={() => {
+                  if (speedSheet && !addFriends) return;
+                  setQuickRange(QUICK_RANGES[1]);
+                  setTenSubFriends(false);
+                  setTenAddFriends(false);
+                  setAddFriends(false);
+                  setSpeedSheet(true);
+                }}
+              >
+                100 tal (6 min)
+              </button>
+            </div>
           </div>
-          {speedSheet && (
+          {speedSheet && !addFriends && (
             <fieldset>
               <legend className="mb-2 text-sm font-medium">Talområde</legend>
               <div className="flex flex-nowrap gap-1">
@@ -258,7 +324,74 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
               )}
             </fieldset>
           )}
-          {speedSheet ? (
+          {addFriends ? (
+            <fieldset className="space-y-3">
+              <legend className="mb-2 text-sm font-medium">Talkamrater</legend>
+              <div className="flex items-end gap-3">
+                <label className="block text-sm">
+                  Summan
+                  <select
+                    className={sel}
+                    value={friendSum}
+                    onChange={(event) => setFriendSum(Number(event.target.value))}
+                  >
+                    {Array.from({ length: 97 }, (_, index) => index + 3).map((sum) => (
+                      <option key={sum} value={sum}>
+                        {sum}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-center text-sm leading-tight">
+                  Antal
+                  <br />
+                  uppgifter
+                  <select
+                    className={`${sel} mx-auto`}
+                    value={friendCount}
+                    onChange={(event) => setFriendCount(Number(event.target.value))}
+                  >
+                    {addFriendCounts(friendTerms).map((count) => (
+                      <option key={count} value={count}>
+                        {count}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  className={btn(!friendIncludeZero)}
+                  aria-pressed={!friendIncludeZero}
+                  onClick={() => setFriendIncludeZero((include) => !include)}
+                >
+                  Utan 0
+                </button>
+              </div>
+              <fieldset>
+                <legend className="mb-2 text-sm font-medium">Antal termer</legend>
+                <div className="flex gap-2">
+                  {([2, 3] as const).map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      className={btn(friendTerms === count)}
+                      aria-pressed={friendTerms === count}
+                      onClick={() => {
+                        setFriendCount((previous) => addFriendCountForTerms(previous, count));
+                        setFriendTerms(count);
+                      }}
+                    >
+                      {count} termer
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <p className="text-xs text-muted-foreground">
+                {friendCount} uppgifter där en term saknas. Termerna är hela tal från{" "}
+                {friendIncludeZero ? "0" : "1"} och uppåt.
+              </p>
+            </fieldset>
+          ) : speedSheet ? (
             quickRange || tenSubFriends || tenAddFriends ? (
               <>
                 <p className="text-xs text-muted-foreground">
@@ -533,13 +666,15 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
             Välj A4 stående, 100 % skala, inga marginaler och inga sidhuvuden eller sidfötter.
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-            {speedSheet
-              ? tenAddFriends
-                ? `${TEN_ADD_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
-                : tenSubFriends
-                  ? `${TEN_SUB_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
-                  : "100 uppgifter · 4 kolumner × 25 tal."
-              : `${SETUP_COUNT} uppgifter · ${clean && !speedSheet ? "Clean: 2 kolumner, 3 par per sida." : "4 rader × 3 kolumner."}`}
+            {addFriends
+              ? `${friendCount} uppgifter · ${friendTerms === 3 ? 2 : 3} kolumner.`
+              : speedSheet
+                ? tenAddFriends
+                  ? `${TEN_ADD_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
+                  : tenSubFriends
+                    ? `${TEN_SUB_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
+                    : "100 uppgifter · 4 kolumner × 25 tal."
+                : `${SETUP_COUNT} uppgifter · ${clean && !speedSheet ? "Clean: 2 kolumner, 3 par per sida." : "4 rader × 3 kolumner."}`}
             <br />
             PDF:{" "}
             {clean && !speedSheet
@@ -558,38 +693,24 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
               {showSheet(content) &&
                 (speedSheet ? (
                   <SheetHundred
-                    tasks={tasks.map((task) => ({
-                      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
-                      operator: op === "add" ? "+" : "−",
-                      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
-                      answer: tenAddFriends
-                        ? formatDecimal(task.terms[task.blankTerm]!, 0)
-                        : tenSubFriends && task.blankPart === "subtrahend"
-                          ? formatDecimal(task.terms[1]!, 0)
-                          : formatDecimal(addSubResult(task), maxDec(task)),
-                      ...(tenAddFriends
-                        ? {
-                            blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
-                            result: "10",
-                          }
-                        : tenSubFriends && task.blankPart === "subtrahend"
-                          ? {
-                              blank: "right" as const,
-                              result: formatDecimal(addSubResult(task), 0),
-                            }
-                          : {}),
-                    }))}
+                    tasks={hundredTasks}
                     operation={title}
                     sheetTitle={
-                      tenAddFriends
-                        ? "10-kamrater (addition)"
-                        : tenSubFriends
-                          ? "10-kamrater (subtraktion)"
-                          : undefined
+                      addFriends
+                        ? `${friendSum}-kamrater`
+                        : tenAddFriends
+                          ? "10-kamrater (addition)"
+                          : tenSubFriends
+                            ? "10-kamrater (subtraktion)"
+                            : "100 tal"
                     }
                     alignUnits={quickRange !== null}
                     alignOperands={quickRange !== null || tenSubFriends}
                     tenFriendsLayout={tenAddFriends || tenSubFriends}
+                    friendsLayout={addFriends}
+                    subtitle={
+                      addFriends ? `Addition · ${friendTerms} termer` : `${title} · 6 minuter`
+                    }
                     answers={false}
                   />
                 ) : clean ? (
@@ -617,38 +738,24 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
               {showKey(content) &&
                 (speedSheet ? (
                   <SheetHundred
-                    tasks={tasks.map((task) => ({
-                      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
-                      operator: op === "add" ? "+" : "−",
-                      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
-                      answer: tenAddFriends
-                        ? formatDecimal(task.terms[task.blankTerm]!, 0)
-                        : tenSubFriends && task.blankPart === "subtrahend"
-                          ? formatDecimal(task.terms[1]!, 0)
-                          : formatDecimal(addSubResult(task), maxDec(task)),
-                      ...(tenAddFriends
-                        ? {
-                            blank: task.blankTerm === 0 ? ("left" as const) : ("right" as const),
-                            result: "10",
-                          }
-                        : tenSubFriends && task.blankPart === "subtrahend"
-                          ? {
-                              blank: "right" as const,
-                              result: formatDecimal(addSubResult(task), 0),
-                            }
-                          : {}),
-                    }))}
+                    tasks={hundredTasks}
                     operation={title}
                     sheetTitle={
-                      tenAddFriends
-                        ? "10-kamrater (addition)"
-                        : tenSubFriends
-                          ? "10-kamrater (subtraktion)"
-                          : undefined
+                      addFriends
+                        ? `${friendSum}-kamrater`
+                        : tenAddFriends
+                          ? "10-kamrater (addition)"
+                          : tenSubFriends
+                            ? "10-kamrater (subtraktion)"
+                            : "100 tal"
                     }
                     alignUnits={quickRange !== null}
                     alignOperands={quickRange !== null || tenSubFriends}
                     tenFriendsLayout={tenAddFriends || tenSubFriends}
+                    friendsLayout={addFriends}
+                    subtitle={
+                      addFriends ? `Addition · ${friendTerms} termer` : `${title} · 6 minuter`
+                    }
                     answers
                   />
                 ) : (

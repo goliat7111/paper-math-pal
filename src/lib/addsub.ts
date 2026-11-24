@@ -8,6 +8,19 @@ export type AddSubOp = "add" | "sub";
  */
 export type AddSubTask = { op: AddSubOp; terms: number[]; decs: number[] };
 export type TenAddFriendTask = AddSubTask & { blankTerm: 0 | 1 };
+export type AddFriendTask = AddSubTask & { blankTerm: 0 | 1 | 2 };
+export const addFriendCounts = (termCount: 2 | 3): number[] =>
+  Array.from(
+    { length: termCount === 3 ? 10 : 17 },
+    (_, index) => 12 + index * (termCount === 3 ? 2 : 3),
+  );
+
+export const addFriendCountForTerms = (count: number, termCount: 2 | 3): number => {
+  const options = addFriendCounts(termCount);
+  return options.reduce((closest, option) =>
+    Math.abs(option - count) < Math.abs(closest - count) ? option : closest,
+  );
+};
 export type TenSubFriendTask = AddSubTask & {
   blankPart: "subtrahend" | "difference";
 };
@@ -295,6 +308,67 @@ export function genTenAddFriends(count: number): TenAddFriendTask[] {
   return Array.from({ length: count }, (_, index) => {
     if (index > 0 && index % deck.length === 0) deck = shuffle(candidates);
     return { ...deck[index % deck.length]!, blankTerm: blankTerms[index]! };
+  });
+}
+
+export function genAddFriends(
+  sum: number,
+  termCount: 2 | 3,
+  count: number,
+  includeZero = true,
+): AddFriendTask[] {
+  if (
+    !Number.isInteger(sum) ||
+    sum < 3 ||
+    sum > 99 ||
+    (termCount !== 2 && termCount !== 3) ||
+    !Number.isInteger(count) ||
+    count < 0
+  ) {
+    throw new RangeError("Summan måste vara ett heltal mellan 3 och 99 och antalet icke-negativt.");
+  }
+  const candidates: number[][] = [];
+  const minimum = includeZero ? 0 : 1;
+  for (let first = minimum; first <= sum - minimum * (termCount - 1); first++) {
+    if (termCount === 2) {
+      candidates.push([first, sum - first]);
+    } else {
+      for (let second = minimum; second <= sum - first - minimum; second++) {
+        candidates.push([first, second, sum - first - second]);
+      }
+    }
+  }
+  const combinations = new Map<string, number[][]>();
+  for (const terms of candidates) {
+    const key = [...terms].sort((a, b) => a - b).join(",");
+    const variants = combinations.get(key);
+    if (variants) variants.push(terms);
+    else combinations.set(key, [terms]);
+  }
+  const groups = Array.from(combinations.values(), (variants) => ({
+    variants,
+    deck: shuffle(variants),
+    used: 0,
+  }));
+  let deck = shuffle(groups);
+  const positions: (0 | 1 | 2)[] = termCount === 2 ? [0, 1] : [0, 1, 2];
+  const blanks = shuffle(
+    Array.from({ length: count }, (_, index) => positions[index % termCount]!),
+  );
+  return Array.from({ length: count }, (_, index) => {
+    if (index > 0 && index % deck.length === 0) deck = shuffle(groups);
+    const group = deck[index % deck.length]!;
+    if (group.used > 0 && group.used % group.deck.length === 0) {
+      group.deck = shuffle(group.variants);
+    }
+    const terms = group.deck[group.used % group.deck.length]!;
+    group.used++;
+    return {
+      op: "add",
+      terms,
+      decs: Array<number>(termCount).fill(0),
+      blankTerm: blanks[index]!,
+    };
   });
 }
 

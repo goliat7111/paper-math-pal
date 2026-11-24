@@ -2,14 +2,141 @@ import { describe, expect, it } from "vitest";
 import {
   addSubLayout,
   addSubResult,
+  addFriendCounts,
+  addFriendCountForTerms,
   genAddSub,
   genAddSubInRange,
+  genAddFriends,
   genTenAddFriends,
   genTenSubFriends,
   hasRegroup,
   scaledTerms,
   subBorrows,
 } from "./addsub";
+
+describe("genAddFriends", () => {
+  it("begränsar valen till 30 vid tre termer och behåller lägre antal vid byte", () => {
+    expect(addFriendCounts(2)).toEqual([
+      12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60,
+    ]);
+    expect(addFriendCounts(3)).toEqual([12, 14, 16, 18, 20, 22, 24, 26, 28, 30]);
+    expect(addFriendCountForTerms(60, 3)).toBe(30);
+    expect(addFriendCountForTerms(39, 3)).toBe(30);
+    expect(addFriendCountForTerms(27, 3)).toBe(26);
+    expect(addFriendCountForTerms(30, 2)).toBe(30);
+    expect(addFriendCountForTerms(14, 2)).toBe(15);
+    expect(addFriendCountForTerms(20, 2)).toBe(21);
+    for (const terms of [2, 3] as const) {
+      for (const count of addFriendCounts(terms)) {
+        expect(addFriendCounts(terms === 2 ? 3 : 2)).toContain(
+          addFriendCountForTerms(count, terms === 2 ? 3 : 2),
+        );
+        expect(addFriendCountForTerms(count, terms)).toBe(count);
+      }
+    }
+  });
+
+  it.each([2, 3] as const)("skapar 40 uppgifter med %i termer för varje möjlig summa", (terms) => {
+    for (let sum = 3; sum <= 99; sum++) {
+      const tasks = genAddFriends(sum, terms, 40);
+      expect(tasks).toHaveLength(40);
+      const blanks = Array<number>(terms).fill(0);
+      for (const task of tasks) {
+        expect(task.terms).toHaveLength(terms);
+        expect(task.terms.every((term) => Number.isInteger(term) && term >= 0)).toBe(true);
+        expect(task.decs).toEqual(Array<number>(terms).fill(0));
+        expect(addSubResult(task)).toBe(sum);
+        expect(task.blankTerm).toBeLessThan(terms);
+        blanks[task.blankTerm]!++;
+      }
+      expect(Math.max(...blanks) - Math.min(...blanks)).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it.each([2, 3] as const)(
+    "prioriterar olika kombinationer och fördelar omkastningar jämnt med %i termer",
+    (terms) => {
+      for (const includeZero of [false, true]) {
+        for (const sum of [3, 5, 10, 20, 99]) {
+          const variants = new Map<string, Set<string>>();
+          const minimum = includeZero ? 0 : 1;
+          for (let first = minimum; first <= sum; first++) {
+            for (let second = minimum; second <= sum - first; second++) {
+              const values =
+                terms === 2 ? [first, sum - first] : [first, second, sum - first - second];
+              if (values.some((value) => value < minimum)) continue;
+              const key = [...values].sort((a, b) => a - b).join(",");
+              const group = variants.get(key) ?? new Set<string>();
+              group.add(values.join(","));
+              variants.set(key, group);
+              if (terms === 2) break;
+            }
+          }
+          for (const count of [1, 12, 30, 60]) {
+            const tasks = genAddFriends(sum, terms, count, includeZero);
+            const groups = new Map<string, number>();
+            const ordered = new Map<string, number>();
+            for (const task of tasks) {
+              const key = [...task.terms].sort((a, b) => a - b).join(",");
+              groups.set(key, (groups.get(key) ?? 0) + 1);
+              const orderedKey = task.terms.join(",");
+              ordered.set(orderedKey, (ordered.get(orderedKey) ?? 0) + 1);
+            }
+            expect(groups.size).toBe(Math.min(count, variants.size));
+            const frequencies = Array.from(variants.keys(), (key) => groups.get(key) ?? 0);
+            expect(Math.max(...frequencies) - Math.min(...frequencies)).toBeLessThanOrEqual(1);
+            for (const expressions of variants.values()) {
+              const frequencies = Array.from(expressions, (key) => ordered.get(key) ?? 0);
+              expect(Math.max(...frequencies) - Math.min(...frequencies)).toBeLessThanOrEqual(1);
+            }
+          }
+        }
+      }
+    },
+  );
+
+  it.each([2, 3] as const)("kan utesluta noll för varje summa med %i termer", (terms) => {
+    for (let sum = 3; sum <= 99; sum++) {
+      const tasks = genAddFriends(sum, terms, 60, false);
+      expect(tasks).toHaveLength(60);
+      for (const task of tasks) {
+        expect(task.terms).toHaveLength(terms);
+        expect(task.terms.every((term) => Number.isInteger(term) && term > 0)).toBe(true);
+        expect(addSubResult(task)).toBe(sum);
+        expect(task.terms[task.blankTerm]).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("upprepar giltiga kombinationer när summan bara har en lösning utan noll", () => {
+    const tasks = genAddFriends(3, 3, 12, false);
+    expect(tasks.every((task) => task.terms.join("+") === "1+1+1")).toBe(true);
+    expect(tasks.filter((task) => task.blankTerm === 0)).toHaveLength(4);
+    expect(tasks.filter((task) => task.blankTerm === 1)).toHaveLength(4);
+    expect(tasks.filter((task) => task.blankTerm === 2)).toHaveLength(4);
+  });
+
+  it.each(Array.from({ length: 49 }, (_, index) => index + 12))(
+    "skapar exakt %i uppgifter med två respektive tre termer",
+    (count) => {
+      for (const terms of [2, 3] as const) {
+        const tasks = genAddFriends(99, terms, count);
+        expect(tasks).toHaveLength(count);
+        expect(
+          tasks.every((task) => task.terms.length === terms && addSubResult(task) === 99),
+        ).toBe(true);
+      }
+    },
+  );
+
+  it("avvisar ogiltiga summor och antal", () => {
+    for (const sum of [2, 100, 3.5, NaN]) {
+      expect(() => genAddFriends(sum, 2, 40)).toThrow(RangeError);
+    }
+    expect(() => genAddFriends(10, 2, -1)).toThrow(RangeError);
+    expect(() => genAddFriends(10, 2, 1.5)).toThrow(RangeError);
+  });
+});
 
 describe("genAddSub", () => {
   for (const op of ["add", "sub"] as const)

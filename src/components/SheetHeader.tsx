@@ -26,11 +26,11 @@ export function SheetHeader({
         </span>
       </div>
       <div
-        className={`flex items-end text-sheet-ink ${compact ? "mt-1 gap-4 text-[11px]" : "mt-3 gap-6 text-[13px]"}`}
+        className={`flex items-end text-sheet-ink ${compact ? "mt-1 text-[11px]" : "mt-3 text-[13px]"}`}
       >
-        <Field label="Namn" grow lineEndOffset="40mm" />
+        <Field label="Namn" grow />
         <Field label="Datum" w={compact ? "26mm" : "32mm"} />
-        <div className="flex items-end gap-2">
+        <div className={`flex items-end gap-2 ${compact ? "ml-4" : "ml-6"}`}>
           <span>Poäng:</span>
           <span className="inline-block w-[14mm] border-b border-sheet-ink" />
           <span>{score}</span>
@@ -40,30 +40,13 @@ export function SheetHeader({
   );
 }
 
-function Field({
-  label,
-  grow,
-  w,
-  lineEndOffset,
-}: {
-  label: string;
-  grow?: boolean;
-  w?: string;
-  lineEndOffset?: string;
-}) {
+function Field({ label, grow, w }: { label: string; grow?: boolean; w?: string }) {
   return (
-    <div className={`flex items-end gap-2 ${grow ? "flex-1" : ""}`}>
+    <div className={`flex items-end gap-2 ${grow ? "mr-[10mm] min-w-0 flex-1" : ""}`}>
       <span>{label}:</span>
       <span
         className="inline-block flex-1 border-b border-sheet-ink"
-        style={
-          w || lineEndOffset
-            ? {
-                ...(w ? { width: w, flex: "none" } : {}),
-                ...(lineEndOffset ? { marginRight: lineEndOffset } : {}),
-              }
-            : undefined
-        }
+        style={w ? { width: w, flex: "none" } : undefined}
       />
     </div>
   );

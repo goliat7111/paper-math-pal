@@ -1,4 +1,3 @@
-import { FOCUS_PROMPTS, GEOMETRY_PROMPTS } from "./textuppgifter-focus";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -40,8 +39,7 @@ export const generateTextTasks = createServerFn({ method: "POST" })
       hi = Math.max(data.tableMin, data.tableMax);
     const prompt = `Skriv ${data.count} textuppgifter (problemlösning) i matematik på svenska för elever i årskurs ${data.grade}.
 Tema: ${data.theme}.
-${data.focus === "arithmetic" ? OP_TEXT[data.op](lo, hi, data.maxNumber) : FOCUS_PROMPTS[data.focus]}
-${data.focus === "geometry" ? GEOMETRY_PROMPTS[data.geometry] : ""}
+${data.focus === "arithmetic" ? OP_TEXT[data.op](lo, hi, data.maxNumber) : ""}
 Anpassa språk, meningslängd och svårighet till årskursen. Öka svårigheten något genom bladet. Max 3 meningar per uppgift. Svaren ska vara korrekta och kontrollerade.
 Svara ENDAST med JSON: {"tasks":[{"question":"...","answer":"kort svar med enhet, t.ex. '24 äpplen' och uträkning i parentes, t.ex. '(6 · 4 = 24)', med rätt räknetecken (+, −, ·, /)"}]}`;
     const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
