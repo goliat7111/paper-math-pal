@@ -7,12 +7,54 @@ import {
   genAddSub,
   genAddSubInRange,
   genAddFriends,
+  genSubFriends,
+  subFriendCounts,
+  SUB_FRIEND_MAX,
   genTenAddFriends,
   genTenSubFriends,
   hasRegroup,
   scaledTerms,
   subBorrows,
 } from "./addsub";
+
+describe("genSubFriends", () => {
+  it("erbjuder antal som fördelas lika mellan kolumner och saknade delar", () => {
+    expect(subFriendCounts()).toEqual([12, 18, 24, 30, 36, 42, 48, 54, 60]);
+  });
+
+  it.each([false, true])(
+    "fördelar uppgifterna jämnt för alla minuender, noll: %s",
+    (includeZero) => {
+      for (let minuend = 3; minuend <= SUB_FRIEND_MAX; minuend++) {
+        for (const count of subFriendCounts()) {
+          const tasks = genSubFriends(minuend, count, includeZero);
+          const min = includeZero ? 0 : 1;
+          const frequencies = Array.from({ length: minuend - min * 2 + 1 }, () => 0);
+          const missing = { subtrahend: 0, difference: 0 };
+          expect(tasks).toHaveLength(count);
+          for (const task of tasks) {
+            expect(task.terms[0]).toBe(minuend);
+            expect(task.terms[1]).toBeGreaterThanOrEqual(min);
+            expect(addSubResult(task)).toBeGreaterThanOrEqual(min);
+            expect(task.decs).toEqual([0, 0]);
+            frequencies[task.terms[1]! - min]!++;
+            missing[task.blankPart]++;
+          }
+          expect(missing).toEqual({ subtrahend: count / 2, difference: count / 2 });
+          expect(Math.max(...frequencies) - Math.min(...frequencies)).toBeLessThanOrEqual(1);
+        }
+      }
+    },
+  );
+
+  it("avvisar ogiltiga värden", () => {
+    for (const minuend of [2, 21, 100, 3.5, NaN]) {
+      expect(() => genSubFriends(minuend, 12)).toThrow(RangeError);
+    }
+    expect(() => genSubFriends(10, -1)).toThrow(RangeError);
+    expect(() => genSubFriends(10, 1.5)).toThrow(RangeError);
+  });
+});
 
 describe("genAddFriends", () => {
   it("begränsar valen till 30 vid tre termer och behåller lägre antal vid byte", () => {

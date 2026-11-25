@@ -63,6 +63,7 @@ export function SheetHundred({
       }
       data-friends-columns={friendsLayout ? columnCount : undefined}
       data-friends-three-terms={threeTermFriends ? "true" : undefined}
+      data-friends-subtraction={friendsLayout && operation === "Subtraktion" ? "true" : undefined}
     >
       <SheetHeader
         title={answers ? `${sheetTitle} – Facit` : sheetTitle}

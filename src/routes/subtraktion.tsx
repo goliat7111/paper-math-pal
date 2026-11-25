@@ -8,7 +8,7 @@ export const Route = createFileRoute("/subtraktion")({
       {
         name: "description",
         content:
-          "Skapa subtraktionsblad med uppställning eller 100 tal på sex minuter – med facit på A4.",
+          "Skapa subtraktionsblad med talkamrater, uppställning eller 100 tal på sex minuter – med facit på A4.",
       },
       { property: "og:title", content: "Subtraktion – Räknebladet" },
       {

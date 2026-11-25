@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SheetHundred } from "./SheetHundred";
+import { addSubHundredTask } from "./addSubHundredTask";
+import { genSubFriends } from "@/lib/addsub";
 
 const tasks = Array.from({ length: 100 }, (_, index) => ({
   left: String(index + 1),
@@ -10,6 +12,42 @@ const tasks = Array.from({ length: 100 }, (_, index) => ({
 }));
 
 describe("SheetHundred", () => {
+  it("renders subtraction friends with the same missing values in the worksheet and key", () => {
+    const friends = genSubFriends(10, 12, false);
+    const tasks = friends.map((task) => addSubHundredTask(task, "sub"));
+    expect(tasks.filter((task) => task.blank === "right")).toHaveLength(6);
+    expect(tasks.filter((task) => task.blank === undefined)).toHaveLength(6);
+    const props = {
+      tasks,
+      operation: "Subtraktion",
+      sheetTitle: "10-kamrater",
+      subtitle: "Subtraktion",
+      friendsLayout: true,
+    };
+    const student = renderToStaticMarkup(<SheetHundred {...props} answers={false} />);
+    const key = renderToStaticMarkup(<SheetHundred {...props} answers />);
+    expect(student).toContain(">10-kamrater</h2>");
+    expect(key).toContain(">10-kamrater – Facit</h2>");
+    expect(student.match(/class="hundred-tasks-column"/g)).toHaveLength(3);
+    expect(student).toContain('data-friends-subtraction="true"');
+    expect(student.match(/hundred-task-right hundred-task-blank/g)).toHaveLength(6);
+    expect(student.match(/class="hundred-task-answer"/g)).toHaveLength(6);
+    expect(student).toContain("av 12");
+    expect(student).not.toContain("6 minuter");
+    expect(key.match(/<strong>/g)).toHaveLength(6);
+    for (const [index, task] of tasks.entries()) {
+      expect(task.left).toBe("10");
+      expect(task.operator).toBe("−");
+      expect(task.answer).toBe(
+        String(
+          friends[index]!.blankPart === "subtrahend"
+            ? friends[index]!.terms[1]
+            : 10 - friends[index]!.terms[1]!,
+        ),
+      );
+    }
+  });
+
   it("renders 30 three-term friend tasks and fills the missing term only in the key", () => {
     const friends = Array.from({ length: 30 }, () => ({
       left: "12",
@@ -29,6 +67,8 @@ describe("SheetHundred", () => {
     };
     const student = renderToStaticMarkup(<SheetHundred {...props} answers={false} />);
     const key = renderToStaticMarkup(<SheetHundred {...props} answers />);
+    expect(student).toContain(">99-kamrater</h2>");
+    expect(key).toContain(">99-kamrater – Facit</h2>");
     expect(student.match(/class="hundred-task hundred-task-fill-in"/g)).toHaveLength(30);
     expect(student.match(/class="hundred-tasks-column"/g)).toHaveLength(2);
     expect(student).toContain('data-friends-three-terms="true"');

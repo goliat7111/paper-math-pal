@@ -9,11 +9,15 @@ export type AddSubOp = "add" | "sub";
 export type AddSubTask = { op: AddSubOp; terms: number[]; decs: number[] };
 export type TenAddFriendTask = AddSubTask & { blankTerm: 0 | 1 };
 export type AddFriendTask = AddSubTask & { blankTerm: 0 | 1 | 2 };
+export const SUB_FRIEND_MAX = 20;
 export const addFriendCounts = (termCount: 2 | 3): number[] =>
   Array.from(
     { length: termCount === 3 ? 10 : 17 },
     (_, index) => 12 + index * (termCount === 3 ? 2 : 3),
   );
+
+export const subFriendCounts = (): number[] =>
+  Array.from({ length: 9 }, (_, index) => 12 + index * 6);
 
 export const addFriendCountForTerms = (count: number, termCount: 2 | 3): number => {
   const options = addFriendCounts(termCount);
@@ -270,10 +274,38 @@ export function genAddSubInRange(
 }
 
 export function genTenSubFriends(count: number): TenSubFriendTask[] {
+  return generateSubFriends(10, count, true);
+}
+
+export function genSubFriends(
+  minuend: number,
+  count: number,
+  includeZero = false,
+): TenSubFriendTask[] {
+  if (
+    !Number.isInteger(minuend) ||
+    minuend < 3 ||
+    minuend > SUB_FRIEND_MAX ||
+    !Number.isInteger(count) ||
+    count < 0
+  ) {
+    throw new RangeError(
+      `Minuenden måste vara ett heltal mellan 3 och ${SUB_FRIEND_MAX} och antalet icke-negativt.`,
+    );
+  }
+  return generateSubFriends(minuend, count, includeZero);
+}
+
+function generateSubFriends(
+  minuend: number,
+  count: number,
+  includeZero: boolean,
+): TenSubFriendTask[] {
+  const minimum = includeZero ? 0 : 1;
   const candidates = shuffle(
-    Array.from({ length: 11 }, (_, subtrahend) => ({
+    Array.from({ length: minuend - minimum * 2 + 1 }, (_, index) => ({
       op: "sub" as const,
-      terms: [10, subtrahend],
+      terms: [minuend, index + minimum],
       decs: [0, 0],
     })),
   );

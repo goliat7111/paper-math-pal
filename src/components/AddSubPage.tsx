@@ -5,23 +5,24 @@ import { ArrowLeft, FileDown, Printer, RefreshCw } from "lucide-react";
 import { PrintContentChoice } from "@/components/PrintContentChoice";
 import { keySuffix, pagesLabel, showKey, showSheet, type PrintContent } from "@/lib/print-content";
 import {
-  addSubResult,
   addFriendCounts,
   addFriendCountForTerms,
   genAddSub,
   genAddSubInRange,
   genAddFriends,
+  genSubFriends,
   genTenAddFriends,
   genTenSubFriends,
-  maxDec,
+  subFriendCounts,
+  SUB_FRIEND_MAX,
   type AddSubOp,
   type AddSubTask,
   type AddFriendTask,
   type TenSubFriendTask,
 } from "@/lib/addsub";
 import { SheetAddSub } from "./SheetAddSub";
-import { SheetHundred, type HundredTask } from "./SheetHundred";
-import { formatDecimal } from "@/lib/worksheets";
+import { SheetHundred } from "./SheetHundred";
+import { addSubHundredTask } from "./addSubHundredTask";
 import { ZoomControls } from "@/components/ZoomControls";
 import { useSheetZoom } from "@/hooks/use-sheet-zoom";
 import { SetupStyleToggle } from "@/components/SetupStyleToggle";
@@ -38,10 +39,6 @@ const QUICK_RANGES = [
 ] as const;
 const btn = (on: boolean) =>
   `rounded-md border px-3 py-1.5 text-sm font-medium ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent"}`;
-const formatTaskTerm = (value: number, decimals: number, isSubtrahend = false) => {
-  const formatted = formatDecimal(value, decimals);
-  return isSubtrahend && value < 0 ? `(${formatted})` : formatted;
-};
 
 export function AddSubPage({ op }: { op: AddSubOp }) {
   const title = op === "add" ? "Addition" : "Subtraktion";
@@ -52,7 +49,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
   const [addFriends, setAddFriends] = useState(false);
   const [friendSum, setFriendSum] = useState(10);
   const [friendTerms, setFriendTerms] = useState<2 | 3>(2);
-  const [friendCount, setFriendCount] = useState(DEFAULT_ADD_FRIEND_COUNT);
+  const [friendCount, setFriendCount] = useState(op === "add" ? DEFAULT_ADD_FRIEND_COUNT : 36);
   const [friendIncludeZero, setFriendIncludeZero] = useState(false);
   const [lo, setLo] = useState(3);
   const [hi, setHi] = useState(3);
@@ -80,7 +77,9 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
 
   const createTasks = (speed = speedSheet) =>
     speed && addFriends
-      ? genAddFriends(friendSum, friendTerms, friendCount, friendIncludeZero)
+      ? op === "add"
+        ? genAddFriends(friendSum, friendTerms, friendCount, friendIncludeZero)
+        : genSubFriends(friendSum, friendCount, friendIncludeZero)
       : speed && tenAddFriends
         ? genTenAddFriends(TEN_ADD_FRIEND_COUNT)
         : speed && tenSubFriends
@@ -147,7 +146,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
       previewUrl.current = url;
       setPreview({ ...result, url });
       setFileName(
-        `${op === "add" ? "addition" : "subtraktion"}-${addFriends ? `talkamrater-${friendSum}-${friendTerms}-termer${friendIncludeZero ? "" : "-utan-noll"}` : speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${quickRange ? `-talomrade-${quickRange[0]}-${quickRange[1]}` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
+        `${op === "add" ? "addition" : "subtraktion"}-${addFriends ? `talkamrater-${friendSum}${op === "add" ? `-${friendTerms}-termer` : ""}${friendIncludeZero ? "" : "-utan-noll"}` : speedSheet ? "100-tal-6-min" : `${ownSetup ? `egen-uppstallning${ownGrid ? "-med-rutnat" : ""}` : "uppstallning"}-${regroup ? "med" : "utan"}-vaxling${dec === "slumpa" || dec === "slumpa-decimaler" ? "-slumpade-decimaler" : dec ? `-${dec}-decimaler` : ""}`}${quickRange ? `-talomrade-${quickRange[0]}-${quickRange[1]}` : ""}${keySuffix(content)}-${new Date().toISOString().slice(0, 10)}`,
       );
     } catch {
       setError("PDF-filen kunde inte skapas. Försök igen eller använd Skriv ut.");
@@ -162,30 +161,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
     closePreview();
   };
   const sel = "mt-1 block w-auto rounded-md border border-input bg-background px-2 py-1.5 text-sm";
-  const hundredTasks: HundredTask[] = tasks.map((task) => {
-    const blankTerm = "blankTerm" in task ? task.blankTerm : undefined;
-    const blankSubtrahend = "blankPart" in task && task.blankPart === "subtrahend";
-    return {
-      left: formatTaskTerm(task.terms[0]!, task.decs[0]!),
-      operator: op === "add" ? "+" : "−",
-      right: formatTaskTerm(task.terms[1]!, task.decs[1]!, op === "sub"),
-      ...(task.terms.length === 3 ? { third: formatTaskTerm(task.terms[2]!, task.decs[2]!) } : {}),
-      answer:
-        blankTerm !== undefined
-          ? formatDecimal(task.terms[blankTerm]!, 0)
-          : blankSubtrahend
-            ? formatDecimal(task.terms[1]!, 0)
-            : formatDecimal(addSubResult(task), maxDec(task)),
-      ...(blankTerm !== undefined
-        ? {
-            blank: (["left", "right", "third"] as const)[blankTerm],
-            result: formatDecimal(addSubResult(task), 0),
-          }
-        : blankSubtrahend
-          ? { blank: "right" as const, result: formatDecimal(addSubResult(task), 0) }
-          : {}),
-    };
-  });
+  const hundredTasks = tasks.map((task) => addSubHundredTask(task, op));
 
   return (
     <div className="min-h-screen bg-background">
@@ -212,22 +188,28 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
         <aside className="no-print w-full shrink-0 space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-6 lg:w-72">
           <h2 className="font-display text-lg font-semibold">Inställningar</h2>
           <div className="space-y-2">
-            {op === "add" && (
-              <button
-                type="button"
-                className={btn(addFriends)}
-                aria-pressed={addFriends}
-                onClick={() => {
-                  setQuickRange(null);
-                  setTenSubFriends(false);
-                  setTenAddFriends(false);
-                  setAddFriends(true);
-                  setSpeedSheet(true);
-                }}
-              >
-                Talkamrater
-              </button>
-            )}
+            <button
+              type="button"
+              className={btn(addFriends)}
+              aria-pressed={addFriends}
+              onClick={() => {
+                if (op === "sub") {
+                  setFriendTerms(2);
+                  setFriendCount((previous) =>
+                    subFriendCounts().reduce((closest, option) =>
+                      Math.abs(option - previous) < Math.abs(closest - previous) ? option : closest,
+                    ),
+                  );
+                }
+                setQuickRange(null);
+                setTenSubFriends(false);
+                setTenAddFriends(false);
+                setAddFriends(true);
+                setSpeedSheet(true);
+              }}
+            >
+              Talkamrater
+            </button>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -329,13 +311,16 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
               <legend className="mb-2 text-sm font-medium">Talkamrater</legend>
               <div className="flex items-end gap-3">
                 <label className="block text-sm">
-                  Summan
+                  {op === "add" ? "Summan" : "Minuenden"}
                   <select
                     className={sel}
                     value={friendSum}
                     onChange={(event) => setFriendSum(Number(event.target.value))}
                   >
-                    {Array.from({ length: 97 }, (_, index) => index + 3).map((sum) => (
+                    {Array.from(
+                      { length: (op === "add" ? 99 : SUB_FRIEND_MAX) - 2 },
+                      (_, index) => index + 3,
+                    ).map((sum) => (
                       <option key={sum} value={sum}>
                         {sum}
                       </option>
@@ -351,11 +336,13 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                     value={friendCount}
                     onChange={(event) => setFriendCount(Number(event.target.value))}
                   >
-                    {addFriendCounts(friendTerms).map((count) => (
-                      <option key={count} value={count}>
-                        {count}
-                      </option>
-                    ))}
+                    {(op === "add" ? addFriendCounts(friendTerms) : subFriendCounts()).map(
+                      (count) => (
+                        <option key={count} value={count}>
+                          {count}
+                        </option>
+                      ),
+                    )}
                   </select>
                 </label>
                 <button
@@ -367,28 +354,31 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                   Utan 0
                 </button>
               </div>
-              <fieldset>
-                <legend className="mb-2 text-sm font-medium">Antal termer</legend>
-                <div className="flex gap-2">
-                  {([2, 3] as const).map((count) => (
-                    <button
-                      key={count}
-                      type="button"
-                      className={btn(friendTerms === count)}
-                      aria-pressed={friendTerms === count}
-                      onClick={() => {
-                        setFriendCount((previous) => addFriendCountForTerms(previous, count));
-                        setFriendTerms(count);
-                      }}
-                    >
-                      {count} termer
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
+              {op === "add" && (
+                <fieldset>
+                  <legend className="mb-2 text-sm font-medium">Antal termer</legend>
+                  <div className="flex gap-2">
+                    {([2, 3] as const).map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        className={btn(friendTerms === count)}
+                        aria-pressed={friendTerms === count}
+                        onClick={() => {
+                          setFriendCount((previous) => addFriendCountForTerms(previous, count));
+                          setFriendTerms(count);
+                        }}
+                      >
+                        {count} termer
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
               <p className="text-xs text-muted-foreground">
-                {friendCount} uppgifter där en term saknas. Termerna är hela tal från{" "}
-                {friendIncludeZero ? "0" : "1"} och uppåt.
+                {op === "add"
+                  ? `${friendCount} uppgifter där en term saknas. Termerna är hela tal från ${friendIncludeZero ? "0" : "1"} och uppåt.`
+                  : `${friendCount} uppgifter med lika många saknade subtrahender och differenser. ${friendIncludeZero ? "Noll kan förekomma." : "Subtrahend och differens är större än noll."}`}
               </p>
             </fieldset>
           ) : speedSheet ? (
@@ -667,7 +657,7 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
           </p>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {addFriends
-              ? `${friendCount} uppgifter · ${friendTerms === 3 ? 2 : 3} kolumner.`
+              ? `${friendCount} uppgifter · ${op === "add" && friendTerms === 3 ? 2 : 3} kolumner.`
               : speedSheet
                 ? tenAddFriends
                   ? `${TEN_ADD_FRIEND_COUNT} uppgifter · 4 kolumner × 20 tal, grupperade om 5.`
@@ -709,7 +699,11 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                     tenFriendsLayout={tenAddFriends || tenSubFriends}
                     friendsLayout={addFriends}
                     subtitle={
-                      addFriends ? `Addition · ${friendTerms} termer` : `${title} · 6 minuter`
+                      addFriends
+                        ? op === "add"
+                          ? `Addition · ${friendTerms} termer`
+                          : title
+                        : `${title} · 6 minuter`
                     }
                     answers={false}
                   />
@@ -754,7 +748,11 @@ export function AddSubPage({ op }: { op: AddSubOp }) {
                     tenFriendsLayout={tenAddFriends || tenSubFriends}
                     friendsLayout={addFriends}
                     subtitle={
-                      addFriends ? `Addition · ${friendTerms} termer` : `${title} · 6 minuter`
+                      addFriends
+                        ? op === "add"
+                          ? `Addition · ${friendTerms} termer`
+                          : title
+                        : `${title} · 6 minuter`
                     }
                     answers
                   />
